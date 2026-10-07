@@ -17,6 +17,12 @@ local context: any = {
         World = require(configFolder:WaitForChild("WorldConfig")),
         Upgrades = require(configFolder:WaitForChild("UpgradeConfig")),
         Quests = require(configFolder:WaitForChild("QuestConfig")),
+        Economy = require(configFolder:WaitForChild("EconomyConfig")),
+        Combat = require(configFolder:WaitForChild("CombatConfig")),
+        Equipment = require(configFolder:WaitForChild("EquipmentConfig")),
+        PvPRewards = require(configFolder:WaitForChild("PvPRewardConfig")),
+        Fishing = require(configFolder:WaitForChild("FishingConfig")),
+        Zones = require(configFolder:WaitForChild("ZoneConfig")),
     },
     Schema = require(modules:WaitForChild("ProfileSchema")),
     Progression = require(modules:WaitForChild("Progression")),
@@ -29,7 +35,16 @@ local context: any = {
 for _, name in {"Action", "Input", "Snapshot", "Feedback"} do
     context.Remotes[name] = remotesFolder:WaitForChild(name) :: RemoteEvent
 end
-context.Services = {
+if context.Config.Game.FoundationOnly then
+    context.Services = {
+        PlayerData = require(serviceFolder:WaitForChild("PlayerDataService")),
+        Economy = require(serviceFolder:WaitForChild("EconomyService")),
+        PlayerState = require(serviceFolder:WaitForChild("PlayerStateService")),
+        Network = require(serviceFolder:WaitForChild("NetworkService")),
+        Snapshot = require(serviceFolder:WaitForChild("SnapshotService")),
+    }
+else
+    context.Services = {
     World = require(serviceFolder:WaitForChild("WorldService")),
     Roads = require(serviceFolder:WaitForChild("RoadService")),
     Traffic = require(serviceFolder:WaitForChild("TrafficService")),
@@ -41,18 +56,23 @@ context.Services = {
     Scooter = require(serviceFolder:WaitForChild("ScooterService")),
     Network = require(serviceFolder:WaitForChild("NetworkService")),
     Snapshot = require(serviceFolder:WaitForChild("SnapshotService")),
-}
-context.Notify = function(player: Player) context.Services.Snapshot:Send(player) end
+    }
+end
+context.Notify = function(player: Player)
+    context.Services.Economy:OnDataChanged(player)
+    context.Services.Snapshot:Send(player)
+end
 context.OpenMenu = function(player: Player, menu: string)
     context.Remotes.Feedback:FireClient(player, {RequestId = 0, Success = true, Message = "", OpenMenu = menu})
 end
-local order = {"World", "Roads", "Traffic", "DayCycle", "Network", "Snapshot", "Scooter", "Economy", "Shop", "Quests", "PlayerData"}
+local order: {string} = if context.Config.Game.FoundationOnly then {"Economy", "PlayerState", "Network", "Snapshot", "PlayerData"}
+    else {"World", "Roads", "Traffic", "DayCycle", "Network", "Snapshot", "Scooter", "Economy", "Shop", "Quests", "PlayerData"}
 for _, key in order do context.Services[key]:Init(context) end
 for _, key in order do context.Services[key]:Start() end
 game:BindToClose(function()
     context.IsClosing = true
-    context.Services.Scooter:Shutdown()
+    if context.Services.Scooter then context.Services.Scooter:Shutdown() end
 end)
 local info = require(shared:WaitForChild("ProjectInfo"))
 local saveMode = if RunService:IsStudio() and not context.Config.Game.UseStudioDataStore then "StudioMemory" else "DataStore"
-print(string.format("[%s][server] Core ready (version %s). Save mode: %s", info.Name, info.Version, saveMode))
+print(string.format("[%s][server] PHASE %d ready (version %s). Save mode: %s", info.Name, context.Config.Game.Phase, info.Version, saveMode))

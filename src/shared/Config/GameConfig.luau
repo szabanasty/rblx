@@ -1,6 +1,9 @@
 --!strict
 return table.freeze({
-    Phase = 1,
+    Phase = 0,
+    FoundationOnly = true,
+    DisplayName = "KUKIRIN ZONE",
+    MaxFishingInventory = 60,
     DataSchemaVersion = 1,
     DataStoreName = "KukirinCity_PlayerData_v1",
     UseStudioDataStore = false,

@@ -41,6 +41,8 @@ function Schema.new(userId: number, config: any?): any
         Settings = {UIScale = 1, GraphicsQuality = 2, MusicVolume = 0.5, SFXVolume = 0.7, ReducedEffects = false},
         RewardBudget = {Day = math.floor(os.time() / 86400), Money = 0, XP = 0, Reputation = 0},
         IdempotencyLedger = {},
+        ScooterCustomization = {}, OwnedEquipment = {}, EquippedLoadout = {}, FishingInventory = {}, Cosmetics = {},
+        Kills = 0, Deaths = 0, Assists = 0, Revives = 0, BestStreak = 0, ZoneTime = 0,
     }
 end
 function Schema.sanitize(raw: any, config: any?): (any?, string?)
@@ -61,6 +63,39 @@ function Schema.sanitize(raw: any, config: any?): (any?, string?)
     end
     profile.DriverScore = integer(raw.DriverScore, 100, 0, 100)
     profile.PoliceLevel = integer(raw.PoliceLevel, 1, 1, 100)
+    for _, field in {"Kills", "Deaths", "Assists", "Revives", "BestStreak", "ZoneTime"} do
+        profile[field] = integer(raw[field], 0, 0, cfg.MaxCurrency)
+    end
+    for _, field in {"OwnedEquipment", "Cosmetics"} do
+        if type(raw[field]) == "table" then
+            local count = 0
+            for id, owned in raw[field] do
+                if type(id) == "string" and #id > 0 and #id <= 64 and owned == true then
+                    profile[field][id] = true
+                    count += 1
+                    if count >= 100 then break end
+                end
+            end
+        end
+    end
+    if type(raw.EquippedLoadout) == "table" then
+        for _, slot in {"PRIMARY", "SECONDARY", "UTILITY"} do
+            local id = raw.EquippedLoadout[slot]
+            if type(id) == "string" and profile.OwnedEquipment[id] then profile.EquippedLoadout[slot] = id end
+        end
+    end
+    if type(raw.FishingInventory) == "table" then
+        local rarity = {COMMON = true, UNCOMMON = true, RARE = true, EPIC = true, LEGENDARY = true}
+        for index = 1, 256 do
+            local fish = raw.FishingInventory[index]
+            if type(fish) == "table" and type(fish.FishId) == "string" and #fish.FishId > 0 and #fish.FishId <= 64
+                and finite(fish.Weight) and fish.Weight > 0 and fish.Weight <= 1000
+                and type(fish.Rarity) == "string" and rarity[fish.Rarity] then
+                table.insert(profile.FishingInventory, {FishId = fish.FishId, Weight = fish.Weight, Rarity = fish.Rarity})
+                if #profile.FishingInventory >= (cfg.MaxFishingInventory or 60) then break end
+            end
+        end
+    end
     local ranks = {Cadet = true, Officer = true, ["Senior Officer"] = true, Sergeant = true, Lieutenant = true, Captain = true}
     if type(raw.PoliceRank) == "string" and ranks[raw.PoliceRank] then profile.PoliceRank = raw.PoliceRank end
     if type(raw.OwnedScooters) == "table" then
@@ -76,7 +111,7 @@ function Schema.sanitize(raw: any, config: any?): (any?, string?)
     if type(raw.SelectedScooter) == "string" and profile.OwnedScooters[raw.SelectedScooter] then
         profile.SelectedScooter = raw.SelectedScooter
     end
-    for _, field in {"ScooterUpgrades", "Pets", "Clothing", "Inventory", "Achievements"} do
+    for _, field in {"ScooterUpgrades", "ScooterCustomization", "Pets", "Clothing", "Inventory", "Achievements"} do
         if type(raw[field]) == "table" then profile[field] = serialCopy(raw[field], 0) end
     end
     for _, field in {"EquippedPet", "CrewId"} do

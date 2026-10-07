@@ -12,6 +12,8 @@ function SnapshotService:Send(player: Player)
         Ready = profile ~= nil,
         Status = data:GetStatus(player),
         SaveMode = if RunService:IsStudio() and not context.Config.Game.UseStudioDataStore then "StudioMemory" else "DataStore",
+        Mode = if context.Config.Game.FoundationOnly then "Foundation" else "LegacyCity",
+        Phase = context.Config.Game.Phase,
     }
     if profile then
         local owned: {string} = {}
@@ -28,10 +30,19 @@ function SnapshotService:Send(player: Player)
         snapshot.SelectedScooter = profile.SelectedScooter
         snapshot.ScooterUpgrades = context.Schema.deepCopy(profile.ScooterUpgrades)
         snapshot.Settings = table.clone(profile.Settings)
+        snapshot.Kills = profile.Kills
+        snapshot.Deaths = profile.Deaths
+        snapshot.Assists = profile.Assists
+        snapshot.Revives = profile.Revives
+        snapshot.BestStreak = profile.BestStreak
+        snapshot.FishingInventoryCount = #profile.FishingInventory
+        snapshot.OwnedEquipment = context.Schema.deepCopy(profile.OwnedEquipment)
+        snapshot.EquippedLoadout = table.clone(profile.EquippedLoadout)
+        if context.Services.PlayerState then snapshot.PlayerState = context.Services.PlayerState:GetPublic(player) end
         if context.Services.Quests then snapshot.Quest = context.Services.Quests:GetSnapshot(player) end
-        local telemetry = context.Services.Scooter:GetTelemetry(player)
+        local telemetry = if context.Services.Scooter then context.Services.Scooter:GetTelemetry(player) else {Speed = 0, Distance = 0, Riding = false}
         snapshot.Telemetry = {Speed = telemetry.Speed, Distance = telemetry.Distance, ScooterId = telemetry.ScooterId, Riding = telemetry.Riding}
-        local position = context.Services.Scooter:GetPosition(player)
+        local position = if context.Services.Scooter then context.Services.Scooter:GetPosition(player) else nil
         if position then
             local road = context.Services.Roads:GetRoadAt(position)
             snapshot.SpeedLimit = if road then road.SpeedLimit else 0

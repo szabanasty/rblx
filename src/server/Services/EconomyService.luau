@@ -279,6 +279,8 @@ function EconomyService:Start()
 		return
 	end
 	started = true
+	-- Foundation has no distance income or running gameplay simulation.
+	if context.Config.Game and context.Config.Game.FoundationOnly then return end
 	Players.PlayerRemoving:Connect(function(player: Player)
 		rideProgress[player] = nil
 	end)

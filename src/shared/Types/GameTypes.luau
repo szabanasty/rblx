@@ -3,6 +3,7 @@ export type ScooterData = {
     Id: string, DisplayName: string, Price: number, TopSpeed: number,
     Acceleration: number, Handling: number, Braking: number, Jump: number,
     Battery: number, Stability: number, Rarity: string, UnlockLevel: number,
+    Class: string, Weight: number, UpgradeSlots: number,
 }
 export type RoadData = {
     RoadId: string, SpeedLimit: number, RoadType: string,

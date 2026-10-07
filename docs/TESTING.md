@@ -1,44 +1,65 @@
-# Testy wersji 0.3.0
+# Testy PHASE 0
 
-## Automatyczne — dostępne bez Studio
+## Faktycznie wykonane w chmurze Linux
 
-`bash scripts/install-tools.sh` i `python3 scripts/check-project.py`.
+`python3 scripts/check-project.py`: kompilacja 50 źródeł, analiza typów Luau z API Roblox i sourcemap, Rojo build/sourcemap, kompletne klasy/treść/mapowanie źródeł, 4 RemoteEvents, StreamingEnabled oraz 10 pustych folderów przygotowawczych. 11 zestawów testów rzeczywistych modułów Luau, z mockami tylko zależności Roblox.
 
-Runner testuje **rzeczywiste źródła** usług i kontrolera wejścia, owinięte lokalnie w funkcję przyjmującą kontrolowane mocki. Wygenerowane harnessy nie trafiają do gry. Moduły czyste są bezpośrednio require'owane. Nie emuluje to fizyki, GUI ani backendu Roblox.
-
-| Obszar | Co jest sprawdzane |
+| Zestaw | Co sprawdza |
 | --- | --- |
-| Kompilacja i typy | Wszystkie src/*.luau, definicje API Roblox, require resolution z sourcemap |
-| Rojo | Build, sourcemap, klasy Script/LocalScript/ModuleScript, źródła, cztery RemoteEvents, StreamingEnabled |
-| Shared | Schemat i kopie profilu, NaN/inf, krzywa XP, maksymalny level, whitelist i token bucket |
-| PlayerData | Failed load bez nadpisania, foreign lock, lease i jego utrata, autosave bez mutacji, retry, leave/shutdown, utracone potwierdzenie zapisu |
-| Economy | Ujemne/niecałkowite/infinite kwoty, saldo, idempotencja, limity Money/XP/Reputation, nagroda awansu w limicie, maksymalny level, bounded ledger, zweryfikowany dystans |
-| Network | Brak akcji Reward, replay RequestId, ustawienia tylko z whitelist, flood 500 żądań, niezależne limity Input/Action, shutdown i cleanup |
-| Snapshot | Własny stan publiczny, kopie kolekcji i preferencji, brak tokenów/ledger/flag anti-cheatu |
-| Input | Priorytet nad sterowaniem Roblox, wyłączenie natywnego skoku podczas jazdy, gaz/hamulec/skręt, jednorazowy skok, focus loss, touch, pisanie, menu, przywrócenie sterowania |
-| Shop | Katalog i serwerowa cena, własność/poziom/środki, brak podwójnego zakupu, odległość, zsiadanie, max upgrade, odświeżenie statystyk, zablokowana bateria |
-| Quest | Hub, jeden quest, minimalny czas/dystans, Riding, promień i wysokość celu, automatyczny reward raz, persistent cooldown, cancel/start spam, timeout/leave |
-| World/statystyki | Dziesięć dróg, limity i skrzyżowania, granice, 13 dzielnic, wpływ upgrade, niezmienność katalogu, niepoprawne zapisane poziomy |
+| shared | Progresja, sanitizacja, NaN/Infinity, payloady, token bucket |
+| player-data | UpdateAsync, sesje, load/save retry, save konkurencyjny, utrata blokady, cleanup |
+| economy | Serwerowe transakcje, nagrody, saldo, XP, budżety i powtórne ID |
+| network | Format, limiter, replay/cooldown, cleanup; PHASE 0 blokuje jazdę/zakupy i dopuszcza ustawienia/Sync |
+| snapshot | Tylko własny profil, kopie, prywatny ledger i session poza projekcją |
+| input | Regresja starszego sterowania, reset i mobilne intencje — nieaktywne w PHASE 0 |
+| shop | Regresja ownership, odległości, Level/Money i upgrades 0–5 — nieaktywne w PHASE 0 |
+| quest | Regresja nagród, dystansu, czasu, ponownego zakończenia — nieaktywne w PHASE 0 |
+| world-stats | Regresja układu dróg, statystyk i wszystkich 5-poziomowych kombinacji |
+| foundation | Addytywna migracja starych profili, nowe pola/liczniki, inventory cap, brak ceny ryby z zapisu, nieaktywne katalogi, snapshot bez usług gry |
+| player-state | Health, reset, opóźniony Humanoid starej postaci, izolacja graczy, odłączenie zdarzeń |
 
-Wyjście kodu 0 oznacza zaliczenie dostępnych testów. Ostrzeżenie luau-lsp o `didChangeWatchedFiles` pochodzi z trybu CLI i nie jest błędem typów. GitHub Actions uruchamia ten sam runner; zdalny wynik CI nie jest automatycznie potwierdzony przez lokalny test.
+Dodatkowy test `scripts/check-rojo-server.py --check-reload` odczytuje API MessagePack działającego Rojo, sprawdza źródła/klasy/remotes/streaming i rzeczywistą reakcję watchera na tymczasowy komentarz (przywracany). Nie uruchamia gry w silniku.
 
-Serwer Rojo można dodatkowo sprawdzić przez `python3 scripts/check-rojo-server.py --check-reload` (wymaga pakietu Python `msgpack`, dostępnego w chmurze; poza nią zainstaluj `python3 -m pip install -r requirements-dev.txt`). Sprawdza wszystkie 41 źródeł w żywym drzewie API, klasy i remotes oraz zmianę pliku i przywrócenie jego treści. Jest to test protokołu Rojo i file watchera; nie jest połączeniem z uruchomionym Studio.
+Wykryte i poprawione przy zmianie: bootstrap/snapshot zakładały zawsze istniejący Scooter/World; nowy tryb ładuje wyłącznie fundament i projekcja obsługuje brak usług. Dawne żądania klienta mogły sięgać nieaktywnych usług; serwer odrzuca je przed dispatch. Stare profile nie miały nowych pól; sanitizacja uzupełnia je bez resetu. Asynchroniczny Humanoid wymaga weryfikacji generacji postaci, aby po resecie nie nadpisać nowego stanu. Analiza typów wymagała jawnej tablicy `{string}` dla kolejności modułów i pomocniczego predicate dla zakresu akcji. Testy regresji zaktualizowano do 0–5 upgrade zamiast osłabiać walidację.
 
-## Ręczny odbiór w Roblox Studio — wymagany
+## Checklista użytkownika — Play
 
-Ta lista jest instrukcją **do wykonania**, a nie deklaracją przeprowadzonych testów.
+Najpierw wykonaj instrukcję [README](../README.md). Wszystko poniżej wymaga Roblox Studio, do którego chmura nie ma dostępu.
 
-1. **Start:** zsynchronizuj nowy ZIP, Play, sprawdź dwie linie Core ready i brak czerwonych błędów. W widoku serwera sprawdź Map.Generated oraz Vehicles. Zwykłe modele miejskie mają być statyczne; runtime scene nie musi istnieć przed Play.
-2. **Pierwsza jazda:** GARAŻ → PRZYWOŁAJ, E jeśli auto-mount nie zadziała, W/A/D/S. Bez upgrade prędkość G2 powinna zatrzymać się około 35 km/h. Space ma skakać hulajnogą, E pozwalać zejść; powrót na piechotę przywraca normalny skok i sterowanie Roblox. Sprawdź rampę, kolizję z budynkiem i hamowanie.
-3. **Ruch i naliczanie:** przejedź więcej niż 250 m. Sprawdź +25 Money/+15 XP, brak nagrody stojąc, brak ponownego naliczenia po otwarciu menu lub schowaniu pojazdu. Zweryfikuj XP rollover i nagrodę awansu.
-4. **Lifecycle:** przywołaj kilka razy, sprawdź jeden model własny, cooldown 3 s, śmierć/respawn/despawn/wyjście sprzątają model. Zejdź przy spawnie, upewnij się, że hulajnoga hamuje bez inputu.
-5. **Upgrades:** za pierwsze 125 Money kup silnik w punkcie UPGRADE. Sprawdź poziom 1 i +2 km/h aktywnego pojazdu. Próba level 2 przy Level 1 ma odmówić. Nieposiadanej G4 nie można ulepszyć; bateria ma status WKRÓTCE i nie pobiera pieniędzy.
-6. **Dostawa:** punkt DOSTAWY → zadanie; jedź na zielony marker minimapy. Wymagany dystans i czas. Powinien nastąpić jeden reward i cooldown 120 s. Sprawdź timeout 180 s, anulowanie oraz brak ukończenia pieszo.
-7. **Świat:** przejedź Residential/City/MainRoad/Highway, obserwuj limity 30/50/70/90 i bardziej restrykcyjny limit na skrzyżowaniu. Obejrzyj NPC zatrzymujące się przed węzłami i cały cykl 20 minut; przyspieszenie cyklu do testu zmień wyłącznie w WorldConfig i przywróć po teście. NPC są bezkolizyjnymi placeholderami.
-8. **Mobile:** Test → Device Emulator, telefon portrait, telefon landscape i tablet. Sprawdź widoczność HUD/menu/minimapy, scrolling, dwa palce gaz+skręt, skok i zejście, zmianę UI Scale, menu hamujące i brak zablokowanego gazu. Potem użyj prawdziwego telefonu: emulator nie potwierdza wydajności urządzenia.
-9. **Multiplayer:** Test → Server & Clients → 2 Players. Każdy ma osobny profil i własną hulajnogę; nie można dosiąść cudzej ani schować jej za kogoś. Sprawdź równoległe dostawy i widoczność modeli drugiego gracza.
-10. **Zapis:** osobne opublikowane doświadczenie, osobny DataStoreName `_DEV`, API access i UseStudioDataStore=true. Zarób i ulepsz, Stop i ponowne Play/rejoin. Sprawdź Money/XP/Level/upgrade/Settings/QuestCooldown. Po testach wróć do pamięci Studio. Nie testuj na magazynie produkcyjnym.
-11. **Bezpieczeństwo:** w widoku klienta podczas testu spróbuj przesłać Action="Reward" lub Input z NaN/Speed — profil ma pozostać bez zmian. Nie istnieje endpoint FinishQuest ani SetMoney. Używaj wyłącznie testowego miejsca. Nie oceniaj wykrywania teleportów i ownership bez obserwacji rzeczywistego serwera.
-12. **Koszt:** Developer Console/MicroProfiler, serwer dwóch graczy oraz telefon; sprawdź FPS, pamięć, network i raycast cost. Dopiero wtedy zwiększ limit graczy/NPC lub wielkość mapy.
+- [ ] Rojo wyświetla listening 127.0.0.1:34872, Studio łączy się z localhost:34872.
+- [ ] W Explorer jest kompletne [drzewo](EXPLORER.md), w tym PlayerStateService i FoundationController. Nie twórz drugiego Script o podobnej nazwie.
+- [ ] Play/F5 uruchamia gracza, a serwer i klient wypisują `PHASE 0 ready (version 0.4.0)` bez czerwonych błędów.
+- [ ] Widać płaską planszę, spawn i panel KUKIRIN ZONE. Nie pojawia się stare miasto/garaż/sterowanie.
+- [ ] Nowy profil: Money 100, Health 100/100, ALIVE, Kills/Deaths/Assists/Revives 0. Profil istniejący może mieć wcześniejsze saldo.
+- [ ] Status po ładowaniu wskazuje StudioMemory / pamięć testową; `Strefy w PHASE 1` oraz squad nieaktywny są zamierzone.
+- [ ] OPCJE → 75/100/125/150% zmienia panel, ODŚWIEŻ DANE nie zmienia Money, ZAMKNIJ działa.
+- [ ] Reset Character: przejście do RESPAWNING, potem Health 100/100 i ALIVE; HUD nie znika i nie powiela się.
+- [ ] Stop/Play w StudioMemory resetuje skalę i profil. To oczekiwane, nie utrata produkcyjnych danych.
 
-Przed wydaniem trzeba potwierdzić zachowanie przy realnym opóźnieniu sieci i throttlingu DataStore. Mocks nie dowodzą braku exploitów ani dobrej jazdy pod obciążeniem. Ewentualny błąd zgłaszaj z komunikatem Output, nazwą systemu i sekwencją czynności.
+## Multiplayer i mobile
+
+1. Zatrzymaj Play. **Test → Server & Clients**, wybierz 2 klientów i Start (nazwy zależą od języka/układu Studio).
+2. Każdy klient dostaje własny panel. W jednym zmień skalę; drugi zachowuje swoją. Reset jednego gracza nie zmienia Health drugiego. Money obu nowych profili 100, bez nagród za bezczynność/chodzenie.
+3. Powtórz na 4 klientach. Sprawdź brak błędów ładowania i cleanup po zamknięciu klienta. To nie test squadu: squady powstaną w PHASE 4.
+4. **Test → Device Emulator**: telefon pionowo/poziomo i tablet. Sprawdź czy panel i OPCJE mieszczą się, ustawienia można przewijać i obsługiwać palcem. W razie włączonej emulacji dotyku sprawdź konflikt z przyciskami natywnego awatara.
+5. Symuluj opóźnienie sieci w ustawieniach testu, jeśli opcja dostępna: UI ma czekać na dane zamiast generować saldo lokalnie. Podczas resetu Health może krótko pokazywać oczekiwanie.
+
+## Ręczny test ochrony sieci — tylko własny test
+
+W konsoli **klienta** podczas Play można wysłać:
+
+```luau
+game.ReplicatedStorage.Remotes.Action:FireServer({Action = "SpawnScooter", Payload = {}, RequestId = 1000})
+```
+
+Oczekiwane: komunikat o niedostępnej fazie, brak hulajnogi i zmiany Money. Po tym teście zrestartuj Play: numer 1000 celowo podnosi LastId, więc normalne niższe ID z UI będą odrzucane.
+
+Próby `Action="SetMoney"`, `Payload={Name="Money",Value=999999}` dla SetSetting, nieprawidłowego RequestId i powtórzonego ID muszą być odrzucone. Nie spamuj produkcyjnego serwera. Serwer nie kickuje za jeden sygnał. Brak gameplayu oznacza, że nie testujemy jeszcze raycast/teleport/farming, hitów ani bezpiecznej strefy. Nie deklarujemy pełnego anti-cheatu awatara.
+
+## Trwały zapis
+
+Na osobnym opublikowanym doświadczeniu: Game Settings/Security API Services, `UseStudioDataStore=true`, osobna nazwa `KukirinZone_DEV_v1`. Procedura w README. Sprawdź powrót UIScale po Stop/Play, wyjściu z serwera, autosave po 60 s i zamknięciu serwera. Sprawdź logi błędów oraz blokadę dwóch prób tego samego profilu. Nie kasuj locka/profilu w odpowiedzi na błąd. Sprawdzenie migracji prawdziwej kopii danych powinno używać testowego magazynu, nie produkcyjnego zapisu.
+
+## Czego jeszcze nie sprawdzono
+
+Silnik Studio/Play, realny klient-serwer i streaming, wygląd dotykowego HUD, domyślna kamera/respawn, produkcyjny DataStore i zachowanie podczas awarii, zdalny CI. Nie zostały potwierdzone przez testy chmurowe. Fizyka nowej hulajnogi, walka, revive, squady i fishing nie są jeszcze zaimplementowane w nowym trybie. Po odbiorze PHASE 0 przechodzimy do PHASE 1.

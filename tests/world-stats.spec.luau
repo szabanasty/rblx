@@ -30,11 +30,11 @@ return function(Layout, Stats, WorldConfig, RoadConfig, ScooterConfig, UpgradeCo
     local stats = Stats.Get(base, {Motor = 2, Brakes = 1, Tires = 3, Battery = 1}, UpgradeConfig)
     check(stats.TopSpeed == base.TopSpeed + 4 and stats.Braking > base.Braking and stats.Battery > base.Battery, "configured stat upgrades applied")
     check(base.TopSpeed == 35 and stats ~= base, "catalog never mutated")
-    for _, value in {-1, 4, 0.5, 0/0, math.huge, "99", {}} do
+    for _, value in {-1, 6, 0.5, 0/0, math.huge, "99", {}} do
         check(Stats.Get(base, {Motor = value}, UpgradeConfig).TopSpeed == base.TopSpeed, "invalid saved upgrade ignored")
     end
     check(Stats.NextUpgrade("Motor", 0, UpgradeConfig) == 125, "base upgrade price")
     check(Stats.NextUpgrade("Motor", 1, UpgradeConfig) == 250, "scaled upgrade price")
-    check(Stats.NextUpgrade("Motor", 3, UpgradeConfig) == nil and Stats.NextUpgrade("Fake", 0, UpgradeConfig) == nil, "max and unknown category rejected")
+    check(Stats.NextUpgrade("Motor", 5, UpgradeConfig) == nil and Stats.NextUpgrade("Fake", 0, UpgradeConfig) == nil, "max and unknown category rejected")
     print("World and scooter-stat checks passed: " .. checks)
 end

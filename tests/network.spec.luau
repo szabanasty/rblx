@@ -15,8 +15,10 @@ return function(loadService, Validation, RateLimiter, GameConfig)
         local calls={Spawn=0,Despawn=0,Select=0,Input=0,Sync=0,Dismount=0,Notify=0,Feedback=0,Dirty=0,Buy=0,Upgrade=0,Quest=0}
         local profile={Settings={UIScale=1}}
         local remotes={Action={OnServerEvent=signal()},Input={OnServerEvent=signal()},Feedback={FireClient=function(_,_,_) calls.Feedback+=1 end}}
+        local legacyConfig=table.clone(GameConfig)
+        legacyConfig.FoundationOnly=false
         local ctx={
-            Config={Game=GameConfig},Validation=Validation,RateLimiter=RateLimiter,Remotes=remotes,
+            Config={Game=legacyConfig},Validation=Validation,RateLimiter=RateLimiter,Remotes=remotes,
             Notify=function() calls.Notify+=1 end,
             Services={
                 PlayerData={IsReady=function() return true end,GetProfile=function() return profile end,MarkDirty=function() calls.Dirty+=1 end},
@@ -69,5 +71,16 @@ return function(loadService, Validation, RateLimiter, GameConfig)
     flood.Remove()
     flood.Remotes.Action.OnServerEvent:Fire(flood.Player,{Action="SpawnScooter",Payload={},RequestId=1})
     check(flood.Calls.Spawn==GameConfig.ActionBurst+1,"player cleanup removes rate/history state")
+    local foundation=fixture()
+    foundation.Context.Config.Game.FoundationOnly=true
+    for id,action in {"SpawnScooter","DespawnScooter","DismountScooter"} do
+        foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action=action,Payload={},RequestId=id})
+    end
+    foundation.Remotes.Input.OnServerEvent:Fire(foundation.Player,{Throttle=1,Steer=0,Brake=false,Jump=false})
+    check(foundation.Calls.Spawn==0 and foundation.Calls.Despawn==0 and foundation.Calls.Dismount==0 and foundation.Calls.Input==0,"phase 0 disables gameplay even through valid legacy remotes")
+    foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action="SetSetting",Payload={Name="UIScale",Value=1.25},RequestId=4})
+    check(foundation.Profile.Settings.UIScale==1.25,"phase 0 still validates settings")
+    foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action="Sync",Payload={},RequestId=5})
+    check(foundation.Calls.Sync==1,"phase 0 provides a real state synchronization endpoint")
     print("Network abuse checks passed: "..checks)
 end

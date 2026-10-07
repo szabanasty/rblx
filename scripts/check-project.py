@@ -76,6 +76,14 @@ def main():
         assert child(remotes, name).attrib["class"] == "RemoteEvent", name
     workspace = child(document, "Workspace")
     assert workspace.find('./Properties/bool[@name="StreamingEnabled"]').text == "true"
+    map_folder = child(workspace, "Map")
+    for name in ("SafeZone", "CombatZone", "FishingArea", "Roads", "Garage", "Shops", "Buildings", "Cover"):
+        folder = child(map_folder, name)
+        assert folder.attrib["class"] == "Folder" and not folder.findall("Item"), name
+    storage = child(document, "ServerStorage")
+    for name in ("ScooterModels", "EquipmentTemplates"):
+        folder = child(storage, name)
+        assert folder.attrib["class"] == "Folder" and not folder.findall("Item"), name
     print(f"Rojo structure verified; {len(sources)} source files compiled and type checked", flush=True)
     imports = "".join(f'local {name} = require("../../src/shared/{path}")\n' for name, path in {
         "Schema": "Modules/ProfileSchema", "Progression": "Modules/Progression",
@@ -85,6 +93,8 @@ def main():
         "WorldConfig": "Config/WorldConfig", "RoadConfig": "Config/RoadConfig",
         "QuestConfig": "Config/QuestConfig", "UpgradeConfig": "Config/UpgradeConfig",
         "Stats": "Modules/ScooterStats", "Layout": "Modules/WorldLayout",
+        "CombatConfig": "Config/CombatConfig", "EquipmentConfig": "Config/EquipmentConfig",
+        "FishingConfig": "Config/FishingConfig", "PvPRewardConfig": "Config/PvPRewardConfig", "ZoneConfig": "Config/ZoneConfig",
     }.items())
     suites = {
         "shared": spec("tests/shared.spec.luau", "Progression, Schema, Validation, RateLimiter, LevelConfig, GameConfig"),
@@ -96,6 +106,8 @@ def main():
         "shop": wrapped("src/server/Services/ShopService.luau", "") + spec("tests/shop.spec.luau", "loadService, Schema, GameConfig, ScooterConfig, UpgradeConfig, Stats"),
         "quest": wrapped("src/server/Services/QuestService.luau", "game, os") + spec("tests/quest.spec.luau", "loadService, Schema, GameConfig, QuestConfig, WorldConfig"),
         "world-stats": spec("tests/world-stats.spec.luau", "Layout, Stats, WorldConfig, RoadConfig, ScooterConfig, UpgradeConfig"),
+        "foundation": wrapped("src/server/Services/SnapshotService.luau", "game") + spec("tests/foundation.spec.luau", "loadService, Schema, Progression, GameConfig, ScooterConfig, LevelConfig, {Combat = CombatConfig, Equipment = EquipmentConfig, Fishing = FishingConfig, PvPRewards = PvPRewardConfig, Zones = ZoneConfig}"),
+        "player-state": wrapped("src/server/Services/PlayerStateService.luau", "game, task") + spec("tests/player-state.spec.luau", "loadService"),
     }
     for name, code in suites.items():
         target = generated / (name + ".luau")

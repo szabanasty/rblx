@@ -50,8 +50,11 @@ return function(loadService, Schema, GameConfig, ScooterConfig, UpgradeConfig, S
     profile.Level = 8
     check(shop:Upgrade(player, "kukirin_g3", "Motor"), "second upgrade succeeds")
     check(shop:Upgrade(player, "kukirin_g3", "Motor"), "third upgrade succeeds")
+    profile.Level = 14
+    check(shop:Upgrade(player, "kukirin_g3", "Motor"), "fourth upgrade succeeds")
+    check(shop:Upgrade(player, "kukirin_g3", "Motor"), "fifth upgrade succeeds")
     check(not shop:Upgrade(player, "kukirin_g3", "Motor"), "max level cannot be exceeded")
-    check(profile.ScooterUpgrades.kukirin_g3.Motor == 3 and dirty == 4, "all successful purchases saved")
+    check(profile.ScooterUpgrades.kukirin_g3.Motor == 5 and dirty == 6, "all successful purchases saved")
     ready = false
     check(select(2, shop:Upgrade(player, "kukirin_g3", "Brakes")) == "DataNotReady", "unready data cannot be charged")
     print("Shop checks passed: " .. checks)

@@ -24,17 +24,22 @@ context.Send = function(action: string, payload: {[string]: any}?)
     nextId += 1
     context.Remotes.Action:FireServer({Action = action, Payload = payload or {}, RequestId = nextId})
 end
-context.Controllers = {
+if context.Config.Game.FoundationOnly then
+    context.Controllers = {FoundationController = require(controllerFolder:WaitForChild("FoundationController"))}
+else
+    context.Controllers = {
     UIController = require(controllerFolder:WaitForChild("UIController")),
     InputController = require(controllerFolder:WaitForChild("InputController")),
     MenuController = require(controllerFolder:WaitForChild("MenuController")),
     MinimapController = require(controllerFolder:WaitForChild("MinimapController")),
     SettingsController = require(controllerFolder:WaitForChild("SettingsController")),
     ScooterController = require(controllerFolder:WaitForChild("ScooterController")),
-}
-local order = {"UIController", "InputController", "MenuController", "MinimapController", "SettingsController", "ScooterController"}
+    }
+end
+local order: {string} = if context.Config.Game.FoundationOnly then {"FoundationController"}
+    else {"UIController", "InputController", "MenuController", "MinimapController", "SettingsController", "ScooterController"}
 for _, name in order do context.Controllers[name]:Init(context) end
 for _, name in order do context.Controllers[name]:Start() end
 context.Send("Sync", {})
 local info = require(shared:WaitForChild("ProjectInfo"))
-print(string.format("[%s][client] Core ready (version %s).", info.Name, info.Version))
+print(string.format("[%s][client] PHASE %d ready (version %s).", info.Name, context.Config.Game.Phase, info.Version))

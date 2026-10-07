@@ -23,6 +23,9 @@ local function suspicious(player: Player, reason: string)
         warn(string.format("[Security] user=%d reason=%s count=%d", player.UserId, reason, state.Violations))
     end
 end
+local function allowedInFoundation(action: string): boolean
+    return action == "Sync" or action == "SetSetting"
+end
 function NetworkService:Init(ctx: any)
     context = ctx
     actionLimiter = ctx.RateLimiter.new(ctx.Config.Game.ActionBurst, ctx.Config.Game.ActionRate)
@@ -47,6 +50,10 @@ function NetworkService:Start()
         local cooldown = cooldowns[request.Action] or 0
         if now - (state.Cooldowns[request.Action] or -math.huge) < cooldown then return end
         state.Cooldowns[request.Action] = now
+        if context.Config.Game.FoundationOnly and not allowedInFoundation(request.Action) then
+            context.Remotes.Feedback:FireClient(player, {RequestId = request.RequestId, Success = false, Message = "PhaseLocked"})
+            return
+        end
         local success, message = false, "DataNotReady"
         if request.Action == "Sync" then
             context.Services.Snapshot:Send(player)
@@ -85,6 +92,7 @@ function NetworkService:Start()
         if not inputLimiter:Allow(player.UserId, os.clock()) then suspicious(player, "InputRate"); return end
         local input, errorCode = context.Validation.ParseInput(raw)
         if not input then suspicious(player, errorCode or "InvalidInput"); return end
+        if context.Config.Game.FoundationOnly then return end
         if context.Services.PlayerData:IsReady(player) then context.Services.Scooter:SetInput(player, input) end
     end)
     Players.PlayerRemoving:Connect(function(player: Player)

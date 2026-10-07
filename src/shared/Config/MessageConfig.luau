@@ -1,5 +1,6 @@
 --!strict
 return table.freeze({
+    PhaseLocked = "Ta mechanika jest wyłączona w PHASE 0.",
     UpgradeUnavailable = "Ten upgrade czeka na system baterii i ładowania.",
     DataNotReady = "Dane jeszcze się ładują.", VisitShop = "Podejdź do odpowiedniego sklepu przy spawnie.",
     DismountFirst = "Najpierw zejdź z hulajnogi.", InsufficientMoney = "Za mało Money.",

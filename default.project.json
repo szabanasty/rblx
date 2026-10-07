@@ -59,9 +59,9 @@
             0
           ],
           "Size": [
-            1600,
+            800,
             20,
-            1600
+            800
           ],
           "Color": [
             0.3,
@@ -80,9 +80,9 @@
           "Anchored": true,
           "Neutral": true,
           "Position": [
-            45,
+            0,
             0.5,
-            65
+            0
           ],
           "Size": [
             6,
@@ -106,7 +106,7 @@
       "Map": {
         "$className": "Folder",
         "$ignoreUnknownInstances": true,
-        "Districts": {
+        "SafeZone": {
           "$className": "Folder",
           "$ignoreUnknownInstances": true
         },
@@ -114,32 +114,44 @@
           "$className": "Folder",
           "$ignoreUnknownInstances": true
         },
+        "CombatZone": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "FishingArea": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "Garage": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
         "Shops": {
           "$className": "Folder",
           "$ignoreUnknownInstances": true
         },
-        "Garages": {
+        "Buildings": {
           "$className": "Folder",
           "$ignoreUnknownInstances": true
         },
-        "RaceTracks": {
-          "$className": "Folder",
-          "$ignoreUnknownInstances": true
-        },
-        "PoliceStations": {
-          "$className": "Folder",
-          "$ignoreUnknownInstances": true
-        },
-        "Events": {
-          "$className": "Folder",
-          "$ignoreUnknownInstances": true
-        },
-        "NPCs": {
+        "Cover": {
           "$className": "Folder",
           "$ignoreUnknownInstances": true
         }
       },
       "Vehicles": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true
+      }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "$ignoreUnknownInstances": true,
+      "ScooterModels": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true
+      },
+      "EquipmentTemplates": {
         "$className": "Folder",
         "$ignoreUnknownInstances": true
       }
