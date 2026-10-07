@@ -8,7 +8,7 @@ Kod przeszedł kompilację, analizę typów Roblox i testy logiki w chmurze. **F
 
 Jeśli masz już Rojo i działającą wtyczkę, wykonaj kroki 1, 3, 4 i 5.
 
-1. Zatrzymaj Play w Studio. W starym PowerShell zatrzymaj Rojo przez **Ctrl+C**. Pobierz [aktualny ZIP projektu](https://github.com/szabanasty/rblx/archive/refs/heads/main.zip) i wypakuj do nowego folderu. Nie nadpisuj własnych zmian bez kopii. Właściwy folder zawiera `default.project.json`, `src` i `README.md`.
+1. Zatrzymaj Play w Studio. W starym PowerShell zatrzymaj Rojo przez **Ctrl+C**. Pobierz [aktualny ZIP projektu](https://github.com/szabanasty/rblx/archive/refs/heads/main.zip) i wypakuj do nowego folderu. Skopiuj do niego folder `.tools` ze starego projektu, aby zachować `rojo.exe`; jeśli go nie masz, wykonaj krok 2. Nie nadpisuj własnych zmian bez kopii. Właściwy folder zawiera `default.project.json`, `src` i `README.md`.
 2. Pobierz [Rojo 7.7.1](https://github.com/rojo-rbx/rojo/releases/tag/v7.7.1), plik `rojo-7.7.1-windows-x86_64.zip`. Wypakuj `rojo.exe` do `.tools` w folderze projektu. Roblox Studio pobierzesz z [oficjalnej strony](https://create.roblox.com/). Git, Node.js i Python nie są potrzebne do grania w prototyp.
 3. Otwórz PowerShell w folderze z `default.project.json` i wykonaj:
 
