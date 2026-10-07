@@ -1,5 +1,7 @@
-# PHASE 1 — przyszły odbiór mapy i stref
+# Odbiór mapy i stref
 
-Aktualnie wdrożona jest PHASE 0. Jej checklistę znajdziesz w [TESTING.md](TESTING.md). Ta strona zastępuje starszą instrukcję miasta i jazdy, które nie są uruchamiane w nowym trybie.
+Aktualny pełny odbiór znajduje się w [TESTING.md](TESTING.md). Ta karta dotyczy PHASE1, już połączonego z resztą gry w 0.5.0.
 
-Po potwierdzeniu PHASE 0 przygotujemy mapę i strefy. Odbiór PHASE 1 będzie obejmował: oznaczone Safe Zone / Combat Zone / Fishing Area, granice i serwerową detekcję, Main HUD z aktualnym obszarem, powrót na spawn, multiplayer i streaming na telefonie. Przejście do Combat Zone nie będzie jeszcze uruchamiać walki ani nagród. Dokładne testy zostaną dopisane razem z implementacją.
+Play tworzy Map.ZoneGenerated. SAFE: X/Z -80..80; COMBAT: X100..340/Z-130..130; FISHING: X-285..-155/Z95..225. Granice Y±30. Poza strefami CITY. HUD pokazuje aktualny obszar zatwierdzony przez Movement. Sprawdź pieszo i hulajnogą przekroczenie granic, stacje w SAFE, pomost/buyer, cover/rampy i objective.
+
+Po trafieniu combat tag20s zachowuje się po wejściu SAFE; nigdy nie resetuje się od samej granicy. Bez tagu SAFE i FISHING chronią przed damage. Nie wolno teleportem uruchomić sklepu/fishing/objective: MovementGuard ma cofnąć postać i krótko odmówić akcji, bez kicku za jedną flagę. Pomiary tolerancji lag/ramp/dismount nadal wymagają silnika.

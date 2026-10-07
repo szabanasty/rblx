@@ -23,11 +23,15 @@ local context: any = {
         PvPRewards = require(configFolder:WaitForChild("PvPRewardConfig")),
         Fishing = require(configFolder:WaitForChild("FishingConfig")),
         Zones = require(configFolder:WaitForChild("ZoneConfig")),
+        Cosmetics = require(configFolder:WaitForChild("CosmeticConfig")),
     },
     Schema = require(modules:WaitForChild("ProfileSchema")),
     Progression = require(modules:WaitForChild("Progression")),
     Validation = require(modules:WaitForChild("Validation")),
     RateLimiter = require(modules:WaitForChild("RateLimiter")),
+    StateRules = require(modules:WaitForChild("StateRules")),
+    ZoneRules = require(modules:WaitForChild("ZoneRules")),
+    FishingRules = require(modules:WaitForChild("FishingRules")),
     Layout = require(modules:WaitForChild("WorldLayout")),
     Stats = require(modules:WaitForChild("ScooterStats")),
     Services = {}, Remotes = {}, IsClosing = false,
@@ -42,6 +46,21 @@ if context.Config.Game.FoundationOnly then
         PlayerState = require(serviceFolder:WaitForChild("PlayerStateService")),
         Network = require(serviceFolder:WaitForChild("NetworkService")),
         Snapshot = require(serviceFolder:WaitForChild("SnapshotService")),
+    }
+elseif context.Config.Game.ZoneGame then
+    context.Config.World = require(configFolder:WaitForChild("ZoneWorldConfig"))
+    context.Services = {
+        World = require(serviceFolder:WaitForChild("ZoneWorldService")), Movement = require(serviceFolder:WaitForChild("MovementService")),
+        Zones = require(serviceFolder:WaitForChild("ZoneService")), State = require(serviceFolder:WaitForChild("ZoneStateService")),
+        PlayerData = require(serviceFolder:WaitForChild("PlayerDataService")), Economy = require(serviceFolder:WaitForChild("EconomyService")),
+        Network = require(serviceFolder:WaitForChild("NetworkService")), Snapshot = require(serviceFolder:WaitForChild("SnapshotService")),
+        Scooter = require(serviceFolder:WaitForChild("ScooterService")), Shop = require(serviceFolder:WaitForChild("ShopService")),
+        Squad = require(serviceFolder:WaitForChild("SquadService")), Equipment = require(serviceFolder:WaitForChild("EquipmentService")),
+        Combat = require(serviceFolder:WaitForChild("CombatService")), PvPRewards = require(serviceFolder:WaitForChild("PvPRewardService")),
+        Revive = require(serviceFolder:WaitForChild("ReviveService")), Fishing = require(serviceFolder:WaitForChild("FishingService")),
+        Cosmetics = require(serviceFolder:WaitForChild("CosmeticService")), Objectives = require(serviceFolder:WaitForChild("ObjectiveService")),
+        Presentation = require(serviceFolder:WaitForChild("AvatarPresentationService")),
+        Leaderboard = require(serviceFolder:WaitForChild("LeaderboardService")), DayCycle = require(serviceFolder:WaitForChild("DayCycleService")),
     }
 else
     context.Services = {
@@ -59,13 +78,21 @@ else
     }
 end
 context.Notify = function(player: Player)
+    if context.Services.Equipment then context.Services.Equipment:EnsureStarter(player) end
+    if context.Services.Presentation then context.Services.Presentation:Refresh(player) end
     context.Services.Economy:OnDataChanged(player)
     context.Services.Snapshot:Send(player)
 end
 context.OpenMenu = function(player: Player, menu: string)
     context.Remotes.Feedback:FireClient(player, {RequestId = 0, Success = true, Message = "", OpenMenu = menu})
 end
+context.Feedback = function(player: Player, success: boolean, message: string, extra: any?)
+    local result = extra or {}
+    result.RequestId, result.Success, result.Message = 0, success, message
+    context.Remotes.Feedback:FireClient(player, result)
+end
 local order: {string} = if context.Config.Game.FoundationOnly then {"Economy", "PlayerState", "Network", "Snapshot", "PlayerData"}
+    elseif context.Config.Game.ZoneGame then {"World", "Movement", "Zones", "State", "Equipment", "Squad", "Scooter", "Shop", "Cosmetics", "PvPRewards", "Combat", "Revive", "Fishing", "Objectives", "Leaderboard", "Presentation", "DayCycle", "Network", "Snapshot", "Economy", "PlayerData"}
     else {"World", "Roads", "Traffic", "DayCycle", "Network", "Snapshot", "Scooter", "Economy", "Shop", "Quests", "PlayerData"}
 for _, key in order do context.Services[key]:Init(context) end
 for _, key in order do context.Services[key]:Start() end

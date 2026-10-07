@@ -1,7 +1,7 @@
 --!strict
 -- Original fictional equipment. No Tool, model or animation is assumed to exist.
 return table.freeze({
-    Enabled = false, StarterEquipmentId = "spark", Slots = {"PRIMARY", "SECONDARY", "UTILITY"},
+    Enabled = true, StarterEquipmentId = "spark", Slots = {"PRIMARY", "SECONDARY", "UTILITY"},
     ById = {
         spark = {EquipmentId = "spark", DisplayName = "Spark", Category = "LIGHT", Damage = 12, Cooldown = 0.25,
             EffectiveRange = 90, Accuracy = 0.85, MobilityModifier = 1, Capacity = 12, ReloadDuration = 1.8, Price = 0, Rarity = "COMMON"},

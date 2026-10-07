@@ -1,7 +1,7 @@
 --!strict
--- Automatic fishing will run on the server in PHASE 8. No minigame or client RNG.
+-- Automatic server fishing. No minigame or client RNG.
 return table.freeze({
-    Enabled = false, InventoryLimit = 60,
+    Enabled = true, InventoryLimit = 60,
     MinimumWaitSeconds = 18, MaximumWaitSeconds = 28, SuccessChance = 0.8,
     MaximumDistanceStuds = 12, MaximumSessionSeconds = 900,
     RarityWeights = {COMMON = 55, UNCOMMON = 25, RARE = 13, EPIC = 6, LEGENDARY = 1},

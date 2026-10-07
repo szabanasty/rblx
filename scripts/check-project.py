@@ -14,8 +14,8 @@ def run(command):
     subprocess.run(list(map(str, command)), cwd=ROOT, check=True)
 
 
-def wrapped(path, parameters):
-    return f"local function loadService({parameters})\n{(ROOT / path).read_text()}\nend\n"
+def wrapped(path, parameters, name="loadService"):
+    return f"local function {name}({parameters})\n{(ROOT / path).read_text()}\nend\n"
 
 
 def spec(path, arguments):
@@ -86,6 +86,8 @@ def main():
         assert folder.attrib["class"] == "Folder" and not folder.findall("Item"), name
     print(f"Rojo structure verified; {len(sources)} source files compiled and type checked", flush=True)
     imports = "".join(f'local {name} = require("../../src/shared/{path}")\n' for name, path in {
+        "StateRules": "Modules/StateRules", "ZoneRules": "Modules/ZoneRules", "SquadStore": "Modules/SquadStore", "FishingRules": "Modules/FishingRules",
+        "EconomyConfig": "Config/EconomyConfig", "ZoneWorldConfig": "Config/ZoneWorldConfig",
         "Schema": "Modules/ProfileSchema", "Progression": "Modules/Progression",
         "Validation": "Modules/Validation", "RateLimiter": "Modules/RateLimiter",
         "GameConfig": "Config/GameConfig", "LevelConfig": "Config/LevelConfig",
@@ -97,6 +99,18 @@ def main():
         "FishingConfig": "Config/FishingConfig", "PvPRewardConfig": "Config/PvPRewardConfig", "ZoneConfig": "Config/ZoneConfig",
     }.items())
     suites = {
+        "zone-world": wrapped("src/server/Services/MovementService.luau", "game, Vector3, CFrame, RaycastParams, Enum, os, warn", "loadMovement")
+            + wrapped("src/server/Services/ObjectiveService.luau", "game, Vector3, os", "loadObjective")
+            + spec("tests/zone-world.spec.luau", "loadMovement, loadObjective, GameConfig, ZoneWorldConfig, Validation"),
+        "zone-gameplay": wrapped("src/server/Services/EquipmentService.luau", "game, os", "loadEquipment")
+            + wrapped("src/server/Services/CombatService.luau", "game, Random, Vector3, RaycastParams, Enum, os", "loadCombat")
+            + wrapped("src/server/Services/PvPRewardService.luau", "game, os", "loadRewards")
+            + wrapped("src/server/Services/ReviveService.luau", "game, Vector3, RaycastParams, Enum, os", "loadRevive")
+            + spec("tests/zone-gameplay.spec.luau", "loadEquipment, loadCombat, loadRewards, loadRevive, StateRules, Schema, GameConfig, CombatConfig, EquipmentConfig, PvPRewardConfig"),
+        "zone-fishing": wrapped("src/server/Services/FishingService.luau", "game, Random, os")
+            + spec("tests/zone-fishing.spec.luau", "loadService, Schema, GameConfig, FishingConfig, FishingRules"),
+        "zone-rules": spec("tests/zone-rules.spec.luau", "StateRules, ZoneRules, SquadStore, FishingRules, CombatConfig, ZoneConfig, FishingConfig, Validation"),
+        "zone-economy": wrapped("src/server/Services/EconomyService.luau", "game, Instance") + spec("tests/zone-economy.spec.luau", "loadService, Schema, GameConfig, RewardConfig, LevelConfig, EconomyConfig, Progression"),
         "shared": spec("tests/shared.spec.luau", "Progression, Schema, Validation, RateLimiter, LevelConfig, GameConfig"),
         "player-data": wrapped("src/server/Services/PlayerDataService.luau", "game, task, warn, os") + spec("tests/player-data.spec.luau", "loadService"),
         "economy": wrapped("src/server/Services/EconomyService.luau", "game, Instance") + spec("tests/economy.spec.luau", "loadService, Progression, RewardConfig, LevelConfig"),

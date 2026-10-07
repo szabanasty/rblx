@@ -1,7 +1,10 @@
 --!strict
 return table.freeze({
-    Phase = 0,
-    FoundationOnly = true,
+    Phase = 10,
+    FoundationOnly = false,
+    ZoneGame = true,
+    WorldHalfWidth = 390,
+    BatteryDrainPerSecond = 0.12,
     DisplayName = "KUKIRIN ZONE",
     MaxFishingInventory = 60,
     DataSchemaVersion = 1,
@@ -25,8 +28,8 @@ return table.freeze({
     SpawnOffsetStuds = 10,
     MaxPositionErrorStuds = 12,
     SnapshotHz = 5,
-    ActionBurst = 12,
-    ActionRate = 4,
+    ActionBurst = 24,
+    ActionRate = 12,
     InputBurst = 24,
     InputRate = 15,
 })

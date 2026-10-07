@@ -13,10 +13,10 @@ export type PlayerData = {
     PoliceCredits: number, PoliceRank: string, Statistics: {[string]: number},
     Settings: Settings, RewardBudget: {Day: number, Money: number, XP: number, Reputation: number},
     IdempotencyLedger: {[string]: number},
-    ScooterCustomization: {[string]: any}, OwnedEquipment: {[string]: boolean},
+    ScooterCustomization: {[string]: any}, ScooterBatteries: {[string]: number}, ActivityBudget: {[string]: number}, EquippedTag: string?, EquippedClothing: string?, OwnedEquipment: {[string]: boolean},
     EquippedLoadout: {PRIMARY: string?, SECONDARY: string?, UTILITY: string?},
     FishingInventory: {{FishId: string, Weight: number, Rarity: string}}, Cosmetics: {[string]: boolean},
-    Kills: number, Deaths: number, Assists: number, Revives: number, BestStreak: number, ZoneTime: number,
+    PvPOpponents: {[string]: {Until: number, Count: number}}, ReviveHistory: {[string]: {Until: number, Count: number}}, CurrentStreak: number, Kills: number, Deaths: number, Assists: number, Revives: number, BestStreak: number, ZoneTime: number,
 }
 export type StoredRecord = {
     SchemaVersion: number, Data: PlayerData,

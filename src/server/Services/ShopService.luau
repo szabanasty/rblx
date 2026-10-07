@@ -4,6 +4,7 @@ local context: any
 function ShopService:Init(ctx: any) context = ctx end
 function ShopService:Start() end
 local function eligible(player: Player, location: string): (any?, string)
+    if context.Services.State and not context.Services.State:IsAllowed(player, "Trade") then return nil, "VisitSafeZone" end
     local profile = context.Services.PlayerData:GetProfile(player)
     if not profile then return nil, "DataNotReady" end
     if context.Services.Scooter:GetTelemetry(player).Riding then return nil, "DismountFirst" end

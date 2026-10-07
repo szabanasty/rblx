@@ -35,7 +35,30 @@ function Validation.ParseAction(value: any): (ActionRequest?, string?)
         or not Validation.IsInteger(value.RequestId, 1, 2000000000) then return nil, "InvalidRequest" end
     local action = value.Action
     local payload = value.Payload
-    if action == "Sync" or action == "SpawnScooter" or action == "DespawnScooter" or action == "DismountScooter" or action == "CancelQuest" then
+    local empty = {ChargeScooter = true, CreateSquad = true, AcceptSquad = true, DeclineSquad = true, LeaveSquad = true,
+        Reload = true, CancelRevive = true, ToggleFishing = true, StopFishing = true}
+    if empty[action] then
+        if not fields(payload, {}, 0) then return nil, "InvalidPayload" end
+    elseif action == "InviteSquad" or action == "KickSquad" or action == "HoldRevive" then
+        if not fields(payload, {TargetId = true}, 1) or not Validation.IsInteger(payload.TargetId, -9007199254740991, 9007199254740991) then return nil, "InvalidPlayer" end
+    elseif action == "Shoot" then
+        if not fields(payload, {X = true, Y = true, Z = true, Aim = true}, 4) or not Validation.IsFinite(payload.X)
+            or not Validation.IsFinite(payload.Y) or not Validation.IsFinite(payload.Z) or type(payload.Aim) ~= "boolean" then return nil, "InvalidAim" end
+        local length = payload.X^2 + payload.Y^2 + payload.Z^2
+        if length < 0.98 or length > 1.02 then return nil, "InvalidAim" end
+    elseif action == "EquipEquipment" then
+        if not fields(payload, {Slot = true, EquipmentId = true}, 2) or type(payload.EquipmentId) ~= "string" or #payload.EquipmentId > 64
+            or (payload.Slot ~= "PRIMARY" and payload.Slot ~= "SECONDARY" and payload.Slot ~= "UTILITY") then return nil, "InvalidEquipment" end
+    elseif action == "SwitchEquipment" then
+        if not fields(payload, {Slot = true}, 1) or (payload.Slot ~= "PRIMARY" and payload.Slot ~= "SECONDARY" and payload.Slot ~= "UTILITY") then return nil, "InvalidEquipment" end
+    elseif action == "BuyEquipment" then
+        if not fields(payload, {EquipmentId = true}, 1) or type(payload.EquipmentId) ~= "string" or #payload.EquipmentId == 0 or #payload.EquipmentId > 64 then return nil, "InvalidEquipment" end
+    elseif action == "SellFish" then
+        if not fields(payload, {Index = true, Revision = true}, 2) or not Validation.IsInteger(payload.Index, 0, 60) or not Validation.IsInteger(payload.Revision, 1, 2000000000) then return nil, "InvalidFish" end
+    elseif action == "BuyCosmetic" then
+        if not fields(payload, {Category = true, Option = true}, 2) or type(payload.Category) ~= "string" or #payload.Category > 32
+            or type(payload.Option) ~= "string" or #payload.Option > 64 then return nil, "InvalidCosmetic" end
+    elseif action == "Sync" or action == "SpawnScooter" or action == "DespawnScooter" or action == "DismountScooter" or action == "CancelQuest" then
         if not fields(payload, {}, 0) then return nil, "InvalidPayload" end
     elseif action == "SelectScooter" or action == "BuyScooter" then
         if not fields(payload, {ScooterId = true}, 1)

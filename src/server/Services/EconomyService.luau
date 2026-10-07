@@ -195,6 +195,27 @@ end
 
 -- Trusted server API: callers still validate ownership, price and transaction
 -- eligibility before charging. No yields are permitted between charge and grant.
+function EconomyService:Credit(player: Player, amount: number, source: string, receipt: string): (boolean, string)
+    if not safeInteger(amount, MAX_GRANT) or amount == 0 or type(receipt) ~= "string" or #receipt > 128 or #receipt == 0 then return false, "InvalidReward" end
+    local cap = context.Config.Economy.SourceCaps[source]
+    if not cap then return false, "InvalidRewardSource" end
+    local found = getProfile(player)
+    if not found then return false, "DataNotReady" end
+    local profile: any = found
+    if profile.IdempotencyLedger[receipt] then return false, "AlreadyGranted" end
+    local day = math.floor(os.time() / 86400)
+    local budget = profile.ActivityBudget
+    local used = if budget.Day == day then budget[source] or 0 else 0
+    if profile.Money + amount > MAX_BALANCE then return false, "BalanceLimit" end
+    if used + amount > cap then return false, "DailyLimit" end
+    if budget.Day ~= day then budget = {Day = day, PvP = 0, Fishing = 0, Objective = 0, Revive = 0}; profile.ActivityBudget = budget end
+    budget[source] = used + amount
+    profile.Money += amount
+    rememberGrant(profile, receipt, os.time())
+    changed(player, profile)
+    return true, "Granted"
+end
+
 function EconomyService:Spend(player: Player, amount: number): (boolean, string)
 	if not safeInteger(amount, MAX_BALANCE) or amount == 0 then
 		return false, "InvalidAmount"

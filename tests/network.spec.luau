@@ -82,5 +82,37 @@ return function(loadService, Validation, RateLimiter, GameConfig)
     check(foundation.Profile.Settings.UIScale==1.25,"phase 0 still validates settings")
     foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action="Sync",Payload={},RequestId=5})
     check(foundation.Calls.Sync==1,"phase 0 provides a real state synchronization endpoint")
+    local zone=fixture()
+    local routed={Shoot=0,Reload=0,Revive=0,Sell=0,Squad=0,Cosmetic=0,Charge=0}
+    local services=zone.Context.Services
+    services.Quests=nil
+    services.Combat={Shoot=function(_,p,payload) assert(p==zone.Player and payload.X==1);routed.Shoot+=1;return true,"" end}
+    services.Equipment={Reload=function() routed.Reload+=1;return true,"" end}
+    services.Revive={Hold=function(_,_,id) assert(id==8500000000);routed.Revive+=1;return true,"" end}
+    services.Fishing={Sell=function(_,_,index,revision) assert(index==0 and revision==7);routed.Sell+=1;return true,"FishSold" end}
+    services.Squad={Action=function(_,_,action,id) assert(action=="InviteSquad" and id==8500000000);routed.Squad+=1;return true,"SquadInvited" end}
+    services.Cosmetics={Buy=function(_,_,category,option) assert(category=="Color" and option=="Mint");routed.Cosmetic+=1;return true,"CosmeticPurchased" end}
+    services.Scooter.Charge=function() routed.Charge+=1;return true,"Charged" end
+    local nextId=0
+    local function action(name,payload) nextId+=1;zone.Remotes.Action.OnServerEvent:Fire(zone.Player,{Action=name,Payload=payload or {},RequestId=nextId}) end
+    action("Shoot",{X=1,Y=0,Z=0,Aim=false,Damage=999})
+    action("Shoot",{X=0/0,Y=0,Z=0,Aim=false})
+    action("HoldRevive",{TargetId=8500000000,Health=100})
+    action("SellFish",{Index=0,Revision=7,Price=999})
+    check(routed.Shoot==0 and routed.Revive==0 and routed.Sell==0,"zone payloads reject forged damage, health, sale price and NaN")
+    action("Shoot",{X=1,Y=0,Z=0,Aim=false})
+    action("Shoot",{X=1,Y=0,Z=0,Aim=false})
+    check(routed.Shoot==1,"shoot cooldown cannot be bypassed with fresh request IDs")
+    zone.Tick(0.1);action("Shoot",{X=1,Y=0,Z=0,Aim=false})
+    check(routed.Shoot==2 and zone.Calls.Notify==0,"valid shooting routes without full immediate snapshot spam")
+    action("Reload");action("HoldRevive",{TargetId=8500000000});action("SellFish",{Index=0,Revision=7})
+    action("InviteSquad",{TargetId=8500000000});action("BuyCosmetic",{Category="Color",Option="Mint"});action("ChargeScooter")
+    check(routed.Reload==1 and routed.Revive==1 and routed.Sell==1 and routed.Squad==1 and routed.Cosmetic==1 and routed.Charge==1,"new zone intents route to their authoritative services")
+    local before=zone.Calls.Feedback
+    action("StartQuest",{QuestId="first_delivery"})
+    check(zone.Calls.Feedback==before+1 and zone.Calls.Quest==0,"inactive legacy quest endpoint is rejected without runtime failure")
+    services.PlayerData.IsReady=function() return false end
+    zone.Tick(1);action("Shoot",{X=1,Y=0,Z=0,Aim=false})
+    check(routed.Shoot==2,"unloaded profile cannot shoot")
     print("Network abuse checks passed: "..checks)
 end

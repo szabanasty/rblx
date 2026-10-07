@@ -12,7 +12,7 @@ function SnapshotService:Send(player: Player)
         Ready = profile ~= nil,
         Status = data:GetStatus(player),
         SaveMode = if RunService:IsStudio() and not context.Config.Game.UseStudioDataStore then "StudioMemory" else "DataStore",
-        Mode = if context.Config.Game.FoundationOnly then "Foundation" else "LegacyCity",
+        Mode = if context.Config.Game.FoundationOnly then "Foundation" elseif context.Config.Game.ZoneGame then "ZoneGame" else "LegacyCity",
         Phase = context.Config.Game.Phase,
     }
     if profile then
@@ -38,12 +38,31 @@ function SnapshotService:Send(player: Player)
         snapshot.FishingInventoryCount = #profile.FishingInventory
         snapshot.OwnedEquipment = context.Schema.deepCopy(profile.OwnedEquipment)
         snapshot.EquippedLoadout = table.clone(profile.EquippedLoadout)
+        if context.Services.State then
+            snapshot.PlayerState = context.Services.State:GetPublic(player)
+            snapshot.Equipment = context.Services.Equipment:GetSnapshot(player)
+            snapshot.Squad = context.Services.Squad:GetSnapshot(player)
+            snapshot.Fishing = context.Services.Fishing:GetSnapshot(player)
+            snapshot.Revive = context.Services.Revive:GetSnapshot(player)
+            snapshot.Objective = context.Services.Objectives:GetSnapshot()
+            snapshot.Leaderboard = context.Services.Leaderboard:GetSnapshot()
+            snapshot.Cosmetics = context.Schema.deepCopy(profile.Cosmetics)
+            snapshot.ScooterCustomization = context.Schema.deepCopy(profile.ScooterCustomization)
+            snapshot.EquippedTag = profile.EquippedTag
+            snapshot.Position = (function()
+                local p = context.Services.Movement:GetPosition(player)
+                return if p then {X = p.X, Y = p.Y, Z = p.Z} else nil
+            end)()
+            local roster: {any} = {}
+            for _, other in Players:GetPlayers() do table.insert(roster, {UserId = other.UserId, Name = other.Name}) end
+            snapshot.Players = roster
+        end
         if context.Services.PlayerState then snapshot.PlayerState = context.Services.PlayerState:GetPublic(player) end
         if context.Services.Quests then snapshot.Quest = context.Services.Quests:GetSnapshot(player) end
         local telemetry = if context.Services.Scooter then context.Services.Scooter:GetTelemetry(player) else {Speed = 0, Distance = 0, Riding = false}
-        snapshot.Telemetry = {Speed = telemetry.Speed, Distance = telemetry.Distance, ScooterId = telemetry.ScooterId, Riding = telemetry.Riding}
+        snapshot.Telemetry = {Speed = telemetry.Speed, Distance = telemetry.Distance, ScooterId = telemetry.ScooterId, Riding = telemetry.Riding, Battery = telemetry.Battery}
         local position = if context.Services.Scooter then context.Services.Scooter:GetPosition(player) else nil
-        if position then
+        if position and context.Services.Roads then
             local road = context.Services.Roads:GetRoadAt(position)
             snapshot.SpeedLimit = if road then road.SpeedLimit else 0
             snapshot.District = context.Services.Roads:GetDistrictAt(position)

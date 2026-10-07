@@ -42,10 +42,10 @@ return function(loadService, Schema, GameConfig, ScooterConfig, UpgradeConfig, S
     check(not shop:BuyScooter(player, "kukirin_g3") and profile.Money == afterBuy, "duplicate request cannot charge again")
     check(not shop:Upgrade(player, "kukirin_g4", "Motor"), "unowned upgrade rejected")
     check(not shop:Upgrade(player, "kukirin_g3", "Money"), "unknown category rejected")
-    check(select(2, shop:Upgrade(player, "kukirin_g3", "Battery")) == "UpgradeUnavailable", "unfinished battery mechanics cannot take player money")
+    check(shop:Upgrade(player, "kukirin_g3", "Battery") and profile.ScooterUpgrades.kukirin_g3.Battery == 1, "battery capacity upgrade is now available")
     profile.Level = 1
     check(shop:Upgrade(player, "kukirin_g3", "Motor"), "first upgrade succeeds")
-    check(charged[#charged] == UpgradeConfig.Categories.Motor.BasePrice and refreshed == 1, "upgrade uses configured price and refreshes physics stats")
+    check(charged[#charged] == UpgradeConfig.Categories.Motor.BasePrice and refreshed == 2, "upgrade uses configured price and refreshes physics stats")
     check(select(2, shop:Upgrade(player, "kukirin_g3", "Motor")) == "LevelTooLow", "next upgrade has higher required level")
     profile.Level = 8
     check(shop:Upgrade(player, "kukirin_g3", "Motor"), "second upgrade succeeds")
@@ -54,7 +54,7 @@ return function(loadService, Schema, GameConfig, ScooterConfig, UpgradeConfig, S
     check(shop:Upgrade(player, "kukirin_g3", "Motor"), "fourth upgrade succeeds")
     check(shop:Upgrade(player, "kukirin_g3", "Motor"), "fifth upgrade succeeds")
     check(not shop:Upgrade(player, "kukirin_g3", "Motor"), "max level cannot be exceeded")
-    check(profile.ScooterUpgrades.kukirin_g3.Motor == 5 and dirty == 6, "all successful purchases saved")
+    check(profile.ScooterUpgrades.kukirin_g3.Motor == 5 and dirty == 7, "all successful purchases saved")
     ready = false
     check(select(2, shop:Upgrade(player, "kukirin_g3", "Brakes")) == "DataNotReady", "unready data cannot be charged")
     print("Shop checks passed: " .. checks)

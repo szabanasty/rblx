@@ -8,7 +8,7 @@ type Input = { Throttle: number, Steer: number, Brake: boolean, Jump: boolean }
 type Stats = {
 	Id: string, DisplayName: string, TopSpeed: number, Acceleration: number,
 	Handling: number, Braking: number, Jump: number, UnlockLevel: number,
-	Stability: number,
+	Stability: number, Battery: number, Weight: number,
 }
 type State = {
 	Assembly: Factory.Assembly,
@@ -24,6 +24,7 @@ type State = {
 	Suspicion: number,
 	LastLogAt: number,
 	NextOwnershipCheck: number,
+    BatteryCharge: number, BatterySaveAt: number,
 	Connections: { RBXScriptConnection },
 }
 
@@ -103,6 +104,8 @@ local function remove(player: Player, announce: boolean)
 		return
 	end
 	states[player] = nil
+    local profile = context.Services.PlayerData:GetProfile(player)
+    if profile then profile.ScooterBatteries[state.Stats.Id] = state.BatteryCharge; context.Services.PlayerData:MarkDirty(player) end
 	for _, connection in state.Connections do
 		connection:Disconnect()
 	end
@@ -121,6 +124,7 @@ local function mount(player: Player, state: State): boolean
 	if states[player] ~= state or not context.Services.PlayerData:IsReady(player) then
 		return false
 	end
+	if context.Services.State and not context.Services.State:IsAllowed(player, "Drive") then return false end
 	local humanoid, characterRoot = alive(player)
 	if not humanoid or not characterRoot or humanoid.SeatPart then
 		return false
@@ -250,6 +254,15 @@ local function step(player: Player, state: State, dt: number, now: number)
 		input = idle()
 		input.Brake = true
 	end
+    if context.Config.Game.ZoneGame then
+        if isRiding and input.Throttle ~= 0 then state.BatteryCharge = math.max(0, state.BatteryCharge - dt * (context.Config.Game.BatteryDrainPerSecond or 0.12) * math.abs(input.Throttle)) end
+        if state.BatteryCharge <= 0 then input = {Throttle = 0, Steer = input.Steer, Brake = true, Jump = false} end
+        if now - state.BatterySaveAt >= 5 then
+            local profile = context.Services.PlayerData:GetProfile(player)
+            if profile then profile.ScooterBatteries[state.Stats.Id] = state.BatteryCharge; context.Services.PlayerData:MarkDirty(player) end
+            state.BatterySaveAt = now
+        end
+    end
 	local onGround = grounded(player, state)
 	local forward = CFrame.Angles(0, state.Yaw, 0).LookVector
 	local right = Vector3.new(-forward.Z, 0, forward.X)
@@ -319,6 +332,7 @@ function ScooterService:Select(player: Player, id: string): (boolean, string)
 end
 
 function ScooterService:Spawn(player: Player, id: string?): (boolean, string)
+    if context.Services.State and not context.Services.State:IsAllowed(player, "Drive") then return false, "StateBlocked" end
 	if not context.Services.PlayerData:IsReady(player) then
 		return false, "DataNotReady"
 	end
@@ -358,6 +372,7 @@ function ScooterService:Spawn(player: Player, id: string?): (boolean, string)
 	end
 	remove(player, false)
 	local assembly = Factory.Create(selected, stats.DisplayName, player.UserId, pivot)
+    assembly.Root.CustomPhysicalProperties = PhysicalProperties.new(stats.Weight / (1.7 * 0.45 * 4), 0.025, 0, 100, 100)
 	assembly.Orientation.Responsiveness = math.clamp(25 * stats.Stability, 15, 60)
 	assembly.Model.Parent = vehicles
 	assembly.Root.Anchored = false
@@ -368,8 +383,10 @@ function ScooterService:Spawn(player: Player, id: string?): (boolean, string)
 		Yaw = yaw, LastPosition = pivot.Position, LastSafeCFrame = pivot,
 		LastVerticalSpeed = 0, Suspicion = 0, LastLogAt = -math.huge,
 		NextOwnershipCheck = now + 1, Connections = {},
+        BatteryCharge = math.clamp(if type(profile.ScooterBatteries[selected]) == "number" and profile.ScooterBatteries[selected] == profile.ScooterBatteries[selected] then profile.ScooterBatteries[selected] else stats.Battery, 0, stats.Battery), BatterySaveAt = now,
 	}
 	states[player] = state
+    if context.Services.Cosmetics then context.Services.Cosmetics:Apply(player, assembly.Model, selected) end
 	spawnTimes[player] = now
 	profile.SelectedScooter = selected
 	context.Services.PlayerData:MarkDirty(player)
@@ -443,6 +460,7 @@ function ScooterService:Dismount(player: Player): (boolean, string)
 end
 
 function ScooterService:SetInput(player: Player, input: Input): (boolean, string)
+    if context.Services.State and not context.Services.State:IsAllowed(player, "Drive") then return false, "StateBlocked" end
 	local state = states[player]
 	if not state or not riding(player, state) then
 		return false, "NotRiding"
@@ -459,6 +477,25 @@ function ScooterService:SetInput(player: Player, input: Input): (boolean, string
 	state.Input = { Throttle = input.Throttle, Steer = input.Steer, Brake = input.Brake, Jump = input.Jump }
 	state.LastInputAt = now
 	return true, "InputAccepted"
+end
+
+function ScooterService:RefreshAppearance(player: Player)
+    local state = states[player]
+    if state and context.Services.Cosmetics then context.Services.Cosmetics:Apply(player, state.Assembly.Model, state.Stats.Id) end
+end
+function ScooterService:Charge(player: Player): (boolean, string)
+    if not context.Services.State or not context.Services.State:IsAllowed(player, "Trade") or not context.Services.World:IsNear(player, "Garage") then return false, "VisitShop" end
+    local state = states[player]
+    if not state or riding(player, state) then return false, "DismountFirst" end
+    local cost = math.ceil(math.max(0, state.Stats.Battery - state.BatteryCharge) * 0.1)
+    if cost == 0 then return false, "BatteryFull" end
+    local paid, message = context.Services.Economy:Spend(player, cost)
+    if not paid then return false, message end
+    state.BatteryCharge = state.Stats.Battery
+    local profile = context.Services.PlayerData:GetProfile(player)
+    profile.ScooterBatteries[state.Stats.Id] = state.BatteryCharge
+    context.Services.PlayerData:MarkDirty(player); notify(player)
+    return true, "BatteryCharged"
 end
 
 function ScooterService:RefreshStats(player: Player)
@@ -488,6 +525,7 @@ function ScooterService:GetTelemetry(player: Player): { [string]: any }
 	return {
 		Speed = speed, Distance = distances[player] or 0, ScooterId = state.Stats.Id,
 		Riding = riding(player, state), Suspicion = state.Suspicion,
+        Battery = math.floor(state.BatteryCharge / state.Stats.Battery * 100),
 	}
 end
 

@@ -95,7 +95,8 @@
             0.4
           ],
           "TopSurface": "Smooth",
-          "BottomSurface": "Smooth"
+          "BottomSurface": "Smooth",
+          "Duration": 0
         }
       },
       "$properties": {

@@ -1,23 +1,21 @@
-# Kolejność rozwoju KUKIRIN ZONE
+# Stan faz i następny rozwój
 
-Nadrzędne wymagania: [SPEC_ZONE.md](SPEC_ZONE.md). Kukiriny pozostają; kierunek gry to autorski arcade squad PvP z łowieniem. Zachowany prototyp miasta nie wyznacza już roadmapy.
+Najnowsze polecenie użytkownika znosi wcześniejsze zatrzymywanie po każdej fazie. 0.5.0 implementuje połączony prototyp według PHASE0–9 oraz podstawowe elementy PHASE10. Kompilacja/testy logiki nie zastępują odbioru silnika.
 
-| Faza | Zakres | Status |
-| --- | --- | --- |
-| 0 — FOUNDATION | Foldery, Config, Types, Remotes, profil/migracja, snapshot, save/load, walidacja, podstawowy panel | Kod i testy chmurowe gotowe; oczekuje testu użytkownika w Studio |
-| 1 — MAP / ZONES | Kompaktowy blockout, Safe/Combat/Fishing, detekcja, Main HUD | Następna po potwierdzeniu PHASE 0 |
-| 2 — KUKIRIN | R15, placeholder, VehicleSeat, spawn/despawn, jazda, prędkościomierz, cleanup | Jeszcze nieaktywna; starszy kontroler wymaga dostosowania i odbioru |
-| 3 — GARAGE / PROGRESSION | Garaż, Dealership, ownership, Workshop, 0–5 upgrades, wygląd | Katalog przygotowany; brak aktywnych sklepów nowej gry |
-| 4 — SQUADS | Create/Invite/Accept/Leave/Kick, 4 graczy, znaczniki i dystans, friendly fire off | Plan |
-| 5 — COMBAT FOUNDATION | Fikcyjne wyposażenie, loadout, serwerowe PvP, Health, combat tag, HUD | Konfig/typy przygotowane; combat nie istnieje |
-| 6 — DOWNED / REVIVE | ZGINIĘTY 60 s, znaczniki, revive 5 s, bezpieczny respawn | Plan |
-| 7 — PvP ECONOMY | Kills/assists/revive, streak/bounty, EncounterId, anti-farming, rankingi | Konfig/fields przygotowane; zero naliczania PvP |
-| 8 — FISHING | Auto fishing, RNG serwera, rarity/waga, inventory, sell selected/all, cap | Konfig/fields przygotowane; zero fishing gameplay |
-| 9 — SHOPS / COSMETICS | Equipment Shop, kosmetyki, scooter visual, UI polish | Plan |
-| 10 — FINAL POLISH | Mobile, animacje, legalne audio, performance, anti-cheat, balans, sieć | Plan; bezpieczeństwo i mobile sprawdzamy też we wcześniejszych fazach |
+| Faza | Stan |
+| --- | --- |
+| 0 Foundation | Moduły, typy, config, dane, ekonomia, networking, bootstrap i testy. |
+| 1 Map/Zones | Własny blockout, drogi/rampy/cover/shops/dock, zgodne granice, server state i tag. |
+| 2 Kukirin | 5 klas, własność/spawn/despawn, serwerowe prowadzenie, bateria/ładowanie. |
+| 3 Garage/Progression | XP/Level, dealer/workshop, 6 upgrade kategorii0–5, kosmetyki. |
+| 4 Squads | 4 members, leader/invite/accept/leave/kick/transfer, markery i friendly fire off. |
+| 5 Combat | 5 fikcyjnych kategorii, loadout3slot, ammo/reload/raycast/range/cooldown/aim. |
+| 6 Downed/Revive | 60s, teammatehold5s/LOS, health35/protection2, respawn i UI. |
+| 7 PvP Economy | Kill/assist/revive/streak/bounty, idempotencja, persisted anti-farm i limity, ranking serwera. |
+| 8 Fishing | Automat bez minigry, rarity/weight/price, inventory60, sell1/all i timeout. |
+| 9 Shops/Cosmetics | Oddzielne strony menu, walidacja zakupów, placeholdery ubrań/tagów/części. |
+| 10 Polish | Responsive HUD/mobile controls/minimap/daynight/hitmarker/trace/settings. Finalna grafika/audio/animacje, odbiór wydajności/balansu i engine QA pozostają. |
 
-Po każdej fazie: prawdziwa implementacja → dostępne testy → poprawki → dokumentacja → test Studio użytkownika → potwierdzenie przed kolejną fazą. Nie wdrażamy kilku nieodebranych faz naraz.
+Następny etap: odbiór w Studio według TESTING, korekty rzeczywistej fizyki, input/UI i zapisów. Potem autorska dekoracja mapy/LOD, prawdziwe animacje R15 i legalne audio. Następnie tuning gospodarki/prędkości/TTK pod mobilne multiplayer i opcjonalny globalny ranking (OrderedDataStore z budżetem zapisu). Delivery/time trial oraz kolejne objective są rozszerzeniami, nie aktywnymi endpointami nagród.
 
-Dla PHASE 0 wymagany odbiór: poprawna synchronizacja 0.4.0, panel danych, zmiana skali, respawn bez błędów i niezależne profile klientów. Prawdziwy DataStore można sprawdzić na osobnym testowym doświadczeniu. [Procedura](TESTING.md).
-
-Po potwierdzeniu PHASE 0 pierwszy wycinek PHASE 1 to trzy oryginalne bryły stref, oznaczone wejścia, proste drogi i serwerowa detekcja. Dopiero potem włączamy dostosowaną jazdę. Nowa mapa nie będzie kopią Los Santos ani clowns.cool.
+Duży stary GTA/police/pets/crew/Robux/battle-pass plan został zastąpiony kompaktową specyfikacją KUKIRIN ZONE. Nie uruchamiamy niepowiązanych systemów tylko po to, żeby zwiększyć liczbę funkcji. Legacy moduły zachowano dla kompatybilności i dalszej świadomej migracji.

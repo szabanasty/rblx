@@ -11,8 +11,13 @@ local context: any = {
         World = require(config:WaitForChild("WorldConfig")),
         Upgrades = require(config:WaitForChild("UpgradeConfig")),
         Quests = require(config:WaitForChild("QuestConfig")),
+        Equipment = require(config:WaitForChild("EquipmentConfig")),
+        Zones = require(config:WaitForChild("ZoneConfig")),
+        Combat = require(config:WaitForChild("CombatConfig")),
+        Cosmetics = require(config:WaitForChild("CosmeticConfig")),
         Messages = require(config:WaitForChild("MessageConfig")),
     },
+    Player = game:GetService("Players").LocalPlayer,
     Controllers = {}, Remotes = {},
     Stats = require(shared:WaitForChild("Modules"):WaitForChild("ScooterStats")),
 }
@@ -26,6 +31,13 @@ context.Send = function(action: string, payload: {[string]: any}?)
 end
 if context.Config.Game.FoundationOnly then
     context.Controllers = {FoundationController = require(controllerFolder:WaitForChild("FoundationController"))}
+elseif context.Config.Game.ZoneGame then
+    context.Controllers = {
+        UIController = require(controllerFolder:WaitForChild("ZoneUIController")), InputController = require(controllerFolder:WaitForChild("InputController")),
+        CombatController = require(controllerFolder:WaitForChild("CombatController")), ReviveController = require(controllerFolder:WaitForChild("ReviveController")),
+        SquadMarkerController = require(controllerFolder:WaitForChild("SquadMarkerController")), EffectsController = require(controllerFolder:WaitForChild("EffectsController")),
+        ZoneClientController = require(controllerFolder:WaitForChild("ZoneClientController")),
+    }
 else
     context.Controllers = {
     UIController = require(controllerFolder:WaitForChild("UIController")),
@@ -37,6 +49,7 @@ else
     }
 end
 local order: {string} = if context.Config.Game.FoundationOnly then {"FoundationController"}
+    elseif context.Config.Game.ZoneGame then {"UIController", "InputController", "CombatController", "ReviveController", "SquadMarkerController", "EffectsController", "ZoneClientController"}
     else {"UIController", "InputController", "MenuController", "MinimapController", "SettingsController", "ScooterController"}
 for _, name in order do context.Controllers[name]:Init(context) end
 for _, name in order do context.Controllers[name]:Start() end

@@ -41,8 +41,8 @@ function Schema.new(userId: number, config: any?): any
         Settings = {UIScale = 1, GraphicsQuality = 2, MusicVolume = 0.5, SFXVolume = 0.7, ReducedEffects = false},
         RewardBudget = {Day = math.floor(os.time() / 86400), Money = 0, XP = 0, Reputation = 0},
         IdempotencyLedger = {},
-        ScooterCustomization = {}, OwnedEquipment = {}, EquippedLoadout = {}, FishingInventory = {}, Cosmetics = {},
-        Kills = 0, Deaths = 0, Assists = 0, Revives = 0, BestStreak = 0, ZoneTime = 0,
+        ScooterCustomization = {}, ScooterBatteries = {}, ActivityBudget = {Day = 0, PvP = 0, Fishing = 0, Objective = 0, Revive = 0}, OwnedEquipment = {}, EquippedLoadout = {}, FishingInventory = {}, Cosmetics = {},
+        PvPOpponents = {}, ReviveHistory = {}, CurrentStreak = 0, Kills = 0, Deaths = 0, Assists = 0, Revives = 0, BestStreak = 0, ZoneTime = 0,
     }
 end
 function Schema.sanitize(raw: any, config: any?): (any?, string?)
@@ -96,6 +96,23 @@ function Schema.sanitize(raw: any, config: any?): (any?, string?)
             end
         end
     end
+    for _, field in {"PvPOpponents", "ReviveHistory"} do
+        if type(raw[field]) == "table" then
+            local count = 0
+            for id, entry in raw[field] do
+                if type(id) == "string" and #id > 0 and #id <= 32 and type(entry) == "table" and finite(entry.Until) then
+                    profile[field][id] = {Until = integer(entry.Until, 0, 0, 100000000000), Count = integer(entry.Count, 0, 0, 4)}
+                    count += 1
+                    if count >= 64 then break end
+                end
+            end
+        end
+    end
+    if type(raw.EquippedClothing) == "string" and #raw.EquippedClothing <= 64 then profile.EquippedClothing = raw.EquippedClothing end
+    if type(raw.EquippedTag) == "string" and #raw.EquippedTag <= 64 then profile.EquippedTag = raw.EquippedTag end
+    if type(raw.ActivityBudget) == "table" then
+        for _, field in {"Day", "PvP", "Fishing", "Objective", "Revive"} do profile.ActivityBudget[field] = integer(raw.ActivityBudget[field], 0, 0, cfg.MaxCurrency) end
+    end
     local ranks = {Cadet = true, Officer = true, ["Senior Officer"] = true, Sergeant = true, Lieutenant = true, Captain = true}
     if type(raw.PoliceRank) == "string" and ranks[raw.PoliceRank] then profile.PoliceRank = raw.PoliceRank end
     if type(raw.OwnedScooters) == "table" then
@@ -111,7 +128,7 @@ function Schema.sanitize(raw: any, config: any?): (any?, string?)
     if type(raw.SelectedScooter) == "string" and profile.OwnedScooters[raw.SelectedScooter] then
         profile.SelectedScooter = raw.SelectedScooter
     end
-    for _, field in {"ScooterUpgrades", "ScooterCustomization", "Pets", "Clothing", "Inventory", "Achievements"} do
+    for _, field in {"ScooterUpgrades", "ScooterCustomization", "ScooterBatteries", "Pets", "Clothing", "Inventory", "Achievements"} do
         if type(raw[field]) == "table" then profile[field] = serialCopy(raw[field], 0) end
     end
     for _, field in {"EquippedPet", "CrewId"} do

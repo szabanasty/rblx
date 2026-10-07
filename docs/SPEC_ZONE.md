@@ -1,6 +1,6 @@
 # Specyfikacja użytkownika — KUKIRIN ZONE
 
-Poniżej pełne przekazane wytyczne. Doprecyzowanie użytkownika: **Kukiriny pozostają**. Bieżący etap: tylko PHASE 0; przed następną fazą wymagane potwierdzenie testu w Studio.
+Poniżej pełne przekazane wytyczne. Doprecyzowanie użytkownika: **Kukiriny pozostają**. Aktualizacja polecenia użytkownika: pracować autonomicznie i kontynuować implementację bez potwierdzania kolejnych faz. Historyczne polecenia STOP poniżej zostały zastąpione tą nowszą instrukcją. Stan aktualnego prototypu: README i IMPLEMENTATION.md.
 
 ```text
 Jesteś głównym programistą, game designerem i architektem mojej gry Roblox.

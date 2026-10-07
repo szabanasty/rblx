@@ -1,3 +1,5 @@
+> Dokument historyczny wydania 0.4.0. Aktualne źródła i stan 0.5.0: [FILES.md](FILES.md) i [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
 # Pełna lista plików zmienionych w PHASE 0
 
 Zmiana kierunku na KUKIRIN ZONE (0.4.0), bez implementowania dalszych faz. [Wszystkie źródła](FILES.md), [pełny Explorer](EXPLORER.md), [testy](TESTING.md).

@@ -1,65 +1,34 @@
-# Testy PHASE 0
+# Testy wersji 0.5.0
 
-## Faktycznie wykonane w chmurze Linux
+## Faktycznie wykonane w chmurze
 
-`python3 scripts/check-project.py`: kompilacja 50 źródeł, analiza typów Luau z API Roblox i sourcemap, Rojo build/sourcemap, kompletne klasy/treść/mapowanie źródeł, 4 RemoteEvents, StreamingEnabled oraz 10 pustych folderów przygotowawczych. 11 zestawów testów rzeczywistych modułów Luau, z mockami tylko zależności Roblox.
+`python3 scripts/check-project.py`: kompilacja 77 prawdziwych źródeł Luau, analiza typów z API Roblox, Rojo build i sourcemap, porównanie Source/klasy/ścieżki każdego pliku, 4 RemoteEvents, StreamingEnabled oraz 10 pustych kontenerów statycznych. Geometria generowana przy Play nie jest częścią statycznego buildu.
 
-| Zestaw | Co sprawdza |
-| --- | --- |
-| shared | Progresja, sanitizacja, NaN/Infinity, payloady, token bucket |
-| player-data | UpdateAsync, sesje, load/save retry, save konkurencyjny, utrata blokady, cleanup |
-| economy | Serwerowe transakcje, nagrody, saldo, XP, budżety i powtórne ID |
-| network | Format, limiter, replay/cooldown, cleanup; PHASE 0 blokuje jazdę/zakupy i dopuszcza ustawienia/Sync |
-| snapshot | Tylko własny profil, kopie, prywatny ledger i session poza projekcją |
-| input | Regresja starszego sterowania, reset i mobilne intencje — nieaktywne w PHASE 0 |
-| shop | Regresja ownership, odległości, Level/Money i upgrades 0–5 — nieaktywne w PHASE 0 |
-| quest | Regresja nagród, dystansu, czasu, ponownego zakończenia — nieaktywne w PHASE 0 |
-| world-stats | Regresja układu dróg, statystyk i wszystkich 5-poziomowych kombinacji |
-| foundation | Addytywna migracja starych profili, nowe pola/liczniki, inventory cap, brak ceny ryby z zapisu, nieaktywne katalogi, snapshot bez usług gry |
-| player-state | Health, reset, opóźniony Humanoid starej postaci, izolacja graczy, odłączenie zdarzeń |
+16 uruchomionych zestawów: shared, player-data, economy, network, snapshot, input, shop, quest, world-stats, foundation, player-state, zone-rules, zone-economy, zone-gameplay, zone-fishing, zone-world. Testy usług wykonują rzeczywisty kod usług z mockami granic API, a nie kopie implementacji. Nie emulują fizyki ani pełnej semantyki Roblox.
 
-Dodatkowy test `scripts/check-rojo-server.py --check-reload` odczytuje API MessagePack działającego Rojo, sprawdza źródła/klasy/remotes/streaming i rzeczywistą reakcję watchera na tymczasowy komentarz (przywracany). Nie uruchamia gry w silniku.
+Nowe scenariusze obejmują: tag po przekroczeniu SAFE, Health/DOWNED/protection, friendly fire, cover raycast, cooldown/ammo/reload, release/keepalive revive, once settlement, assist/streak/bounty, malejące nagrody, anti-farm po ponownym załadowaniu profilu, exact-credit daily caps, sprzedaż bez utraty ryb przy odmowie, stale revision, AFK/full inventory, teleport/rolling speed/flight, zwykłe mount/dismount, objective contested/2-player/cooldown, ścisłe requesty Shoot/Revive/Sell, replay, spam i UserId ponad 2 miliardy. Stare suite'y obejmują sesję/zapis/retry/lost lock, upgrade, input i kompatybilność schematu.
 
-Wykryte i poprawione przy zmianie: bootstrap/snapshot zakładały zawsze istniejący Scooter/World; nowy tryb ładuje wyłącznie fundament i projekcja obsługuje brak usług. Dawne żądania klienta mogły sięgać nieaktywnych usług; serwer odrzuca je przed dispatch. Stare profile nie miały nowych pól; sanitizacja uzupełnia je bez resetu. Asynchroniczny Humanoid wymaga weryfikacji generacji postaci, aby po resecie nie nadpisać nowego stanu. Analiza typów wymagała jawnej tablicy `{string}` dla kolejności modułów i pomocniczego predicate dla zakresu akcji. Skalowanie HUD czeka na poprawny rozmiar kamery, aby początkowy viewport 1×1 nie dawał ujemnej skali. Testy regresji zaktualizowano do 0–5 upgrade zamiast osłabiać walidację.
+`PYTHONPATH=/workspace/.tools/python python3 scripts/check-rojo-server.py --check-reload`: odczyt żywego API Rojo, porównanie wszystkich 77 źródeł, remotes i streamingu, chwilowa zmiana ProjectInfo dociera do API, potem oryginał przywrócony i sprawdzony. Test przeprowadza synchronizację do Rojo, nie połączenie z Roblox Studio.
 
-## Checklista użytkownika — Play
+## Odbiór w Roblox Studio — do wykonania
 
-Najpierw wykonaj instrukcję [README](../README.md). Wszystko poniżej wymaga Roblox Studio, do którego chmura nie ma dostępu.
+1. Nowy Baseplate, aktualny ZIP, serve/Connect/Play według README. Sprawdź Output: 0.5.0, brak czerwonych błędów. Po 1 s Movement daje zgodę na aktywności.
+2. SAFE ma sklep/garage/workshop/equipment/cosmetics. COMBAT ma osłony, rampy i control point. FISHING ma pomost i buyer. Mapa powstaje przy Play, stare puste foldery są kontenerami ręcznych dekoracji.
+3. Garaż: Starter spawn/sit, W/A/D, S hamulec, Space skok, E zejdź, schowaj/ponownie przywołaj. Bateria nie uzupełnia się przez respawn modelu. Podejdź po zejściu do garażu i naładuj. Sprawdź zderzenia, rampę, skok i prowadzenie przy słabszym FPS/pingu.
+4. Fish dock: rozpocznij, odczekaj 18–28 s, następne próby losowane przez serwer; inventory rośnie przy sukcesach, brak minigry. STOP i przejdź do buyer. Sprzedaj 1/all, Money rośnie według wartości fish. Ponowne użycie tej samej starej revision nie sprzedaje nic drugi raz.
+5. Za Money kup Motor upgrade i kosmetyk przy odpowiedniej stacji. Za mało Money, zły Level, poza zasięgiem lub combat tag → odmowa bez zmiany kolekcji. Zakupy droższych modeli wymagają progresji.
+6. **Server & Clients / Start Server z 2 klientami**: w COMBAT naprzeciwko siebie, strzel Spark. LMB/RMB/R, sloty1/2/3, amunicja maleje; ściana blokuje trafienie, daleki cel poza range nie dostaje damage. Safe bez tagu nie przyjmuje damage. Po trafieniu tag20s pozostaje po wejściu Safe; spawn protection3s i revive protection2s.
+7. DOWNED po odpowiednich trafieniach: HUD Health0, 60s, brak jazdy/zakupów/walki. Native Humanoid ma co najmniej1, więc nie powinien umrzeć przed timerem. Po60s safe respawn; kill/death/reward raz. Reset lub logout podczas aktywnej walki nie powinien unieważniać prawidłowego encounter.
+8. **3 klienty**: A tworzy squad, zaprasza B, B akceptuje; C przeciwnik. A/B nie mogą zadać sobie damage. C downuje B, A trzyma E5s przy B →35HP i brak kill za anulowany encounter. Puszczenie E/odległość/ściana/nowe DOWNED medyka przerywa postęp. Sprawdź transfer leader/kick/leave/wyjście. Czwarty slot działa, piąty odrzucony.
+9. Powtórz eliminacje tej samej pary: 100/50/25/0% Money, zgodnie z aktualnym streak/bounty; reconnect z prawdziwym DEV DataStore zachowuje okno. Revive tej samej pary przed180s nie daje kolejnej waluty.
+10. Dwóch teammate przy control point30s dostaje po150; wróg contest resetuje progress; single player/Downed/rider nie liczy się. Przez180s brak ponownej wypłaty.
+11. Sprawdź leaderboard po5s, teammate markery, DOWNED i revive progress, minimapę. Ranking jest aktualnego serwera; BestStreak z profilu.
+12. **Device Emulator**: telefon portrait/landscape/tablet, menu przewijanie, NativeMove/Jump + GAZ/brake/left/right, duże combatbuttons i holdrevive. Dwa palce: zwolnienie drugiego nie puszcza FIRE lub revive. Focus loss i otwarcie menu nie zostawiają gazu/fire/hold. Sprawdź UI scale .75–1.5, reduced effects i graphics1–3.
+13. Osobne DEV doświadczenie: R15, Publish, API Services, UseStudioDataStoretrue/osobna nazwa; autosave/exit/rejoin, battery/ownedfish/cosmetic/upgrades/settings zachowane. StudioMemory reset po Stop to prawidłowe zachowanie. Rejoin po błędzie sesji nie powinien kasować profilu.
+14. Profilery Studio: 10–30 pojazdów, kilku strzelających i łowiących, streaming odległych modeli, ping100–200ms. Odbiór wydajności telefonu wymaga rzeczywistego urządzenia.
 
-- [ ] Rojo wyświetla listening 127.0.0.1:34872, Studio łączy się z localhost:34872.
-- [ ] W Explorer jest kompletne [drzewo](EXPLORER.md), w tym PlayerStateService i FoundationController. Nie twórz drugiego Script o podobnej nazwie.
-- [ ] Play/F5 uruchamia gracza, a serwer i klient wypisują `PHASE 0 ready (version 0.4.0)` bez czerwonych błędów.
-- [ ] Widać płaską planszę, spawn i panel KUKIRIN ZONE. Nie pojawia się stare miasto/garaż/sterowanie.
-- [ ] Nowy profil: Money 100, Health 100/100, ALIVE, Kills/Deaths/Assists/Revives 0. Profil istniejący może mieć wcześniejsze saldo.
-- [ ] Status po ładowaniu wskazuje StudioMemory / pamięć testową; `Strefy w PHASE 1` oraz squad nieaktywny są zamierzone.
-- [ ] OPCJE → 75/100/125/150% zmienia panel, ODŚWIEŻ DANE nie zmienia Money, ZAMKNIJ działa.
-- [ ] Reset Character: przejście do RESPAWNING, potem Health 100/100 i ALIVE; HUD nie znika i nie powiela się.
-- [ ] Stop/Play w StudioMemory resetuje skalę i profil. To oczekiwane, nie utrata produkcyjnych danych.
+## Granice testów
 
-## Multiplayer i mobile
+Nie uruchomiono Roblox Studio/Play, GUI/renderingu, fizyki Vehicles/seat/weld/raycast w silniku, prawdziwych klientów z opóźnieniem, telefonu ani Roblox DataStore/Marketplace. Mock raycast kontroluje decyzję przy zadanym wyniku; nie dowodzi, że geometria/stawy zachowają się identycznie w silniku. W szczególności MovementGuard tolerancje i vehicle stability wymagają pomiarów z prawdziwym ruchem. Nie włączono Robux zakupów ani cudzych assetów.
 
-1. Zatrzymaj Play. **Test → Server & Clients**, wybierz 2 klientów i Start (nazwy zależą od języka/układu Studio).
-2. Każdy klient dostaje własny panel. W jednym zmień skalę; drugi zachowuje swoją. Reset jednego gracza nie zmienia Health drugiego. Money obu nowych profili 100, bez nagród za bezczynność/chodzenie.
-3. Powtórz na 4 klientach. Sprawdź brak błędów ładowania i cleanup po zamknięciu klienta. To nie test squadu: squady powstaną w PHASE 4.
-4. **Test → Device Emulator**: telefon pionowo/poziomo i tablet. Sprawdź czy panel i OPCJE mieszczą się, ustawienia można przewijać i obsługiwać palcem. W razie włączonej emulacji dotyku sprawdź konflikt z przyciskami natywnego awatara.
-5. Symuluj opóźnienie sieci w ustawieniach testu, jeśli opcja dostępna: UI ma czekać na dane zamiast generować saldo lokalnie. Podczas resetu Health może krótko pokazywać oczekiwanie.
-
-## Ręczny test ochrony sieci — tylko własny test
-
-W konsoli **klienta** podczas Play można wysłać:
-
-```luau
-game.ReplicatedStorage.Remotes.Action:FireServer({Action = "SpawnScooter", Payload = {}, RequestId = 1000})
-```
-
-Oczekiwane: komunikat o niedostępnej fazie, brak hulajnogi i zmiany Money. Po tym teście zrestartuj Play: numer 1000 celowo podnosi LastId, więc normalne niższe ID z UI będą odrzucane.
-
-Próby `Action="SetMoney"`, `Payload={Name="Money",Value=999999}` dla SetSetting, nieprawidłowego RequestId i powtórzonego ID muszą być odrzucone. Nie spamuj produkcyjnego serwera. Serwer nie kickuje za jeden sygnał. Brak gameplayu oznacza, że nie testujemy jeszcze raycast/teleport/farming, hitów ani bezpiecznej strefy. Nie deklarujemy pełnego anti-cheatu awatara.
-
-## Trwały zapis
-
-Na osobnym opublikowanym doświadczeniu: Game Settings/Security API Services, `UseStudioDataStore=true`, osobna nazwa `KukirinZone_DEV_v1`. Procedura w README. Sprawdź powrót UIScale po Stop/Play, wyjściu z serwera, autosave po 60 s i zamknięciu serwera. Sprawdź logi błędów oraz blokadę dwóch prób tego samego profilu. Nie kasuj locka/profilu w odpowiedzi na błąd. Sprawdzenie migracji prawdziwej kopii danych powinno używać testowego magazynu, nie produkcyjnego zapisu.
-
-## Czego jeszcze nie sprawdzono
-
-Silnik Studio/Play, realny klient-serwer i streaming, wygląd dotykowego HUD, domyślna kamera/respawn, produkcyjny DataStore i zachowanie podczas awarii, zdalny CI. Nie zostały potwierdzone przez testy chmurowe. Fizyka nowej hulajnogi, walka, revive, squady i fishing nie są jeszcze zaimplementowane w nowym trybie. Po odbiorze PHASE 0 przechodzimy do PHASE 1.
+Możliwe błędy odbioru: nakładanie dotykowego UI na native controls, pozycja seated R15, jitter serwerowej fizyki, zbyt surowy motion guard przy lag/skoku/rampie, collision cover/dock, synchronizacja wyposażenia przy opóźnionym appearance loading oraz błędy/quota backendu. Zgłoszenie powinno zawierać czynność, Output, liczbę klientów i użyty tryb pamięci.

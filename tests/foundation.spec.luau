@@ -1,5 +1,8 @@
 --!nonstrict
 return function(loadSnapshot, Schema, Progression, GameConfig, ScooterConfig, LevelConfig, configs)
+    local defaults = GameConfig
+    GameConfig = table.clone(GameConfig)
+    GameConfig.FoundationOnly, GameConfig.Phase = true, 0
     local checks = 0
     local function check(ok, message) assert(ok, message); checks += 1 end
     local old = Schema.new(123, GameConfig)
@@ -27,7 +30,7 @@ return function(loadSnapshot, Schema, Progression, GameConfig, ScooterConfig, Le
     for _, weight in configs.Fishing.RarityWeights do chance += weight end
     check(chance == 100 and configs.Fishing.InventoryLimit == GameConfig.MaxFishingInventory, "fishing draft has coherent weights and storage limit")
     for _, config in {configs.Fishing, configs.Combat, configs.Equipment, configs.PvPRewards, configs.Zones} do
-        check(config.Enabled == false, "future gameplay explicitly disabled")
+        check(config.Enabled == defaults.ZoneGame, "gameplay activation agrees with selected game mode")
     end
     check(configs.Combat.DownedSeconds == 60 and configs.Combat.SquadSize == 4 and not configs.Combat.FriendlyFire, "requested core combat constants prepared")
     local players = {}
