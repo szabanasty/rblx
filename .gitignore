@@ -1,0 +1,33 @@
+# Generated Rojo builds and local exports. Keep intentional assets under assets/.
+/build/
+/dist/
+/*.rbxl
+/*.rbxlx
+/*.rbxm
+/*.rbxmx
+/sourcemap.json
+
+# Optional local tool installation.
+/.tools/
+
+# Roblox Studio temporary lock and recovery files.
+*.rbxl.lock
+*.rbxlx.lock
+*.rbxl.autosave
+*.rbxlx.autosave
+
+# Local environment files; templates may be committed.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Operating system and editor noise.
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/*.local.json
