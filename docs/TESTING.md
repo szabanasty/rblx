@@ -1,20 +1,20 @@
-# Testy wersji 0.5.0
+# Testy wersji 0.6.0
 
 ## Faktycznie wykonane w chmurze
 
-`python3 scripts/check-project.py`: kompilacja 77 prawdziwych źródeł Luau, analiza typów z API Roblox, Rojo build i sourcemap, porównanie Source/klasy/ścieżki każdego pliku, 4 RemoteEvents, StreamingEnabled oraz 10 pustych kontenerów statycznych. Geometria generowana przy Play nie jest częścią statycznego buildu.
+`python3 scripts/check-project.py`: kompilacja 82 prawdziwych źródeł Luau, analiza typów z API Roblox, Rojo build i sourcemap, porównanie Source/klasy/ścieżki każdego pliku, 4 RemoteEvents, StreamingEnabled oraz 10 pustych kontenerów statycznych. Statyczny build ma także ScenePreview, porównany z 1092 częściami eksportu źródłowej geometrii. Przy Play podgląd zastępowany jest modułowym światem z interakcjami.
 
-16 uruchomionych zestawów: shared, player-data, economy, network, snapshot, input, shop, quest, world-stats, foundation, player-state, zone-rules, zone-economy, zone-gameplay, zone-fishing, zone-world. Testy usług wykonują rzeczywisty kod usług z mockami granic API, a nie kopie implementacji. Nie emulują fizyki ani pełnej semantyki Roblox.
+18 uruchomionych zestawów: shared, player-data, economy, network, snapshot, input, shop, quest, world-stats, foundation, player-state, scooter-mount, scooter-pose, zone-rules, zone-economy, zone-gameplay, zone-fishing, zone-world. Testy usług wykonują rzeczywisty kod usług z mockami granic API, a nie kopie implementacji. Nie emulują fizyki ani pełnej semantyki Roblox.
 
 Nowe scenariusze obejmują: tag po przekroczeniu SAFE, Health/DOWNED/protection, friendly fire, cover raycast, cooldown/ammo/reload, release/keepalive revive, once settlement, assist/streak/bounty, malejące nagrody, anti-farm po ponownym załadowaniu profilu, exact-credit daily caps, sprzedaż bez utraty ryb przy odmowie, stale revision, AFK/full inventory, teleport/rolling speed/flight, zwykłe mount/dismount, objective contested/2-player/cooldown, ścisłe requesty Shoot/Revive/Sell, replay, spam i UserId ponad 2 miliardy. Stare suite'y obejmują sesję/zapis/retry/lost lock, upgrade, input i kompatybilność schematu.
 
-`PYTHONPATH=/workspace/.tools/python python3 scripts/check-rojo-server.py --check-reload`: odczyt żywego API Rojo, porównanie wszystkich 77 źródeł, remotes i streamingu, chwilowa zmiana ProjectInfo dociera do API, potem oryginał przywrócony i sprawdzony. Test przeprowadza synchronizację do Rojo, nie połączenie z Roblox Studio.
+`PYTHONPATH=/workspace/.tools/python python3 scripts/check-rojo-server.py --check-reload`: odczyt żywego API Rojo, porównanie wszystkich 82 źródeł, remotes i streamingu, chwilowa zmiana ProjectInfo dociera do API, potem oryginał przywrócony i sprawdzony. Test przeprowadza synchronizację do Rojo, nie połączenie z Roblox Studio.
 
 ## Odbiór w Roblox Studio — do wykonania
 
-1. Nowy Baseplate, aktualny ZIP, serve/Connect/Play według README. Sprawdź Output: 0.5.0, brak czerwonych błędów. Po 1 s Movement daje zgodę na aktywności.
-2. SAFE ma sklep/garage/workshop/equipment/cosmetics. COMBAT ma osłony, rampy i control point. FISHING ma pomost i buyer. Mapa powstaje przy Play, stare puste foldery są kontenerami ręcznych dekoracji.
-3. Garaż: Starter spawn/sit, W/A/D, S hamulec, Space skok, E zejdź, schowaj/ponownie przywołaj. Bateria nie uzupełnia się przez respawn modelu. Podejdź po zejściu do garażu i naładuj. Sprawdź zderzenia, rampę, skok i prowadzenie przy słabszym FPS/pingu.
+1. Nowy Baseplate, aktualny ZIP, serve/Connect/Play według README. Sprawdź Output: 0.6.0, brak czerwonych błędów. Po 1 s Movement daje zgodę na aktywności.
+2. SAFE ma rzeczywiste otwarte sklepy/garage/workshop/equipment/cosmetics; wejdź przez środkowe drzwi. COMBAT znajduje się na X800–1300 za mostem X410–630 i ma magazyny, kontenery, cover, rampy i control point. FISHING ma pomost i buyer. Mapa jest widoczna w edytorze, a interakcje powstają przy Play; stare puste foldery są kontenerami ręcznych dekoracji.
+3. Garaż: Pickup E przed garażem oraz menu spawn/sit, ponowne E/WSIĄDŹ, W/A/D, S hamulec, Space skok, E zejdź, schowaj/ponownie przywołaj. Bateria nie uzupełnia się przez respawn modelu. Podejdź po zejściu do garażu i naładuj. Sprawdź zderzenia, rampę, skok i prowadzenie przy słabszym FPS/pingu.
 4. Fish dock: rozpocznij, odczekaj 18–28 s, następne próby losowane przez serwer; inventory rośnie przy sukcesach, brak minigry. STOP i przejdź do buyer. Sprzedaj 1/all, Money rośnie według wartości fish. Ponowne użycie tej samej starej revision nie sprzedaje nic drugi raz.
 5. Za Money kup Motor upgrade i kosmetyk przy odpowiedniej stacji. Za mało Money, zły Level, poza zasięgiem lub combat tag → odmowa bez zmiany kolekcji. Zakupy droższych modeli wymagają progresji.
 6. **Server & Clients / Start Server z 2 klientami**: w COMBAT naprzeciwko siebie, strzel Spark. LMB/RMB/R, sloty1/2/3, amunicja maleje; ściana blokuje trafienie, daleki cel poza range nie dostaje damage. Safe bez tagu nie przyjmuje damage. Po trafieniu tag20s pozostaje po wejściu Safe; spawn protection3s i revive protection2s.
@@ -31,4 +31,6 @@ Nowe scenariusze obejmują: tag po przekroczeniu SAFE, Health/DOWNED/protection,
 
 Nie uruchomiono Roblox Studio/Play, GUI/renderingu, fizyki Vehicles/seat/weld/raycast w silniku, prawdziwych klientów z opóźnieniem, telefonu ani Roblox DataStore/Marketplace. Mock raycast kontroluje decyzję przy zadanym wyniku; nie dowodzi, że geometria/stawy zachowają się identycznie w silniku. W szczególności MovementGuard tolerancje i vehicle stability wymagają pomiarów z prawdziwym ruchem. Nie włączono Robux zakupów ani cudzych assetów.
 
-Możliwe błędy odbioru: nakładanie dotykowego UI na native controls, pozycja seated R15, jitter serwerowej fizyki, zbyt surowy motion guard przy lag/skoku/rampie, collision cover/dock, synchronizacja wyposażenia przy opóźnionym appearance loading oraz błędy/quota backendu. Zgłoszenie powinno zawierać czynność, Output, liczbę klientów i użyty tryb pamięci.
+Możliwe błędy odbioru: nakładanie dotykowego UI na native controls, zasięg proceduralnego IK R15 i fallback seated R6, jitter serwerowej fizyki, zbyt surowy motion guard przy lag/skoku/rampie, collision cover/dock, synchronizacja wyposażenia przy opóźnionym appearance loading oraz błędy/quota backendu. Zgłoszenie powinno zawierać czynność, Output, liczbę klientów i użyty tryb pamięci.
+
+Dodatkowo wykonano eksport rzeczywistego kodu geometrii przez mock API: 1092 części, 168 collidable, ciągłość mostu przez rzeczywistą przerwę lądu, odległa granica areny, wejścia sześciu sklepów i szczegóły pięciu modeli. Regenerowany asset ScenePreview jest porównywany z eksportem. Trzy rendery Blender sprawdzono wizualnie; nie dowodzą zachowania raycast/fizyki/IK/renderingu Roblox.

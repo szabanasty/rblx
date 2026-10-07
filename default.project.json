@@ -55,13 +55,13 @@
           "Locked": true,
           "Position": [
             0,
-            -10,
+            -34,
             0
           ],
           "Size": [
-            800,
+            2800,
             20,
-            800
+            2800
           ],
           "Color": [
             0.3,
@@ -70,7 +70,8 @@
           ],
           "Material": "Concrete",
           "TopSurface": "Smooth",
-          "BottomSurface": "Smooth"
+          "BottomSurface": "Smooth",
+          "Transparency": 1
         }
       },
       "SpawnLocation": {
@@ -80,9 +81,9 @@
           "Anchored": true,
           "Neutral": true,
           "Position": [
-            0,
+            -25,
             0.5,
-            0
+            60
           ],
           "Size": [
             6,
@@ -96,7 +97,9 @@
           ],
           "TopSurface": "Smooth",
           "BottomSurface": "Smooth",
-          "Duration": 0
+          "Duration": 0,
+          "Transparency": 1,
+          "CanCollide": false
         }
       },
       "$properties": {
@@ -138,6 +141,9 @@
         "Cover": {
           "$className": "Folder",
           "$ignoreUnknownInstances": true
+        },
+        "ScenePreview": {
+          "$path": "assets/map-preview.model.json"
         }
       },
       "Vehicles": {

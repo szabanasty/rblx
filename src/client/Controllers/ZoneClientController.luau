@@ -14,6 +14,7 @@ function Service:Start()
     end)
     context.Remotes.Feedback.OnClientEvent:Connect(function(feedback: any)
         if type(feedback) ~= "table" then return end
+        if feedback.Success and (feedback.Message == "ScooterSpawned" or feedback.Message == "ScooterMounted") then context.Controllers.UIController:Close() end
         if feedback.OpenMenu then context.Controllers.UIController:Open(feedback.OpenMenu) end
         context.Controllers.EffectsController:Feedback(feedback)
         if type(feedback.Message) == "string" and feedback.Message ~= "" and feedback.Message ~= "Fired" and feedback.Message ~= "FireCooldown" then

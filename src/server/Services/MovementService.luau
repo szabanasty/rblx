@@ -13,7 +13,7 @@ end
 function Service:Init(ctx: any) context = ctx end
 function Service:AllowTeleport(player: Player, position: Vector3)
     local part = root(player)
-    records[player] = {Root = part, Position = position, At = os.clock(), BlockedUntil = os.clock() + 1, Flags = 0, LastLog = 0, WindowAt = os.clock(), WindowPosition = position, AirborneAt = nil}
+    records[player] = {Root = part, Position = position, GroundedPosition = position, At = os.clock(), BlockedUntil = os.clock() + 1, Flags = 0, LastLog = 0, WindowAt = os.clock(), WindowPosition = position, AirborneAt = nil}
 end
 function Service:GetPosition(player: Player): Vector3?
     local part = root(player)
@@ -41,14 +41,14 @@ function Service:GetPosition(player: Player): Vector3?
     local delta = position - record.Position
     local planar = Vector3.new(delta.X, 0, delta.Z)
     local invalid = planar.Magnitude > speed * elapsed + 6 or math.abs(delta.Y) > 60 * elapsed + 15
-        or math.abs(position.X) > cfg.WorldHalfWidth or math.abs(position.Z) > cfg.WorldHalfWidth
+        or position.Y < (cfg.MinimumWorldY or -100) or math.abs(position.X) > cfg.WorldHalfWidth or math.abs(position.Z) > cfg.WorldHalfWidth
     local window = position - record.WindowPosition
     invalid = invalid or Vector3.new(window.X, 0, window.Z).Magnitude > speed * (now - record.WindowAt) + 4
     if not invalid and not telemetry.Riding then
         local groundParams = RaycastParams.new()
         groundParams.FilterType = Enum.RaycastFilterType.Exclude
         groundParams.FilterDescendantsInstances = {player.Character :: Model, Workspace:WaitForChild("Vehicles")}
-        if Workspace:Raycast(position, Vector3.new(0, -7, 0), groundParams) then record.AirborneAt = nil
+        if Workspace:Raycast(position, Vector3.new(0, -7, 0), groundParams) then record.AirborneAt = nil; record.GroundedPosition = position
         else
             record.AirborneAt = record.AirborneAt or now
             if now - record.AirborneAt > 3 then invalid = true end
@@ -65,7 +65,9 @@ function Service:GetPosition(player: Player): Vector3?
         record.Flags += 1
         record.BlockedUntil = now + 3
         record.WindowAt, record.WindowPosition, record.AirborneAt = now, record.Position, nil
-        part.CFrame = CFrame.new(record.Position) * part.CFrame.Rotation
+        local restorePosition = if position.Y < (cfg.MinimumWorldY or -100) then record.GroundedPosition else record.Position
+        record.Position = restorePosition
+        part.CFrame = CFrame.new(restorePosition) * part.CFrame.Rotation
         part.AssemblyLinearVelocity = Vector3.zero
         if record.Flags >= 3 and now - record.LastLog >= 5 then
             record.LastLog = now

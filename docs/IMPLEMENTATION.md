@@ -1,10 +1,22 @@
-# Wydanie prototypu 0.5.0
+# Aktualizacja świata i hulajnóg 0.6.0
+
+Najnowsza zmiana: Riverside, rzeka z rzeczywistą przerwą lądu, most, Iron Island ponad 1000 studów od spawnu, sklepy z wnętrzami, ekspozycja 5 modeli, warsztat, plac/fountain/trees/lights, jezioro. Podgląd mapy działa w edytorze. Hulajnogi mają szczegółową oryginalną grafikę; własny pojazd odbierasz przed garażem. Mount ma osobny moduł, zaufaną relokację i retry; R15 dostaje proceduralne IK, R6 native fallback. Granice, minimapa, objective i zabezpieczenia zostały przeniesione razem z mapą.
+
+Nowe pliki: SceneBuilder, CityScene, IslandScene, ScooterMount, ScooterPose; assets/map-preview.model.json; SceneMock, scooter-mount/pose testy; skrypty export-scene/check-scene/generate-preview/render-scene; WORLD_060 i podglądy PNG. Pełna lista bieżących źródeł: FILES.md.
+
+Poprawki: salon jasno odróżnia modele wystawowe; garaż ma fizyczne stanowisko odbioru; menu zamyka się po spawnie/wsiadaniu; ruch rozpoznaje dozwoloną relokację do siedzenia; wejścia mają otwór20studów; promień zakupu obejmuje wnętrze; spadek do rzeki przywraca punkt na lądzie; nakładające się powierzchnie skrzyżowań zastąpiono pojedynczą nawierzchnią. Dane gracza/ekonomia nie zostały zresetowane.
+
+Testy: 82 źródła kompilowane i analizowane z API Roblox, Rojo build, 18 zestawów Luau, geometria 1092 części / 168 collidable, zgodność podglądu edytora, rendery Blender. Rzeczywiste wsiadanie/IK/fizyka/mobile i zapis nadal wymagają Roblox Studio; nie ma w tej chmurze silnika. Jest to dopracowana iteracja kodu/grafiki, a nie deklaracja zamkniętego QA produkcji.
+
+## Historia prototypu 0.5.0
+
+
 
 Zaimplementowano rzeczywisty kod Luau dla foundation, world/zones, scooter/garage/progression, squad, combat, downed/revive, economy, objective, fishing, shops/cosmetics i responsive UI. Cała funkcjonalna pętla jest połączona w domyślnym ZoneGame. Dalsze dekoracje i animacje mają jawne placeholdery, audio puste ID.
 
 ## Pliki
 
-77 źródeł i ich ścieżki w Studio są w FILES.md. W tej iteracji dodano: 6 kontrolerów klienta i ZoneMenus, 14 usług serwera, 2 configi i 4 czyste moduły shared. Zmieniono bootstrapy server/client, Network/Snapshot/Economy/Scooter/Shop, centralne configi, ProfileSchema/Validation/typy/ProjectInfo, projekt Rojo, runner testów i dokumentację. Dodano RuntimeMocks oraz 5 suite'ów strefy, rozszerzono testy network/foundation/shop. Pełna lista wynika z zatwierdzonego diff tej wersji, bez plików generated/build/tools w repo.
+82 źródeł i ich ścieżki w Studio są w FILES.md. W tej iteracji dodano: 6 kontrolerów klienta i ZoneMenus, 14 usług serwera, 2 configi i 4 czyste moduły shared. Zmieniono bootstrapy server/client, Network/Snapshot/Economy/Scooter/Shop, centralne configi, ProfileSchema/Validation/typy/ProjectInfo, projekt Rojo, runner testów i dokumentację. Dodano RuntimeMocks oraz 5 suite'ów strefy, rozszerzono testy network/foundation/shop. Pełna lista wynika z zatwierdzonego diff tej wersji, bez plików generated/build/tools w repo.
 
 ## Znalezione i poprawione problemy
 

@@ -1,4 +1,4 @@
-# Architektura 0.5.0
+# Architektura 0.6.0
 
 Bootstrap wybiera Foundation, ZoneGame lub LegacyCity. Domyślnie ZoneGame. Każda usługa dostaje `context` przez Init, wszystkie Init kończą się przed Start, a PlayerData startuje na końcu. Brak wzajemnego require usług: dependency injection pozwala uruchamiać te same moduły w deterministycznych testach.
 
@@ -21,6 +21,8 @@ flowchart TD
 | --- | --- |
 | PlayerDataService | Load/sanitize/save/retry, kolejka zapisu, wersjonowanie mutacji, autosave, lease, BindToClose. |
 | EconomyService | Spend, dokładne Credit ze źródłem/limitem/receipt, XP/Level i zweryfikowane nagrody jazdy. Jedyny punkt zmiany waluty. |
+| SceneBuilder / CityScene / IslandScene | Oryginalna geometria, wnętrza, rzeka, podwieszany most i odległa arena. ScenePreview generowane tym samym kodem do edytora; runtime zachowuje modele Atomic osobno. |
+| ScooterMount / ScooterPose | Własność, dystans i LOS przed zaufaną relokacją/wsiadaniem, rejestracja w Movement, R15 IK z własnymi target attachments i cleanup. |
 | ZoneWorldService | Własny runtime blockout, stanowiska/prompty, display models. Movement weryfikuje odległość stanowisk. |
 | MovementService | Próbkowanie 5 Hz, teleport/speed/flight/wall checks, korekta i czasowa odmowa aktywności; API zaufanych teleportów serwera. |
 | ZoneService | Detekcja tych samych granic co mapa z ZoneConfig, zatwierdzona pozycja. |

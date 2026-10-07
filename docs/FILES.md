@@ -1,6 +1,6 @@
-# Źródła 0.5.0 — 77 plików
+# Źródła 0.6.0 — 82 pliki
 
-Wszystkie poza dwoma bootstrapami to ModuleScripts. Rojo tworzy strukturę automatycznie; pliki docs/tests/scripts nie trafiają do Studio. Legacy moduły są obecne, lecz domyślny bootstrap uruchamia wyłącznie ZoneGame.
+Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródła to ModuleScripts. Domyślny tryb ZoneGame. Rojo tworzy strukturę automatycznie.
 
 | Plik | Roblox Studio |
 | --- | --- |
@@ -20,7 +20,12 @@ Wszystkie poza dwoma bootstrapami to ModuleScripts. Rojo tworzy strukturę autom
 | [src/client/Modules/GuiFactory.luau](../src/client/Modules/GuiFactory.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.GuiFactory` |
 | [src/client/Modules/ZoneMenus.luau](../src/client/Modules/ZoneMenus.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.ZoneMenus` |
 | [src/client/init.client.luau](../src/client/init.client.luau) | `StarterPlayer.StarterPlayerScripts.Client` |
+| [src/server/Modules/CityScene.luau](../src/server/Modules/CityScene.luau) | `ServerScriptService.Server.Modules.CityScene` |
+| [src/server/Modules/IslandScene.luau](../src/server/Modules/IslandScene.luau) | `ServerScriptService.Server.Modules.IslandScene` |
+| [src/server/Modules/SceneBuilder.luau](../src/server/Modules/SceneBuilder.luau) | `ServerScriptService.Server.Modules.SceneBuilder` |
 | [src/server/Modules/ScooterFactory.luau](../src/server/Modules/ScooterFactory.luau) | `ServerScriptService.Server.Modules.ScooterFactory` |
+| [src/server/Modules/ScooterMount.luau](../src/server/Modules/ScooterMount.luau) | `ServerScriptService.Server.Modules.ScooterMount` |
+| [src/server/Modules/ScooterPose.luau](../src/server/Modules/ScooterPose.luau) | `ServerScriptService.Server.Modules.ScooterPose` |
 | [src/server/Modules/WorldBuilder.luau](../src/server/Modules/WorldBuilder.luau) | `ServerScriptService.Server.Modules.WorldBuilder` |
 | [src/server/Services/AvatarPresentationService.luau](../src/server/Services/AvatarPresentationService.luau) | `ServerScriptService.Server.Services.AvatarPresentationService` |
 | [src/server/Services/CombatService.luau](../src/server/Services/CombatService.luau) | `ServerScriptService.Server.Services.CombatService` |
@@ -82,4 +87,4 @@ Wszystkie poza dwoma bootstrapami to ModuleScripts. Rojo tworzy strukturę autom
 | [src/shared/Types/PlayerData.luau](../src/shared/Types/PlayerData.luau) | `ReplicatedStorage.Shared.Types.PlayerData` |
 | [src/shared/Types/ZoneTypes.luau](../src/shared/Types/ZoneTypes.luau) | `ReplicatedStorage.Shared.Types.ZoneTypes` |
 
-Pozostałe zmiany: `default.project.json`, `scripts/check-project.py`, `tests/network.spec.luau`, `tests/foundation.spec.luau`, `tests/shop.spec.luau`, nowe `tests/RuntimeMocks.luau` i pięć `tests/zone-*.spec.luau`, README i docs. Pliki `build/`, `tests/.generated/` i `.tools` są ignorowane. Szczegóły odpowiedzialności: [ARCHITECTURE.md](ARCHITECTURE.md).
+`assets/map-preview.model.json` → `Workspace.Map.ScenePreview`: statyczny podgląd; runtime zastępuje go Map.ZoneGenerated. Skrypty/tests/docs nie trafiają do silnika. Pozostałe pliki i aktualizacja opisane w [WORLD_060.md](WORLD_060.md).

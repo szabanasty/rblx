@@ -1,6 +1,6 @@
 # KUKIRIN ZONE — Roblox / Luau / Rojo
 
-**Wersja 0.5.0: grywalny prototyp squad PvP, Kukiriny i automatyczne łowienie.** Własna kompaktowa mapa, fikcyjne wyposażenie arcade i oryginalne modele z części Roblox. Projekt nie wymaga zewnętrznych modeli, animacji ani audio. Inspiracja atmosferą FiveM nie oznacza kopiowania clowns.cool, GTA, map ani znaków firmowych.
+**Wersja 0.6.0: grywalny prototyp squad PvP, Kukiriny i automatyczne łowienie.** Miasto Riverside, most nad rzeką i odległa arena Iron Island, fikcyjne wyposażenie arcade i oryginalne modele z części Roblox. Projekt nie wymaga zewnętrznych modeli, animacji ani audio. Inspiracja atmosferą FiveM nie oznacza kopiowania clowns.cool, GTA, map ani znaków firmowych.
 
 Działają: strefy SAFE/COMBAT/FISHING, garaż, pięć klas hulajnóg, bateria i ładowanie, ulepszenia 0–5, sklepy, kosmetyki, squad do czterech osób, pięć rodzajów wyposażenia, walka serwerowa, combat tag, DOWNED, revive, respawn, nagrody/streak/bounty, punkt kontrolny drużyny, łowienie bez minigry, sprzedaż ryb, XP/poziomy, ranking aktualnego serwera, HUD, minimapa, przyciski dotykowe i ustawienia. Zapis obejmuje profil, kolekcje, statystyki oraz limity ekonomii.
 
@@ -20,8 +20,8 @@ Kod został skompilowany, sprawdzony analizą typów i testami logiki. **Roblox 
    Zostaw okno otwarte. Oczekuj `Rojo server listening`, port `34872`.
 5. Otwórz **nowy Baseplate** w Studio, aby stare skrypty miejsca nie działały równolegle. W ustawieniach doświadczenia ustaw Avatar na **R15**; model ma także podstawowy fallback dla R6.
 6. **Dodatki plug-in / Plugins → Rojo → Connect**: adres `localhost`, port `34872`. Zaakceptuj synchronizację. Nie wpisuj `local`.
-7. **Play / F5**. Mapa, modele i HUD powstają podczas Play. W Output oczekuj `PHASE 10 ready (version 0.5.0)` na serwerze i kliencie. Nowy profil: Money 100, Level 1, Starter i wyposażony Spark.
-8. Wejdź do **MENU → Garage → PRZYWOŁAJ**, zamknij menu. Steruj W/A/D, hamuj S, skacz Spacją; zejdź E albo przyciskiem ZEJDŹ. Dokładne klawisze wynikają z InputController; patrz tabela niżej.
+7. **Play / F5**. Mapa jest widoczna już po synchronizacji w edytorze. Play zastępuje podgląd interaktywnym światem i uruchamia HUD. W Output oczekuj `PHASE 10 ready (version 0.6.0)` na serwerze i kliencie. Nowy profil: Money 100, Level 1, Starter i wyposażony Spark.
+8. Podejdź do żółtego stanowiska **ODBIERZ SWOJĄ HULAJNOGĘ** przed garażem i naciśnij E. Alternatywnie **MENU → Garage → PRZYWOŁAJ**; menu zamknie się automatycznie. Wsiadanie ponownie: E przy swoim pojeździe albo **Garage → WSIĄDŹ**. Steruj W/A/D, hamuj S, skacz Spacją; zejdź E albo przyciskiem ZEJDŹ. Dokładne klawisze wynikają z InputController; patrz tabela niżej.
 
 Jeśli brakuje Rojo, [pobierz Rojo 7.7.1](https://github.com/rojo-rbx/rojo/releases/tag/v7.7.1), plik `rojo-7.7.1-windows-x86_64.zip`, wypakuj `rojo.exe` do `.tools`. Wtyczkę instalujesz raz: `.\.tools\rojo.exe plugin install`, potem restart Studio. [Roblox Studio](https://create.roblox.com/). Git i Python nie są potrzebne do grania z ZIP-a.
 
@@ -33,18 +33,20 @@ Alternatywa bez aktywnej synchronizacji:
 
 Otwórz wynik w Studio, Play. Przed zmianą bootstrapów zatrzymuj Play; edycja wyłącznie w Studio nie zapisuje się do plików repozytorium.
 
+Zobacz [zmiany i podglądy grafiki 0.6.0](docs/WORLD_060.md). Podglądy są renderami rzeczywistej wygenerowanej geometrii w Blenderze, nie zrzutami Roblox Studio.
+
 ## Pierwsze aktywności
 
 | Miejsce / działanie | Jak użyć |
 | --- | --- |
-| Garaż, SAFE (-45, -40) | Wybór, spawn/despawn i ładowanie hulajnogi po zejściu. Spawn jest dostępny z menu; zakupy/ładowanie wymagają pobliskiej stacji. |
-| Dealer (45, -40) / Workshop (45, 45) | Zakupy według Money/Level, ulepszenia silnika, controller, baterii, hamulców, opon, zawieszenia. |
-| Equipment (-45, 45) | Kup oryginalne wyposażenie, załóż do PRIMARY/SECONDARY/UTILITY w SAFE. |
-| Cosmetics (0, 55) | Kolory części, placeholdery efektów/naklejek, kamizelki i tagi. Nie zwiększają statystyk. |
-| Pomost FISHING (-220, 160) | Zejdź z hulajnogi, użyj E/native prompt lub MENU → FishBuyer → ŁÓW. Po 18–28 s serwer losuje wynik. STOP ŁOWIENIA kończy sesję. |
-| FISH BUYER (-220, 110) | Podejdź pieszo; sprzedaj pojedynczą rybę lub wszystkie. Serwer ustala cenę; przy limicie wypłaty inventory zostaje. |
-| COMBAT, środek (220, 0) | Walka z graczem z innego squad/solo. Friendly fire wyłączone. Combat tag trwa 20 s również po wejściu do SAFE. |
-| CONTROL POINT (220, 0) | Dwóch członków jednego squad przez 30 s, bez przeciwnika, pieszo: po 150 Money; cooldown 180 s. |
+| Garaż, SAFE (-180, -58) | Wybór, spawn/despawn i ładowanie hulajnogi po zejściu. Spawn jest dostępny z menu; zakupy/ładowanie wymagają pobliskiej stacji. |
+| Dealer (-80, -58) / Workshop (30, -58) | Zakupy według Money/Level, ulepszenia silnika, controller, baterii, hamulców, opon, zawieszenia. |
+| Equipment (145, -58) | Kup oryginalne wyposażenie, załóż do PRIMARY/SECONDARY/UTILITY w SAFE. |
+| Cosmetics (-180, 145) | Kolory części, placeholdery efektów/naklejek, kamizelki i tagi. Nie zwiększają statystyk. |
+| Pomost FISHING (-340, 355) | Zejdź z hulajnogi, użyj E/native prompt lub MENU → FishBuyer → ŁÓW. Po 18–28 s serwer losuje wynik. STOP ŁOWIENIA kończy sesję. |
+| FISH BUYER (-340, 285) | Podejdź pieszo; sprzedaj pojedynczą rybę lub wszystkie. Serwer ustala cenę; przy limicie wypłaty inventory zostaje. |
+| COMBAT, środek (1050, 0) | Walka z graczem z innego squad/solo. Friendly fire wyłączone. Combat tag trwa 20 s również po wejściu do SAFE. |
+| CONTROL POINT (1050, 0) | Dwóch członków jednego squad przez 30 s, bez przeciwnika, pieszo: po 150 Money; cooldown 180 s. |
 | Squad | MENU → Squad → UTWÓRZ, zaproś obecnego gracza; ma 30 s na AKCEPTUJ. Maksimum 4. |
 | DOWNED | Health 0: 60 s oczekiwania. Teammate trzyma E/OCUĆ przez 5 s w zasięgu 10 studów bez ściany; wracasz z 35 HP. |
 
@@ -56,7 +58,7 @@ Eliminacja/nagroda zostaje rozliczona po definitywnym respawnie/reset/logout, a 
 | LMB: fire; RMB: aim; R: reload; 1/2/3: slot | FIRE, AIM, RELOAD, SWITCH |
 | MENU: ustawienia, sklepy i inventory | Duże przyciski, przewijane menu; MAPA na wąskim ekranie |
 
-Przejdź przez [pełną checklistę Studio](docs/TESTING.md) po pobraniu. Modele hulajnóg są blokowymi placeholderami; obecna pozycja siedząca jest domyślną pozycją VehicleSeat, nie gotową animacją jazdy na stojąco.
+Przejdź przez [pełną checklistę Studio](docs/TESTING.md) po pobraniu. Hulajnogi mają szczegółowe własne modele z części: zawieszenie, tarcze, manetki, światła i dashboard. R15 korzysta z proceduralnej pozy IK rąk/stóp; jej zasięg i wygląd przy różnych avatarach trzeba odebrać w Studio. R6 zachowuje natywną pozycję siedzącą. W salonie modele są wystawowe — własny pojazd odbierz przed garażem.
 
 ## Kod i zapis
 
@@ -84,7 +86,7 @@ bash scripts/install-tools.sh
 python3 scripts/check-project.py
 ```
 
-Rojo 7.7.1, Luau 0.741, luau-lsp 1.70.1 z API Roblox, instalacja TLS/SHA-256. Runner sprawdza **77 źródeł**, typy, build/sourcemap, wszystkie mapowania klas, 4 remotes, StreamingEnabled i **16 zestawów testów** logiki z mockami API. CI korzysta z tego samego runnera. To nie jest test silnika.
+Rojo 7.7.1, Luau 0.741, luau-lsp 1.70.1 z API Roblox, instalacja TLS/SHA-256. Runner sprawdza **82 źródeł**, typy, build/sourcemap, wszystkie mapowania klas, 4 remotes, StreamingEnabled i **18 zestawów testów** logiki z mockami API. CI korzysta z tego samego runnera. To nie jest test silnika.
 
 - [Architektura i zależności](docs/ARCHITECTURE.md)
 - [Wszystkie pliki i położenie w Studio](docs/FILES.md), [Explorer](docs/EXPLORER.md)
@@ -100,7 +102,7 @@ Rojo 7.7.1, Luau 0.741, luau-lsp 1.70.1 z API Roblox, instalacja TLS/SHA-256. Ru
 | `rojo.exe is not recognized` | `Test-Path .\default.project.json` i `Test-Path .\.tools\rojo.exe` mają zwracać True. Jeśli jesteś w `.tools`, wykonaj `cd ..`. |
 | `Couldn't connect to the Rojo server` | Uruchom serve w nowym katalogu, pozostaw PowerShell otwarty; wtyczka localhost:34872. Sprawdź, czy stare Rojo nie zajmuje portu. |
 | PHASE 0 / stary HUD / stare miasto | Stary ZIP, proces Rojo albo pozostałe skrypty. Nowy katalog i nowy Baseplate, Connect/synchronizacja, Play. |
-| W edytorze pusta plansza | Mapa i UI generują się przy Play. Sprawdź Output, Server.Services.ZoneWorldService i Client.Controllers.ZoneUIController. |
+| W edytorze pusta plansza | Sprawdź ScenePreview po synchronizacji; interakcje i UI uruchamia Play. Sprawdź Output, Server.Services.ZoneWorldService i Client.Controllers.ZoneUIController. |
 | Postać chwilowo cofana | MovementGuard odrzuca teleport/speed/flight; tolerancje wymagają próby przy rzeczywistym pingu, rampach i dismount. Pojedyncza flaga nie wyrzuca gracza. |
 | Nie można kupić / sprzedać / łowić | Podejdź do odpowiedniego stanowiska, zejdź, poczekaj aż tag wygaśnie; sprawdź Money/Level/limit dzienny/inventory. |
 | Brak nagrody po DOWNED | Czeka na definitywną eliminację; revive ją anuluje. Następne eliminacje tej samej pary mają malejące nagrody. |

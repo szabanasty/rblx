@@ -54,6 +54,8 @@ return table.freeze({
     UpgradeMaxOrInvalid = "Maksymalny lub nieprawidłowy upgrade.", ScooterNotOwned = "Nie posiadasz tej hulajnogi.",
     ScooterSelected = "Wybrano hulajnogę.", ScooterSpawned = "Hulajnoga gotowa — jedź!",
     ScooterDespawned = "Hulajnoga schowana.", ScooterDismounted = "Zszedłeś z hulajnogi.",
+    ScooterMounted = "Wsiadłeś — W: gaz, S: hamulec, Space: skok, E: zejdź.",
+    MountUnavailable = "Podejdź do swojej hulajnogi. Modele w salonie są wystawowe.",
     SpawnCooldown = "Odczekaj chwilę przed ponownym przywołaniem.", DespawnCooldown = "Odczekaj chwilę.",
     NoSafeSpawnLocation = "Podejdź na otwarty teren i spróbuj ponownie.",
     QuestStarted = "Paczka odebrana. Cel zaznaczono na minimapie.", QuestAlreadyActive = "Masz już aktywną dostawę.",

@@ -43,9 +43,11 @@ return function(loadMovement,loadObjective,GameConfig,ZoneWorldConfig,Validation
     check(movement:GetPosition(player)~=nil,"server-owned riding uses the vehicle motion budget")
     riding=false;root.Position=M.V(28,3,0);world.Tick(0.2)
     check(movement:GetPosition(player)~=nil,"ordinary dismount resets rolling foot budget without false teleport flag")
+    root.Position=M.V(28,-15,0)
+    check(movement:GetPosition(player)==nil and root.CFrame.Position.Y==3,"falling into the river restores last grounded position instead of an airborne point")
     -- Objective uses verified players, multiplayer membership, contest and a server timer.
     world=M.World()
-    local a,b,c=world.Player(1,220),world.Player(2,225),world.Player(3,300)
+    local a,b,c=world.Player(1,1050),world.Player(2,1055),world.Player(3,1150)
     local paid={}
     local objective=loadObjective(world.Game,M.Vector3,world.Clock)
     local state={}
@@ -64,10 +66,10 @@ return function(loadMovement,loadObjective,GameConfig,ZoneWorldConfig,Validation
     local after=0;for _ in paid do after+=1 end
     check(after==2,"cooldown prevents repeated point farming")
     world.Tick(180)
-    c.Character.HumanoidRootPart.Position=M.V(220,3,0)
+    c.Character.HumanoidRootPart.Position=M.V(1050,3,0)
     world.Tick(0.5)
     check(objective:GetSnapshot().Contested and objective:GetSnapshot().Progress==0,"other squad contests and resets hold")
-    c.Character.HumanoidRootPart.Position=M.V(300,3,0);state[b]=true
+    c.Character.HumanoidRootPart.Position=M.V(1150,3,0);state[b]=true
     world.Tick(0.5)
     check(objective:GetSnapshot().Progress==0,"downed/invalid member cannot satisfy squad objective")
     print("Zone movement/objective checks passed: "..checks)

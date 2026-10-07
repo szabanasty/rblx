@@ -107,11 +107,20 @@ function Service:Start()
     local dismount = Gui.Button(refs.Touch, "ZEJDŹ", function() context.Send("DismountScooter", {}) end)
     dismount.Position, dismount.Size, dismount.AnchorPoint = UDim2.new(1, -100, 1, -180), UDim2.fromOffset(80, 60), Vector2.new(1, 1)
     refs.Map = Gui.Create("Frame", screen, {Size = UDim2.fromOffset(130, 130), Position = UDim2.new(1, -12, 0, 84), AnchorPoint = Vector2.new(1, 0), BackgroundColor3 = Color3.fromRGB(22, 29, 39)})
+    local width = context.Config.Zones.WorldWidth
+    local worldConfig = context.Config.World
+    Gui.Create("Frame", refs.Map, {Position = UDim2.fromScale(0.5 + (worldConfig.River.X - worldConfig.River.Width / 2) / width, 0), Size = UDim2.fromScale(worldConfig.River.Width / width, 1), BackgroundColor3 = Color3.fromRGB(67, 146, 179), BorderSizePixel = 0})
+    Gui.Create("Frame", refs.Map, {Position = UDim2.fromScale(0.5 + (worldConfig.Bridge.X - worldConfig.Bridge.Length / 2) / width, 0.5 - 0.007), Size = UDim2.fromScale(worldConfig.Bridge.Length / width, 0.014), BackgroundColor3 = Color3.fromRGB(237, 204, 130), BorderSizePixel = 0})
     for _, id in {"SafeZone", "CombatZone", "FishingArea"} do
         local area = context.Config.Zones.Areas[id]
-        Gui.Create("Frame", refs.Map, {Position = UDim2.fromScale(0.5 + area.Center[1] / 800 - area.Size[1] / 1600, 0.5 + area.Center[3] / 800 - area.Size[3] / 1600),
-            Size = UDim2.fromScale(area.Size[1] / 800, area.Size[3] / 800), BorderSizePixel = 0,
+        Gui.Create("Frame", refs.Map, {Position = UDim2.fromScale(0.5 + area.Center[1] / context.Config.Zones.WorldWidth - area.Size[1] / (2 * context.Config.Zones.WorldWidth), 0.5 + area.Center[3] / context.Config.Zones.WorldWidth - area.Size[3] / (2 * context.Config.Zones.WorldWidth)),
+            Size = UDim2.fromScale(area.Size[1] / context.Config.Zones.WorldWidth, area.Size[3] / context.Config.Zones.WorldWidth), BorderSizePixel = 0,
             BackgroundColor3 = if id == "CombatZone" then Color3.fromRGB(155, 71, 88) else Color3.fromRGB(57, 149, 127)})
+    end
+    for _, name in {"Garage", "ScooterShop", "FishingDock"} do
+        local p = worldConfig.Locations[name]
+        local marker = Gui.Label(refs.Map, if name == "Garage" then "G" elseif name == "FishingDock" then "F" else "$", 12)
+        marker.Size, marker.TextSize, marker.Position = UDim2.fromOffset(12, 12), 10, UDim2.fromScale(0.5 + p.X / width, 0.5 + p.Z / width)
     end
     refs.MapPlayer = Gui.Create("Frame", refs.Map, {Size = UDim2.fromOffset(6, 6), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0})
     UserInputService.InputEnded:Connect(function(input: InputObject)
@@ -160,7 +169,7 @@ function Service:Update(snapshot: any)
     local canRide = state and state.State ~= "DOWNED" and state.State ~= "RESPAWNING"
     refs.Touch.Visible = UserInputService.TouchEnabled and telemetry.Riding and not menuOpen and canRide
     if not refs.Touch.Visible then releaseTouch() end
-    if data.Position then refs.MapPlayer.Position = UDim2.fromScale(0.5 + data.Position.X / 800, 0.5 + data.Position.Z / 800) end
+    if data.Position then refs.MapPlayer.Position = UDim2.fromScale(0.5 + data.Position.X / context.Config.Zones.WorldWidth, 0.5 + data.Position.Z / context.Config.Zones.WorldWidth) end
     if menuOpen then
         local memberIds: {number} = {}
         for _, member in data.Squad.Members do table.insert(memberIds, member.UserId) end

@@ -5,7 +5,7 @@ local context: any
 local actionLimiter: any
 local inputLimiter: any
 local history: {[Player]: {LastId: number, Cooldowns: {[string]: number}, Violations: number, LastLog: number}} = {}
-local cooldowns: {[string]: number} = {Sync = 0.5, SelectScooter = 0.3, SetSetting = 0.2, DismountScooter = 0.5, BuyScooter = 0.5, UpgradeScooter = 0.5, StartQuest = 0.75, CancelQuest = 0.3, Shoot = 0.09, HoldRevive = 0.2, CancelRevive = 0.1, ToggleFishing = 1, StopFishing = 0.5, SellFish = 0.5, InviteSquad = 2, AcceptSquad = 0.5, BuyCosmetic = 0.5, BuyEquipment = 0.5, EquipEquipment = 0.3, SwitchEquipment = 0.2, Reload = 0.3, ChargeScooter = 1}
+local cooldowns: {[string]: number} = {Sync = 0.5, MountScooter = 0.5, SelectScooter = 0.3, SetSetting = 0.2, DismountScooter = 0.5, BuyScooter = 0.5, UpgradeScooter = 0.5, StartQuest = 0.75, CancelQuest = 0.3, Shoot = 0.09, HoldRevive = 0.2, CancelRevive = 0.1, ToggleFishing = 1, StopFishing = 0.5, SellFish = 0.5, InviteSquad = 2, AcceptSquad = 0.5, BuyCosmetic = 0.5, BuyEquipment = 0.5, EquipEquipment = 0.3, SwitchEquipment = 0.2, Reload = 0.3, ChargeScooter = 1}
 local function record(player: Player)
     local state = history[player]
     if not state then
@@ -91,6 +91,8 @@ function NetworkService:Start()
                 success, message = context.Services.Scooter:Select(player, request.Payload.ScooterId)
             elseif request.Action == "SpawnScooter" then
                 success, message = context.Services.Scooter:Spawn(player)
+            elseif request.Action == "MountScooter" then
+                success, message = context.Services.Scooter:Mount(player)
             elseif request.Action == "DespawnScooter" then
                 success, message = context.Services.Scooter:Despawn(player)
             elseif request.Action == "DismountScooter" then

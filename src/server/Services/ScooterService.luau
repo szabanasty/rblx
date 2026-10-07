@@ -3,6 +3,8 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Factory = require(script.Parent.Parent.Modules.ScooterFactory)
+local Mount = require(script.Parent.Parent.Modules.ScooterMount)
+local Pose = require(script.Parent.Parent.Modules.ScooterPose)
 
 type Input = { Throttle: number, Steer: number, Brake: boolean, Jump: boolean }
 type Stats = {
@@ -104,6 +106,7 @@ local function remove(player: Player, announce: boolean)
 		return
 	end
 	states[player] = nil
+    Pose.Clear(player)
     local profile = context.Services.PlayerData:GetProfile(player)
     if profile then profile.ScooterBatteries[state.Stats.Id] = state.BatteryCharge; context.Services.PlayerData:MarkDirty(player) end
 	for _, connection in state.Connections do
@@ -121,27 +124,11 @@ local function remove(player: Player, announce: boolean)
 end
 
 local function mount(player: Player, state: State): boolean
-	if states[player] ~= state or not context.Services.PlayerData:IsReady(player) then
-		return false
-	end
-	if context.Services.State and not context.Services.State:IsAllowed(player, "Drive") then return false end
-	local humanoid, characterRoot = alive(player)
-	if not humanoid or not characterRoot or humanoid.SeatPart then
-		return false
-	end
-	if (characterRoot.Position - state.Assembly.Root.Position).Magnitude > 14 then
-		return false
-	end
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = { player.Character :: Model, state.Assembly.Model }
-	local direction = state.Assembly.Seat.Position - characterRoot.Position
-	if Workspace:Raycast(characterRoot.Position, direction, params) then
-		return false
-	end
-	state.Assembly.Seat:Sit(humanoid)
-	serverOwnership(state)
-	return true
+    if states[player] ~= state then return false end
+    if not Mount.Try(player, state.Assembly, context) then return false end
+    serverOwnership(state)
+    notify(player)
+    return true
 end
 
 local function spawnPosition(player: Player, characterRoot: BasePart): CFrame?
@@ -238,6 +225,10 @@ local function step(player: Player, state: State, dt: number, now: number)
 		restore(player, state, "invalid-motion")
 		return
 	end
+	if context.Config.Game.ZoneGame and (position.Y < context.Config.Game.MinimumWorldY or math.abs(position.X) > context.Config.Game.WorldHalfWidth or math.abs(position.Z) > context.Config.Game.WorldHalfWidth) then
+        restore(player, state, "world-boundary")
+        return
+    end
 	if position.Y < -100 then
 		remove(player, true)
 		return
@@ -247,7 +238,6 @@ local function step(player: Player, state: State, dt: number, now: number)
 		distances[player] = (distances[player] or 0) + planarDelta.Magnitude / studsPerMeter
 	end
 	state.LastPosition = position
-	state.LastSafeCFrame = root.CFrame
 	state.LastVerticalSpeed = velocity.Y
 	local input = state.Input
 	if not isRiding or now - state.LastInputAt > gameConfig.InputTimeout then
@@ -264,6 +254,7 @@ local function step(player: Player, state: State, dt: number, now: number)
         end
     end
 	local onGround = grounded(player, state)
+    if onGround then state.LastSafeCFrame = root.CFrame end
 	local forward = CFrame.Angles(0, state.Yaw, 0).LookVector
 	local right = Vector3.new(-forward.Z, 0, forward.X)
 	local forwardSpeed = planarVelocity:Dot(forward)
@@ -415,7 +406,9 @@ function ScooterService:Spawn(player: Player, id: string?): (boolean, string)
 		state.LastInputAt = os.clock()
 		assembly.Prompt.Enabled = occupant == nil
 		serverOwnership(state)
+        if occupant == ownerHumanoid then Pose.Apply(player, assembly.Root) end
 		if not occupant then
+            Pose.Clear(player)
 			releaseCharacterOwnership(player, assembly.Root)
 		end
 		notify(player)
@@ -423,12 +416,20 @@ function ScooterService:Spawn(player: Player, id: string?): (boolean, string)
 	table.insert(state.Connections, humanoid.Died:Connect(function()
 		remove(player, true)
 	end))
-	-- Mounting on the next scheduler turn allows Studio to assemble the welds first.
-	task.defer(function()
-		mount(player, state)
-	end)
+    -- Assembly parenting and native seating are asynchronous. Retry only this owner's current vehicle.
+    for _, delaySeconds in {0.15, 0.5, 1.2} do
+        task.delay(delaySeconds, function()
+            if states[player] == state and not riding(player, state) then mount(player, state) end
+        end)
+    end
 	notify(player)
 	return true, "ScooterSpawned"
+end
+
+function ScooterService:Mount(player: Player): (boolean, string)
+    local state = states[player]
+    if not state or not mount(player, state) then return false, "MountUnavailable" end
+    return true, "ScooterMounted"
 end
 
 function ScooterService:Despawn(player: Player): (boolean, string)
@@ -453,6 +454,7 @@ function ScooterService:Dismount(player: Player): (boolean, string)
 	state.Input = idle()
 	state.JumpUntil = 0
 	humanoid.Sit = false
+    Pose.Clear(player)
 	releaseCharacterOwnership(player, state.Assembly.Root)
 	serverOwnership(state)
 	notify(player)

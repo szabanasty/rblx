@@ -58,7 +58,7 @@ function Validation.ParseAction(value: any): (ActionRequest?, string?)
     elseif action == "BuyCosmetic" then
         if not fields(payload, {Category = true, Option = true}, 2) or type(payload.Category) ~= "string" or #payload.Category > 32
             or type(payload.Option) ~= "string" or #payload.Option > 64 then return nil, "InvalidCosmetic" end
-    elseif action == "Sync" or action == "SpawnScooter" or action == "DespawnScooter" or action == "DismountScooter" or action == "CancelQuest" then
+    elseif action == "Sync" or action == "SpawnScooter" or action == "MountScooter" or action == "DespawnScooter" or action == "DismountScooter" or action == "CancelQuest" then
         if not fields(payload, {}, 0) then return nil, "InvalidPayload" end
     elseif action == "SelectScooter" or action == "BuyScooter" then
         if not fields(payload, {ScooterId = true}, 1)

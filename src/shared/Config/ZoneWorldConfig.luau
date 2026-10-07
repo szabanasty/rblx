@@ -1,11 +1,14 @@
 --!strict
 return table.freeze({
-    Width = 800, DayLengthSeconds = 1200,
+    Width = 2800, DayLengthSeconds = 1200,
+    River = {X = 520, Width = 180, WaterY = -7},
+    Bridge = {X = 520, Z = 0, Length = 220, Width = 46, DeckTop = 0.3},
+    Spawn = {X = -25, Z = 60},
     Locations = {
-        Garage = {X = -45, Z = -40, Radius = 22}, ScooterShop = {X = 45, Z = -40, Radius = 22},
-        UpgradeShop = {X = 45, Z = 45, Radius = 22}, EquipmentShop = {X = -45, Z = 45, Radius = 22},
-        CosmeticsShop = {X = 0, Z = 55, Radius = 18},
-        FishingDock = {X = -220, Z = 160, Radius = 12}, FishBuyer = {X = -220, Z = 110, Radius = 18},
+        Garage = {X = -180, Z = -58, Radius = 60}, ScooterShop = {X = -80, Z = -58, Radius = 60},
+        UpgradeShop = {X = 30, Z = -58, Radius = 60}, EquipmentShop = {X = 145, Z = -58, Radius = 60},
+        CosmeticsShop = {X = -180, Z = 145, Radius = 60},
+        FishingDock = {X = -340, Z = 355, Radius = 14}, FishBuyer = {X = -340, Z = 285, Radius = 55},
     },
-    Objective = {X = 220, Z = 0, Radius = 24, HoldSeconds = 30, CooldownSeconds = 180, MinimumMembers = 2, Reward = 150},
+    Objective = {X = 1050, Z = 0, Radius = 24, HoldSeconds = 30, CooldownSeconds = 180, MinimumMembers = 2, Reward = 150},
 })

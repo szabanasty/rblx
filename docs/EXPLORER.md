@@ -1,4 +1,4 @@
-# Explorer po synchronizacji 0.5.0
+# Explorer 0.6.0
 
 ```text
 ReplicatedStorage [ReplicatedStorage]
@@ -46,7 +46,12 @@ ReplicatedStorage [ReplicatedStorage]
 ServerScriptService [ServerScriptService]
   Server [Script]
     Modules [Folder]
+      CityScene [ModuleScript]
+      IslandScene [ModuleScript]
+      SceneBuilder [ModuleScript]
       ScooterFactory [ModuleScript]
+      ScooterMount [ModuleScript]
+      ScooterPose [ModuleScript]
       WorldBuilder [ModuleScript]
     Services [Folder]
       AvatarPresentationService [ModuleScript]
@@ -108,9 +113,11 @@ Workspace [Workspace]
     Garage [Folder]
     Roads [Folder]
     SafeZone [Folder]
+    ScenePreview [Model]
+      … 1092 zakotwiczone części i etykiety
     Shops [Folder]
   SpawnLocation [SpawnLocation]
   Vehicles [Folder]
 ```
 
-Przy Play dochodzą `Workspace.Map.ZoneGenerated` (autorska geometria, prompty, showrooms), `Workspace.Vehicles` (pojazdy graczy), `Players.<Nazwa>.PlayerGui.KukirinZone` i GUI efektów/combat/revive/markerów, `Character.ArcadeEquipment`, opcjonalnie `PlaceholderClothing` i `Head.ZoneTitle`, oraz leaderstats. Statyczne `Map.*` i `ServerStorage.ScooterModels/EquipmentTemplates` są kontenerami ręcznej przyszłej integracji. Generator zmienia tylko własną zawartość ZoneGenerated.
+Po Play ScenePreview znika, a Map.ZoneGenerated zawiera osobne modele miasta, mostu, areny, sklepów, ekspozycji i jeziora. Hulajnogi własne: Workspace.Vehicles; StarterGui tworzone kodem pod PlayerGui.KukirinZone + GUI kontrolerów; R15 ma pod Humanoid IKControl ScooterPose_* i target attachments pod Chassis. Kontenery Map.Buildings/Cover/etc są zachowane dla przyszłych ręcznych dekoracji.

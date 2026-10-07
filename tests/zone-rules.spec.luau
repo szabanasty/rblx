@@ -19,9 +19,10 @@ return function(StateRules, ZoneRules, SquadStore, FishingRules, CombatConfig, Z
     state.Fishing=true;state.Area="FishingArea";state.TaggedUntil=0
     check(StateRules.State(state,30)=="FISHING" and not StateRules.CanAct(state,"Shoot",30),"fishing locks combat")
     check(ZoneRules.At({X=0,Y=3,Z=0},ZoneConfig)=="SafeZone","spawn inside safe")
-    check(ZoneRules.At({X=220,Y=3,Z=0},ZoneConfig)=="CombatZone","combat geometry bounds")
-    check(ZoneRules.At({X=-220,Y=3,Z=160},ZoneConfig)=="FishingArea","dock inside fishing")
+    check(ZoneRules.At({X=1050,Y=3,Z=0},ZoneConfig)=="CombatZone","combat geometry bounds")
+    check(ZoneRules.At({X=-340,Y=3,Z=355},ZoneConfig)=="FishingArea","dock inside fishing")
     check(ZoneRules.At({X=0,Y=200,Z=0},ZoneConfig)=="City","vertical bounds prevent sky-safe flag")
+    check(ZoneRules.At({X=520,Y=3,Z=0},ZoneConfig)=="City" and ZoneRules.At({X=750,Y=3,Z=0},ZoneConfig)=="City","bridge and approach stay outside the distant combat boundary")
     local squad=SquadStore.new(4)
     check(squad:Create(1) and not squad:Create(1),"one membership per player")
     for id=2,4 do check(squad:Invite(1,id,0) and squad:Accept(id,1),"server invite acceptance "..id) end

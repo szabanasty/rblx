@@ -21,6 +21,7 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
             button((if data.SelectedScooter == id then "✓ " else "") .. item.DisplayName .. " • " .. item.Class, "SelectScooter", {ScooterId = id})
         end
         button("PRZYWOŁAJ", "SpawnScooter")
+        button("WSIĄDŹ — podejdź do swojej hulajnogi", "MountScooter")
         button("ZEJDŹ", "DismountScooter")
         button("SCHOWAJ", "DespawnScooter")
         button("NAŁADUJ — przy garażu, po zejściu", "ChargeScooter")
@@ -79,7 +80,7 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
         end
     elseif page == "FishBuyer" then
         local fishing = data.Fishing
-        label("AUTO FISHING — pomost (-220, 160). FISH BUYER (-220, 110).\nInventory " .. #fishing.Inventory .. "/" .. fishing.Limit)
+        label("AUTO FISHING — jezioro za miastem. Pomost i FISH BUYER zaznaczone na mapie.\nInventory " .. #fishing.Inventory .. "/" .. fishing.Limit)
         button(if fishing.Active then "STOP ŁOWIENIA" else "ŁÓW — przy pomoście", "ToggleFishing")
         button("SPRZEDAJ WSZYSTKIE — przy FISH BUYER", "SellFish", {Index = 0, Revision = fishing.Revision})
         for _, fish in fishing.Inventory do

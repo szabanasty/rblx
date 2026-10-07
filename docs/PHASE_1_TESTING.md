@@ -1,7 +1,7 @@
-# Odbiór mapy i stref
+# Odbiór mapy 0.6.0
 
-Aktualny pełny odbiór znajduje się w [TESTING.md](TESTING.md). Ta karta dotyczy PHASE1, już połączonego z resztą gry w 0.5.0.
+Pełna checklista: [TESTING.md](TESTING.md), nowy układ i podglądy: [WORLD_060.md](WORLD_060.md).
 
-Play tworzy Map.ZoneGenerated. SAFE: X/Z -80..80; COMBAT: X100..340/Z-130..130; FISHING: X-285..-155/Z95..225. Granice Y±30. Poza strefami CITY. HUD pokazuje aktualny obszar zatwierdzony przez Movement. Sprawdź pieszo i hulajnogą przekroczenie granic, stacje w SAFE, pomost/buyer, cover/rampy i objective.
+SAFE: X/Z±280. Rzeka: X430–610. Most: X410–630, Z±23. COMBAT: X800–1300, Z±300. FISHING: X-450..-230, Z250..460. Obszary mają pionowe granice Y±40; poza nimi CITY. Spawn(-25,60), objective(1050,0).
 
-Po trafieniu combat tag20s zachowuje się po wejściu SAFE; nigdy nie resetuje się od samej granicy. Bez tagu SAFE i FISHING chronią przed damage. Nie wolno teleportem uruchomić sklepu/fishing/objective: MovementGuard ma cofnąć postać i krótko odmówić akcji, bez kicku za jedną flagę. Pomiary tolerancji lag/ramp/dismount nadal wymagają silnika.
+Sprawdź widoczną mapę w edytorze, interakcje po Play, otwarte drzwi i pickup garażu, faktyczny przejazd mostem, detekcję dalekiej areny, tag20s zachowany po wejściu Safe, reakcję na spadek do rzeki, latency i powtórne wsiadanie. Testy geometrii nie zastępują engine physics.

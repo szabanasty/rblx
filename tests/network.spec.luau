@@ -12,7 +12,7 @@ return function(loadService, Validation, RateLimiter, GameConfig)
         local now=100
         local players={PlayerRemoving=signal(),GetPlayers=function() return {} end}
         local player={UserId=123,Parent=players}
-        local calls={Spawn=0,Despawn=0,Select=0,Input=0,Sync=0,Dismount=0,Notify=0,Feedback=0,Dirty=0,Buy=0,Upgrade=0,Quest=0}
+        local calls={Spawn=0,Despawn=0,Select=0,Input=0,Sync=0,Mount=0,Dismount=0,Notify=0,Feedback=0,Dirty=0,Buy=0,Upgrade=0,Quest=0}
         local profile={Settings={UIScale=1}}
         local remotes={Action={OnServerEvent=signal()},Input={OnServerEvent=signal()},Feedback={FireClient=function(_,_,_) calls.Feedback+=1 end}}
         local legacyConfig=table.clone(GameConfig)
@@ -24,6 +24,7 @@ return function(loadService, Validation, RateLimiter, GameConfig)
                 PlayerData={IsReady=function() return true end,GetProfile=function() return profile end,MarkDirty=function() calls.Dirty+=1 end},
                 Scooter={
                     Spawn=function() calls.Spawn+=1;return true,"Spawned" end,
+                    Mount=function() calls.Mount+=1;return true,"ScooterMounted" end,
                     Despawn=function() calls.Despawn+=1;return true,"Despawned" end,
                     Select=function() calls.Select+=1;return false,"NotOwned" end,
                     Dismount=function() calls.Dismount+=1;return true,"Dismounted" end,
@@ -58,6 +59,9 @@ return function(loadService, Validation, RateLimiter, GameConfig)
     f.Remotes.Action.OnServerEvent:Fire(f.Player,{Action="UpgradeScooter",Payload={ScooterId="kukirin_g2",Category="Motor"},RequestId=5})
     f.Remotes.Action.OnServerEvent:Fire(f.Player,{Action="StartQuest",Payload={QuestId="first_delivery"},RequestId=6})
     check(f.Calls.Buy==1 and f.Calls.Upgrade==1 and f.Calls.Quest==1,"shop and quest intents route to server services")
+    f.Tick(1)
+    f.Remotes.Action.OnServerEvent:Fire(f.Player,{Action="MountScooter",Payload={},RequestId=7})
+    check(f.Calls.Mount==1,"explicit mount intent routes to owned scooter service")
     local flood=fixture()
     for id=1,500 do flood.Remotes.Action.OnServerEvent:Fire(flood.Player,{Action="SpawnScooter",Payload={},RequestId=id}) end
     check(flood.Calls.Spawn==GameConfig.ActionBurst,"action burst bounded")
@@ -73,14 +77,14 @@ return function(loadService, Validation, RateLimiter, GameConfig)
     check(flood.Calls.Spawn==GameConfig.ActionBurst+1,"player cleanup removes rate/history state")
     local foundation=fixture()
     foundation.Context.Config.Game.FoundationOnly=true
-    for id,action in {"SpawnScooter","DespawnScooter","DismountScooter"} do
+    for id,action in {"SpawnScooter","DespawnScooter","DismountScooter","MountScooter"} do
         foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action=action,Payload={},RequestId=id})
     end
     foundation.Remotes.Input.OnServerEvent:Fire(foundation.Player,{Throttle=1,Steer=0,Brake=false,Jump=false})
-    check(foundation.Calls.Spawn==0 and foundation.Calls.Despawn==0 and foundation.Calls.Dismount==0 and foundation.Calls.Input==0,"phase 0 disables gameplay even through valid legacy remotes")
-    foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action="SetSetting",Payload={Name="UIScale",Value=1.25},RequestId=4})
+    check(foundation.Calls.Spawn==0 and foundation.Calls.Despawn==0 and foundation.Calls.Dismount==0 and foundation.Calls.Mount==0 and foundation.Calls.Input==0,"phase 0 disables gameplay even through valid legacy remotes")
+    foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action="SetSetting",Payload={Name="UIScale",Value=1.25},RequestId=5})
     check(foundation.Profile.Settings.UIScale==1.25,"phase 0 still validates settings")
-    foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action="Sync",Payload={},RequestId=5})
+    foundation.Remotes.Action.OnServerEvent:Fire(foundation.Player,{Action="Sync",Payload={},RequestId=6})
     check(foundation.Calls.Sync==1,"phase 0 provides a real state synchronization endpoint")
     local zone=fixture()
     local routed={Shoot=0,Reload=0,Revive=0,Sell=0,Squad=0,Cosmetic=0,Charge=0}

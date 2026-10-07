@@ -32,6 +32,7 @@ end
 if context.Config.Game.FoundationOnly then
     context.Controllers = {FoundationController = require(controllerFolder:WaitForChild("FoundationController"))}
 elseif context.Config.Game.ZoneGame then
+    context.Config.World = require(config:WaitForChild("ZoneWorldConfig"))
     context.Controllers = {
         UIController = require(controllerFolder:WaitForChild("ZoneUIController")), InputController = require(controllerFolder:WaitForChild("InputController")),
         CombatController = require(controllerFolder:WaitForChild("CombatController")), ReviveController = require(controllerFolder:WaitForChild("ReviveController")),

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Run the actual Luau sources against deterministic mocks, Rojo and Roblox types."""
 import argparse
+import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -80,6 +82,15 @@ def main():
     for name in ("SafeZone", "CombatZone", "FishingArea", "Roads", "Garage", "Shops", "Buildings", "Cover"):
         folder = child(map_folder, name)
         assert folder.attrib["class"] == "Folder" and not folder.findall("Item"), name
+    preview = child(map_folder, "ScenePreview")
+    preview_source = json.loads((ROOT / "assets/map-preview.model.json").read_text())
+    assert len(preview.findall("Item")) == len(preview_source["Children"])
+    for expected_part in preview_source["Children"]:
+        part = child(preview, expected_part["Name"])
+        assert part.attrib["class"] == "Part"
+        assert part.find('./Properties/bool[@name="Anchored"]').text == "true"
+        cf = part.find('./Properties/CoordinateFrame[@name="CFrame"]')
+        assert all(abs(float(cf.find(axis).text) - value) < 0.001 for axis, value in zip(("X", "Y", "Z"), expected_part["Properties"]["CFrame"][:3]))
     storage = child(document, "ServerStorage")
     for name in ("ScooterModels", "EquipmentTemplates"):
         folder = child(storage, name)
@@ -99,6 +110,8 @@ def main():
         "FishingConfig": "Config/FishingConfig", "PvPRewardConfig": "Config/PvPRewardConfig", "ZoneConfig": "Config/ZoneConfig",
     }.items())
     suites = {
+        "scooter-pose": wrapped("src/server/Modules/ScooterPose.luau", "Instance, Enum") + spec("tests/scooter-pose.spec.luau", "loadService"),
+        "scooter-mount": wrapped("src/server/Modules/ScooterMount.luau", "game, CFrame, RaycastParams, Enum") + spec("tests/scooter-mount.spec.luau", "loadService"),
         "zone-world": wrapped("src/server/Services/MovementService.luau", "game, Vector3, CFrame, RaycastParams, Enum, os, warn", "loadMovement")
             + wrapped("src/server/Services/ObjectiveService.luau", "game, Vector3, os", "loadObjective")
             + spec("tests/zone-world.spec.luau", "loadMovement, loadObjective, GameConfig, ZoneWorldConfig, Validation"),
@@ -127,6 +140,9 @@ def main():
         target = generated / (name + ".luau")
         target.write_text(imports + code)
         run([luau, str(target.relative_to(ROOT))])
+    run([sys.executable, "scripts/export-scene.py", str("--tools-dir"), args.tools_dir])
+    run([sys.executable, "scripts/check-scene.py"])
+    run([sys.executable, "scripts/generate-preview.py", "--check"])
     print(f"PASS: {len(suites)} deterministic Luau suites. Roblox Studio gameplay/physics are separate manual tests.", flush=True)
 
 
