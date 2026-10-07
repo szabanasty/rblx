@@ -9,6 +9,7 @@
 
 # Optional local tool installation.
 /.tools/
+/tests/.generated/
 
 # Roblox Studio temporary lock and recovery files.
 *.rbxl.lock

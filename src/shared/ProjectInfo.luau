@@ -2,7 +2,7 @@
 
 local ProjectInfo = {
 	Name = "rblx",
-	Version = "0.1.0",
+	Version = "0.3.0",
 }
 
 return table.freeze(ProjectInfo)

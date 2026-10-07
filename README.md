@@ -1,203 +1,114 @@
-# rblx — projekt Roblox/Luau
+# Kukirin City — Roblox/Luau + Rojo
 
-Czysty punkt startowy do tworzenia gry w Roblox Studio. Kod Luau jest przechowywany w plikach, a **Rojo 7.7.1** synchronizuje go ze Studio. Projekt zawiera tylko konfigurację, wspólny moduł, dwa skrypty sprawdzające synchronizację oraz prostą platformę ze spawnem. Nie zawiera jeszcze mechaniki gry ani zewnętrznych bibliotek.
+Wersja 0.3.0: modularny prototyp multiplayer. Zawiera serwerowe dane i ekonomię, hulajnogi, HUD i sterowanie dotykowe, oryginalne miasto z prostych części, ruch NPC, dzień/noc, sklepy, sześć aktywnych kategorii ulepszeń oraz dostawę sprawdzaną przez serwer.
 
-## Struktura projektu
+Kod przeszedł kompilację, analizę typów Roblox i testy logiki w chmurze. **Fizyka, wygląd UI, prawdziwy multiplayer i produkcyjny DataStore wymagają testu w Roblox Studio.** Nie są jeszcze potwierdzone testem w silniku. Projekt nie wymaga modeli, animacji, muzyki ani assetów z Toolboxa.
 
-```text
-rblx/
-├── default.project.json       # konfiguracja i drzewo obiektów Rojo
-├── src/
-│   ├── server/
-│   │   └── init.server.luau   # serwerowy Script
-│   ├── client/
-│   │   └── init.client.luau   # kliencki LocalScript
-│   └── shared/
-│       └── ProjectInfo.luau   # współdzielony ModuleScript
-├── scripts/
-│   └── install-tools.sh      # opcjonalna instalacja narzędzi na Linux x86_64
-├── .gitignore
-└── README.md
-```
+## Uruchomienie na Twoim komputerze — Windows
 
-Mapowanie zapisane w `default.project.json`:
+Jeśli masz już Rojo i działającą wtyczkę, wykonaj kroki 1, 3, 4 i 5.
 
-| Plik lub katalog | Obiekt w Roblox Studio |
-| --- | --- |
-| `src/server/init.server.luau` | `ServerScriptService.Server` — `Script` |
-| `src/client/init.client.luau` | `StarterPlayer.StarterPlayerScripts.Client` — `LocalScript` |
-| `src/shared/` | `ReplicatedStorage.Shared` — `Folder` |
-| `src/shared/ProjectInfo.luau` | `ReplicatedStorage.Shared.ProjectInfo` — `ModuleScript` |
+1. Zatrzymaj Play w Studio. W starym PowerShell zatrzymaj Rojo przez **Ctrl+C**. Pobierz [aktualny ZIP projektu](https://github.com/szabanasty/rblx/archive/refs/heads/main.zip) i wypakuj do nowego folderu. Nie nadpisuj własnych zmian bez kopii. Właściwy folder zawiera `default.project.json`, `src` i `README.md`.
+2. Pobierz [Rojo 7.7.1](https://github.com/rojo-rbx/rojo/releases/tag/v7.7.1), plik `rojo-7.7.1-windows-x86_64.zip`. Wypakuj `rojo.exe` do `.tools` w folderze projektu. Roblox Studio pobierzesz z [oficjalnej strony](https://create.roblox.com/). Git, Node.js i Python nie są potrzebne do grania w prototyp.
+3. Otwórz PowerShell w folderze z `default.project.json` i wykonaj:
 
-Plik `init` sprawia, że odpowiadający mu katalog staje się skryptem. Dlatego `Server` i `Client` są skryptami, a kolejne pliki w tych katalogach zostaną ich dziećmi. Zwykły plik `.luau` tworzy `ModuleScript`; `.server.luau` tworzy `Script`, a `.client.luau` tworzy `LocalScript`.
+   ```powershell
+   .\.tools\rojo.exe --version
+   .\.tools\rojo.exe plugin install
+   .\.tools\rojo.exe serve default.project.json
+   ```
 
-Konfiguracja tworzy też `Workspace.Baseplate` i `Workspace.SpawnLocation`, żeby można było uruchomić pustą scenę i zobaczyć postać.
+   Powinien pojawić się `Rojo server listening`, `localhost`, port `34872`. Zostaw to okno otwarte. Jeśli masz wtyczkę, polecenie `plugin install` nie jest potrzebne ponownie. Po pierwszej instalacji uruchom ponownie Studio.
+4. Otwórz czysty Baseplate w Studio. Zatrzymaj ewentualny test. W zakładce **Dodatki plug-in / Plugins** otwórz **Rojo**, wybierz **Connect**, adres `localhost`, port `34872`, a następnie połącz i zaakceptuj synchronizację drzewa tego projektu. Po aktualizacji ZIP rozłącz poprzednie połączenie i połącz nowe. Kod ma pojawić się w miejscach opisanych poniżej.
+5. Włącz **Play / F5**. Użyj Play, aby uruchomić gracza i klienta; samo Run nie jest pełnym testem. Miasto powstaje dopiero podczas Play. W Output / Wyjście powinny pojawić się `Core ready (version 0.3.0)` dla serwera i klienta oraz informacja o trybie zapisu.
 
-## Co trzeba zainstalować na komputerze
-
-Wymagane są:
-
-1. **Roblox Studio** na Windows lub macOS: [oficjalna instrukcja instalacji](https://create.roblox.com/docs/studio/setup). Uruchom je i zaloguj się na konto Roblox.
-2. **Rojo CLI 7.7.1**: [oficjalne wydanie](https://github.com/rojo-rbx/rojo/releases/tag/v7.7.1).
-3. **Wtyczka Rojo do Roblox Studio**, instalowana z tego samego CLI poleceniem `rojo plugin install`.
-
-Edytor jest dowolny. Opcjonalnie możesz zainstalować Visual Studio Code i rozszerzenie [Luau Language Server — `JohnnyMorganz.luau-lsp`](https://marketplace.visualstudio.com/items?itemName=JohnnyMorganz.luau-lsp). Nie jest ono wymagane do synchronizacji. Projekt nie wymaga Node.js, Wally ani menedżera narzędzi.
-
-### Windows
-
-Pobierz odpowiednie archiwum z oficjalnego wydania:
-
-| Komputer | Archiwum |
-| --- | --- |
-| Zwykły Windows z procesorem Intel/AMD | [rojo-7.7.1-windows-x86_64.zip](https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-windows-x86_64.zip) |
-| Windows na ARM | [rojo-7.7.1-windows-aarch64.zip](https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-windows-aarch64.zip) |
-
-Rozpakuj `rojo.exe` do `%USERPROFILE%\Tools\Rojo\7.7.1`. W PowerShell ustaw ścieżkę dla bieżącej sesji i sprawdź wersję:
+Alternatywnie zbuduj samodzielny plik miejsca:
 
 ```powershell
-$env:Path = "$env:USERPROFILE\Tools\Rojo\7.7.1;$env:Path"
-rojo --version
+.\.tools\rojo.exe build default.project.json --output rblx.rbxlx
 ```
 
-Oczekiwany wynik: `Rojo 7.7.1`. Aby polecenie było dostępne po otwarciu kolejnego terminala, dodaj ten katalog do zmiennej użytkownika `Path` w ustawieniach zmiennych środowiskowych Windows.
+Otwórz `rblx.rbxlx` w Studio. Do późniejszej synchronizacji nadal służy `rojo serve`. Na macOS użyj archiwum Rojo dla swojej architektury, `./rojo plugin install` i `./rojo serve default.project.json`.
 
-### macOS
+## Pierwszy przejazd
 
-Pobierz archiwum dla swojego procesora:
+- Masz bezpłatną KuKirin G2, 100 Money i Level 1. Otwórz **GARAŻ → PRZYWOŁAJ**. Serwer szuka wolnego miejsca obok gracza i próbuje automatycznie posadzić go na hulajnodze. Jeśli nie wsiądziesz, podejdź i użyj **E** / przycisku promptu.
+- PC: **W / ↑** gaz, **S / ↓** hamulec, **A/D / ←/→** skręt, **Space** skok, **E** zejdź. Przy punktach sklepu i garażu **F** otwiera menu.
+- Telefon/tablet: przyciski **GAZ, HAMULEC, ←, →, SKOK, ZEJDŹ**. Interakcje mają standardowy przycisk ProximityPrompt Roblox. Rozmiary UI reagują na viewport. Nie ma jeszcze driftu ani tricków poza fizycznym skokiem.
+- Gamepad: lewy drążek skręt/gaz, R2 gaz, L2 hamulec, A skok, B zejdź, X interakcja. Nawigacja całego menu gamepadem wymaga osobnego odbioru.
+- Za każde 250 zweryfikowanych metrów jazdy serwer nalicza 25 Money i 15 XP. Awans daje do 100 Money, mieszcząc się w limicie dziennym. W prototypie wszystkie źródła wspólnie mają limity: 1000 Money, 2000 XP i 200 Reputation na dobę UTC.
+- Przy spawnie są **GARAŻ** `(65,65)`, **HULAJNOGI** `(95,65)`, **UPGRADE** `(65,95)` i **DOSTAWY** `(95,95)`; podane współrzędne to X/Z. Zsiądź przed zakupem.
+- Zarób 25 Money, podejdź do UPGRADE i kup pierwszy silnik za 125. Kupno odbywa się tylko blisko właściwego punktu; globalne MENU pozwala przeglądać oferty. Poziomy upgrade wynoszą 0–3, wymagania Level 1/4/7.
+- Odbierz **Pierwszą dostawę**, przywołaj hulajnogę i jedź do zielonego punktu `(220,-140)`, widocznego na minimapie. Potrzeba minimum 45 m sprawdzonej jazdy, 12 sekund i dotarcia hulajnogą w promień 20 studów w ciągu 180 sekund. Ukończenie jest automatyczne: 80 Money, 30 XP i 2 Reputation, do pozostałego dziennego limitu. Następna dostawa po 120 sekundach.
+- MENU → OPCJE pozwala zmienić skalę HUD i lokalną widoczność dekoracji. Ustawienia dźwięku i Reduced Effects są zapisane w schemacie na przyszłe assety; w tej wersji nie ma muzyki ani VFX do ograniczenia.
 
-| Komputer | Archiwum |
-| --- | --- |
-| Apple Silicon, np. M1/M2/M3/M4 | [rojo-7.7.1-macos-aarch64.zip](https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-macos-aarch64.zip) |
-| Mac z procesorem Intel | [rojo-7.7.1-macos-x86_64.zip](https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-macos-x86_64.zip) |
+G2 ma maksymalnie 35 km/h, G3 45 km/h (12000 Money, Level 8), G4 55 km/h (45000 Money, Level 20). To świadomie dłuższy progres; obecny balans jest prototypowy. Statystyki prędkości, przyspieszenia, hamowania, skrętu, skoku i stabilności wpływają na kontroler serwera. Bateria jest skonfigurowana, lecz **jej upgrade jest zablokowany do czasu dodania zużycia i ładowania**.
 
-Rozpakuj archiwum. W terminalu przejdź do katalogu zawierającego rozpakowany plik `rojo` i wykonaj:
+## Gdzie znajdują się pliki w Roblox Studio
 
-```sh
-mkdir -p "$HOME/.local/bin"
-install -m 755 ./rojo "$HOME/.local/bin/rojo"
-export PATH="$HOME/.local/bin:$PATH"
-rojo --version
-```
+| Repozytorium | Roblox Studio | Rodzaj |
+| --- | --- | --- |
+| `src/server/init.server.luau` | `ServerScriptService.Server` | Script startowy |
+| `src/server/Services/*.luau` | `ServerScriptService.Server.Services` | ModuleScripts usług |
+| `src/server/Modules/*.luau` | `ServerScriptService.Server.Modules` | ModuleScripts builderów |
+| `src/client/init.client.luau` | `StarterPlayer.StarterPlayerScripts.Client` | LocalScript startowy |
+| `src/client/Controllers/*.luau` | `…Client.Controllers` | ModuleScripts klienta |
+| `src/client/Modules/*.luau` | `…Client.Modules` | Wspólne funkcje GUI klienta |
+| `src/shared/*` | `ReplicatedStorage.Shared` | Config, Modules, Types, ProjectInfo |
+| RemoteEvents z `default.project.json` | `ReplicatedStorage.Remotes` | Action, Input, Snapshot, Feedback |
+| Modele generowane przy Play | `Workspace.Map.Generated`, `Workspace.Vehicles` | Miasto, NPC, aktywne hulajnogi |
+| Interfejs generowany przy Play | `Players.<gracz>.PlayerGui` | KukirinHUD, KukirinMenus, KukirinMinimap |
 
-Oczekiwany wynik: `Rojo 7.7.1`. Dopisz `export PATH="$HOME/.local/bin:$PATH"` do `~/.zshrc`, żeby ustawienie działało również w kolejnych terminalach.
+Nie przenoś Services obok Server ani Controllers obok Client. Zwykły plik `.luau` tworzy ModuleScript; `init.server.luau` i `init.client.luau` nadają typ obiektowi nadrzędnemu. UI nie wymaga ręcznego wklejania do StarterGui. Foldery mapy w Rojo zachowują nieznane obiekty, jednak nazwa `Map.Generated` jest zarezerwowana dla generatora. Własne modele dodawaj poza tym folderem. Pełna lista źródeł: [docs/FILES.md](docs/FILES.md).
 
-### Wtyczka Studio
+## Dane gracza i test zapisu
 
-Po zainstalowaniu i pierwszym uruchomieniu Roblox Studio zamknij je, a w terminalu wykonaj:
+Domyślnie **StudioMemory**: każdy Play zaczyna nowy profil. Jest to zamierzone, bezpieczne dla prototypu. Opublikowana gra używa `DataStoreService`, autosave 60 s, zapisu przy wyjściu i zamknięciu serwera, retry oraz blokady sesji 180 s. Błąd ładowania produkcyjnego nie tworzy nowego pustego profilu; utrata blokady zatrzymuje dostęp do danych.
 
-```sh
-rojo plugin install
-```
+Aby sprawdzić zapis:
 
-Polecenie instaluje wtyczkę do lokalnego katalogu wtyczek Studio. Otwórz Studio ponownie; Rojo powinno pojawić się na karcie **Plugins/Wtyczki**. CLI zawiera zgodną wtyczkę, więc nie trzeba instalować drugiej kopii z Marketplace. Jeśli Rojo nie potrafi znaleźć Studio, sprawdź, czy Studio jest zainstalowane i było uruchomione na tym samym koncie systemowym.
+1. Opublikuj **osobne testowe doświadczenie** przez File / Plik → Publish to Roblox.
+2. W Game Settings / ustawieniach doświadczenia → Security włącz **Enable Studio Access to API Services**.
+3. W `src/shared/Config/GameConfig.luau` zmień `UseStudioDataStore = true` oraz `DataStoreName = "KukirinCity_DEV_v1"`. Po edycji zatrzymaj Play i zsynchronizuj Rojo.
+4. Uruchom Play, zarób Money, kup upgrade, zatrzymaj Play i uruchom ponownie. Sprawdź saldo, XP, Level, kolekcję, upgrade i cooldown dostawy.
+5. Po próbach przywróć `UseStudioDataStore = false`; nie podłączaj testów Studio do magazynu graczy produkcyjnych. Poświadczenia DataStore zapewnia Roblox; nie wpisuj tokenów do repozytorium.
 
-## Pierwsze uruchomienie
+Retry i blokady zmniejszają ryzyko utraty danych, lecz nie zastępują testów w prawdziwym backendzie ani nie gwarantują zapisu podczas awarii serwera. Procedura testów: [docs/TESTING.md](docs/TESTING.md).
 
-### 1. Otwórz lokalną kopię repozytorium
+## Architektura i rozwój
 
-Na komputerze, na którym działa Studio, otwórz [repozytorium na GitHub](https://github.com/szabanasty/rblx) i wybierz **Code → Download ZIP**. Możesz też użyć [bezpośredniego linku do ZIP](https://github.com/szabanasty/rblx/archive/refs/heads/main.zip). Jeśli repozytorium jest prywatne, zaloguj się na GitHub na konto mające do niego dostęp.
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md): pełny podział systemów, typy, zależności, dane i reguły bezpieczeństwa.
+- [ROADMAP.md](docs/ROADMAP.md): fazy 0–7, ukończone wycinki i następne mechaniki.
+- [ASSETS.md](docs/ASSETS.md): istniejące placeholdery i wymagane później ręczne assety.
+- [TESTING.md](docs/TESTING.md): faktycznie dostępne testy i instrukcja odbioru w Studio.
 
-Rozpakuj archiwum i otwórz folder `rblx-main`, w którym znajdują się `default.project.json` i `src/`. Zamiast pobierania ZIP możesz sklonować repozytorium:
+Wszystkie ważne mutacje są serwerowe. Klient przesyła zamiar sterowania lub ID oferty, nigdy cenę, nagrodę, prędkość czy wynik dostawy. Dwa niezależne limitery, schematy payloadów, cooldowny i monotoniczne RequestId blokują część nadużyć. Serwer kontroluje fizykę hulajnogi i odrzuca anomalie ruchu bez automatycznego bana za jeden sygnał. Chodzenie zwykłym awatarem nie jest objęte pełnym anti-cheatem; płatna nagroda za dostawę wymaga zweryfikowanej jazdy.
 
-```sh
-git clone https://github.com/szabanasty/rblx.git
-cd rblx
-```
+Mapa ma StreamingEnabled, 13 dzielnic jako proste blockouty, 10 dróg z limitami 30/50/70/90, kilka ramp, punkty interakcji, sześć bezkolizyjnych NPC samochodów oraz 20-minutowy cykl dnia. To własny układ prototypowy, wymagający późniejszego level designu i pomiarów na telefonie. Nie ma jeszcze odblokowywania dzielnic, minimapy innych graczy, wyścigów, policji, pets, crew, battle passa ani Robux.
 
-Polecenia poniżej wykonuj z katalogu zawierającego `default.project.json`. Archiwum z GitHub zawiera źródła; katalog `build/` i plik miejsca `build/rblx.rbxlx` powstaną po wykonaniu kolejnego kroku.
+## Testy w Linux/chmurze
 
-### 2. Zbuduj plik miejsca
-
-Windows PowerShell:
-
-```powershell
-New-Item -ItemType Directory -Force build | Out-Null
-rojo build default.project.json --output build/rblx.rbxlx
-```
-
-macOS lub Linux:
-
-```sh
-mkdir -p build
-rojo build default.project.json --output build/rblx.rbxlx
-```
-
-Otwórz `build/rblx.rbxlx` w Roblox Studio przez **File → Open from File**. Zobaczysz platformę, spawn i drzewo projektu. Katalog `build/` zawiera wygenerowane pliki i jest ignorowany przez Git.
-
-### 3. Włącz synchronizację
-
-W terminalu na **tym samym komputerze co Studio** uruchom:
-
-```sh
-rojo serve default.project.json --address 127.0.0.1 --port 34872
-```
-
-Pozostaw terminal otwarty. W Studio otwórz panel wtyczki Rojo, ustaw adres serwera **`localhost`** i port **`34872`**, a następnie wybierz **Connect**. Jeśli pojawi się podgląd zmian lub prośba o ich zastosowanie, sprawdź wymienione obiekty projektu i zaakceptuj synchronizację.
-
-Do pierwszego połączenia użyj zbudowanego miejsca lub nowego, pustego miejsca. Przed podłączeniem do istniejącej gry zapisz jej kopię. Rojo zarządza obiektami zapisanymi w konfiguracji i może nadpisywać ich właściwości oraz kod.
-
-### 4. Sprawdź działający kod
-
-Otwórz panel **Output/Wyjście** w Studio i uruchom **Play** (`F5`). Po uruchomieniu serwera i klienta powinny pojawić się oba komunikaty:
-
-```text
-[rblx][server] Sync ready (version 0.1.0).
-[rblx][client] Sync ready (version 0.1.0).
-```
-
-Pierwszy pochodzi ze skryptu w `ServerScriptService`, drugi z `LocalScript` kopiowanego ze `StarterPlayerScripts` do gracza. Oba odczytują moduł `ReplicatedStorage.Shared.ProjectInfo`. W panelu Output włącz widoczność komunikatów zarówno serwera, jak i klienta.
-
-### 5. Sprawdź aktualizację plików
-
-Zatrzymaj grę (**Stop**), pozostawiając Rojo podłączone. W `src/shared/ProjectInfo.luau` zmień `Version = "0.1.0"` na `Version = "0.1.1"` i zapisz plik. Sprawdź w Studio, czy kod modułu został zaktualizowany, a następnie uruchom **Play** ponownie. Oba komunikaty powinny teraz zawierać `version 0.1.1`.
-
-Ponowne uruchomienie jest potrzebne, ponieważ już uruchomione skrypty nie wykonują się od nowa po synchronizacji, a wynik `require` jest przechowywany w pamięci. Po sprawdzeniu możesz przywrócić wersję `0.1.0`.
-
-## Codzienna praca
-
-- Edytuj kod w `src/`; pliki są źródłem prawdy. Zmian wykonanych bezpośrednio w edytorze skryptów Studio Rojo nie zapisuje automatycznie do repozytorium.
-- Utrzymuj `rojo serve` i połączenie wtyczki podczas pracy. Zakończ serwer przez `Ctrl+C`.
-- Dodawaj kod serwera do `src/server`, kod klienta do `src/client`, a moduły używane po obu stronach do `src/shared`. Kod w `ReplicatedStorage` jest dostępny klientom, więc nie przechowuj tam sekretów ani logiki wymagającej zaufania serwerowi.
-- Zmieniaj `default.project.json`, kiedy chcesz rozszerzyć strukturę usług lub dodać obiekty zarządzane przez Rojo.
-- Po zmianie struktury uruchom `rojo build default.project.json --output build/rblx.rbxlx`, żeby sprawdzić, czy Rojo potrafi zbudować projekt.
-- Przed zapisem zmian do Git sprawdź `git status`. Eksporty miejsca w katalogu głównym, pliki lokalne i `build/` są ignorowane. Modele `.rbxm`/`.rbxmx` przeznaczone do wersjonowania możesz później umieszczać np. w `assets/`; reguły ignorowania nie wykluczają ich w tym katalogu.
-
-`$ignoreUnknownInstances` w konfiguracji pozwala zachować dodatkowe obiekty na wskazanych poziomach drzewa Studio. Nie zapisuje ich jednak do plików. Nowe mapy i modele wymagają osobnej, świadomie wybranej metody wersjonowania.
-
-## Środowisko chmurowe Codex
-
-Chmura obsługuje edycję plików, budowanie przez Rojo oraz sprawdzanie składni Luau. Roblox Studio wymaga Windows lub macOS i nie uruchamia się w tym środowisku Linux. Końcowy test **Play** wykonaj na swoim komputerze zgodnie z instrukcją powyżej.
-
-Rojo uruchomione w chmurze pod adresem `127.0.0.1` nie jest serwerem `localhost` Twojego komputera. Do pracy ze Studio korzystaj z lokalnej kopii projektu i lokalnie uruchomionego Rojo.
-
-Na Linux x86_64 instalację przypiętych narzędzi można odtworzyć skryptem:
-
-```sh
+```bash
+cd /workspace/rblx
 bash scripts/install-tools.sh
-export PATH="/workspace/.tools/rojo/7.7.1:/workspace/.tools/luau/0.741:$PATH"
-rojo --version
-mkdir -p build
-rojo build default.project.json --output build/rblx.rbxlx
-luau-compile src/server/init.server.luau src/client/init.client.luau src/shared/ProjectInfo.luau > /dev/null
+python3 scripts/check-project.py
 ```
 
-Skrypt instaluje Rojo 7.7.1 oraz narzędzia Luau 0.741; wymaga `bash`, `curl`, `unzip`, `sha256sum` i standardowych narzędzi systemowych, w tym `mktemp`. Pobiera oficjalne archiwa i sprawdza ich sumy SHA-256. Domyślnie używa `/workspace/.tools`. Na własnym komputerze z Linux możesz wskazać inny katalog:
+Instalator obsługuje Linux x86_64, weryfikuje TLS i SHA-256 archiwów, przypina Rojo 7.7.1, Luau 0.741 oraz luau-lsp 1.70.1 z definicjami API Roblox. Runner kompiluje wszystkie źródła, buduje miejsce i sourcemap, sprawdza typy i odwzorowanie drzewa, uruchamia testy rzeczywistych modułów z kontrolowanymi mockami Roblox. `build/` i `tests/.generated/` są ignorowane. CI uruchamia ten sam skrypt przez GitHub Actions; wynik zdalnego CI sprawdzaj w zakładce Actions, niezależnie od wyniku lokalnego.
 
-```sh
-RBLX_TOOLS_DIR="$PWD/.tools" bash scripts/install-tools.sh
-export PATH="$PWD/.tools/rojo/7.7.1:$PWD/.tools/luau/0.741:$PATH"
-```
-
-Kompilacja Luau sprawdza składnię; nie zastępuje testu działania skryptów w silniku Roblox. Do startu projektu nie są potrzebne żadne sekrety ani dodatkowe zmienne aplikacji.
-
-## Gdy połączenie lub test nie działa
+## Typowe problemy
 
 | Objaw | Co sprawdzić |
 | --- | --- |
-| `rojo` nie jest rozpoznawane | Katalog z binarką musi być w `PATH`; uruchom `rojo --version` w tym samym terminalu. |
-| Wtyczka nie pojawia się w Studio | Wykonaj `rojo plugin install`, uruchom Studio ponownie i sprawdź kartę Plugins. |
-| Wtyczka nie łączy się | Serwer musi działać lokalnie, na porcie `34872`; sprawdź adres, port i komunikaty terminala. |
-| Port jest zajęty | Zakończ poprzedni własny proces Rojo lub wybierz inny port w poleceniu i wtyczce. |
-| Jest tylko komunikat serwera | Użyj Play, które tworzy gracza, oraz włącz widok klienta w Output. Samo Run nie uruchamia pełnego testu klienta. |
-| Zmiana wersji nie pojawia się w logach | Zapisz plik, sprawdź aktywne połączenie Rojo, a następnie wykonaj Stop i ponownie Play. |
-| Skrypt czeka na `Shared` lub `ProjectInfo` | Sprawdź mapowanie i drzewo `ReplicatedStorage`; odbuduj miejsce i połącz Rojo. |
+| Widać stary komunikat Sync ready | Uruchamiasz stary ZIP albo niewłaściwy folder; nowe źródła logują Core ready 0.3.0. |
+| Brak zakładki Rojo | `plugin install`, restart Studio; Dodatki plug-in / Plugins. |
+| Connection refused | Rojo działa lokalnie, konsola jest otwarta, port 34872; chmurowy localhost nie jest Twoim komputerem. |
+| Miasto nie pojawia się w edytorze | Generator uruchamia się na serwerze przy Play. W trybie klienta odległe obiekty mogą być wyładowane przez streaming. |
+| NoSafeSpawnLocation | Zsiądź, przejdź na otwarty plac i spróbuj ponownie po 3 s. |
+| Hulajnoga nie rusza / gracz zsiada przy skoku | Sprawdź Output, poprawne Client.Controllers, ustawienia sił i ownership; przeprowadź test z TESTING.md. Fizyka wymaga testu w Studio. |
+| VisitShop / DismountFirst | Zsiądź i podejdź do właściwego stanowiska; MENU nie omija odległości. |
+| Money nie zapisuje się po Play | StudioMemory celowo resetuje profil. Włącz testowy DataStore zgodnie z instrukcją. |
+| SessionLocked / SessionLost | Sprawdź Output i drugą aktywną sesję; po awarii może być potrzebne wygaśnięcie 180 s lease. Nie kasuj profilu. |
+| Brak kolejnych nagród | Sprawdź wymagany dystans, cooldown i dzienne limity UTC. |
+
+Kod edytuj w plikach. Zmiany zrobione tylko w Studio nie zapisują się automatycznie do repozytorium przez Rojo. Zatrzymuj Play przed aktualizacją skryptów: ponowne uruchamianie bootstrapów w trwającym teście może pozostawić stare połączenia i modele.

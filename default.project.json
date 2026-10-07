@@ -9,6 +9,21 @@
       "$ignoreUnknownInstances": true,
       "Shared": {
         "$path": "src/shared"
+      },
+      "Remotes": {
+        "$className": "Folder",
+        "Action": {
+          "$className": "RemoteEvent"
+        },
+        "Input": {
+          "$className": "RemoteEvent"
+        },
+        "Snapshot": {
+          "$className": "RemoteEvent"
+        },
+        "Feedback": {
+          "$className": "RemoteEvent"
+        }
       }
     },
     "ServerScriptService": {
@@ -38,9 +53,21 @@
         "$properties": {
           "Anchored": true,
           "Locked": true,
-          "Position": [0, -10, 0],
-          "Size": [512, 20, 512],
-          "Color": [0.3, 0.3, 0.3],
+          "Position": [
+            0,
+            -10,
+            0
+          ],
+          "Size": [
+            1600,
+            20,
+            1600
+          ],
+          "Color": [
+            0.3,
+            0.3,
+            0.3
+          ],
           "Material": "Concrete",
           "TopSurface": "Smooth",
           "BottomSurface": "Smooth"
@@ -52,12 +79,69 @@
         "$properties": {
           "Anchored": true,
           "Neutral": true,
-          "Position": [0, 0.5, 0],
-          "Size": [6, 1, 6],
-          "Color": [0.2, 0.6, 0.4],
+          "Position": [
+            45,
+            0.5,
+            65
+          ],
+          "Size": [
+            6,
+            1,
+            6
+          ],
+          "Color": [
+            0.2,
+            0.6,
+            0.4
+          ],
           "TopSurface": "Smooth",
           "BottomSurface": "Smooth"
         }
+      },
+      "$properties": {
+        "StreamingEnabled": true,
+        "StreamingMinRadius": 64,
+        "StreamingTargetRadius": 256
+      },
+      "Map": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true,
+        "Districts": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "Roads": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "Shops": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "Garages": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "RaceTracks": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "PoliceStations": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "Events": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "NPCs": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        }
+      },
+      "Vehicles": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true
       }
     }
   }

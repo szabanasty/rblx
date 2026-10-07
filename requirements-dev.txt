@@ -1,0 +1,2 @@
+# Only for the optional live Rojo protocol checker. Not used by the Roblox game.
+msgpack==1.2.1

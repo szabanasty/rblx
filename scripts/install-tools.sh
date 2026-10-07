@@ -2,6 +2,7 @@
 # Verified release archives from the official GitHub release pages:
 # https://github.com/rojo-rbx/rojo/releases/tag/v7.7.1
 # https://github.com/luau-lang/luau/releases/tag/0.741
+# https://github.com/JohnnyMorganz/luau-lsp/releases/tag/1.70.1
 set -euo pipefail
 
 if [[ "$(uname -s)" != Linux || "$(uname -m)" != x86_64 ]]; then
@@ -37,6 +38,8 @@ download_verified() {
 
 rojo_archive="$cache_dir/rojo-7.7.1-linux-x86_64.zip"
 luau_archive="$cache_dir/luau-0.741-ubuntu.zip"
+lsp_archive="$cache_dir/luau-lsp-1.70.1-linux-x86_64.zip"
+definitions="$cache_dir/roblox-types-1.70.1.d.luau"
 download_verified \
     'https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-linux-x86_64.zip' \
     "$rojo_archive" \
@@ -45,14 +48,26 @@ download_verified \
     'https://github.com/luau-lang/luau/releases/download/0.741/luau-ubuntu.zip' \
     "$luau_archive" \
     '134dc762ad26232af83e43f98dec03ff6030dd3a4452f9408b9d50ccea025503'
+download_verified \
+    'https://github.com/JohnnyMorganz/luau-lsp/releases/download/1.70.1/luau-lsp-linux-x86_64.zip' \
+    "$lsp_archive" \
+    '1a2ea1ae4f98f8946cefd970a4b54853e11ab4775e6932faa7f60cf920346567'
+download_verified \
+    'https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/1.70.1/scripts/globalTypes.d.luau' \
+    "$definitions" \
+    '2857efa8245485f8c25c19c018ee1ef9b46afab4efd2ea70fc3257cd3faf7080'
 
 mkdir -p "$tools_dir/rojo/7.7.1" "$tools_dir/luau/0.741"
+mkdir -p "$tools_dir/luau-lsp/1.70.1"
 unzip -q -o "$rojo_archive" -d "$tools_dir/rojo/7.7.1"
 unzip -q -o "$luau_archive" -d "$tools_dir/luau/0.741"
+unzip -q -o "$lsp_archive" -d "$tools_dir/luau-lsp/1.70.1"
+cp -- "$definitions" "$tools_dir/luau-lsp/1.70.1/globalTypes.d.luau"
 chmod +x "$tools_dir/rojo/7.7.1/rojo" \
     "$tools_dir/luau/0.741/luau" \
     "$tools_dir/luau/0.741/luau-analyze" \
     "$tools_dir/luau/0.741/luau-compile"
+chmod +x "$tools_dir/luau-lsp/1.70.1/luau-lsp"
 
 "$tools_dir/rojo/7.7.1/rojo" --version
 printf 'Installed Luau 0.741 in %s\n' "$tools_dir/luau/0.741"

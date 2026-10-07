@@ -1,0 +1,17 @@
+name: Validate Roblox project
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      RBLX_TOOLS_DIR: ${{ runner.temp }}/rblx-tools
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install verified pinned tools
+        run: bash scripts/install-tools.sh
+      - name: Compile, type check, build and test
+        run: python3 scripts/check-project.py --tools-dir "$RBLX_TOOLS_DIR"
