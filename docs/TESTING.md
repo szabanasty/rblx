@@ -20,7 +20,7 @@
 
 Dodatkowy test `scripts/check-rojo-server.py --check-reload` odczytuje API MessagePack działającego Rojo, sprawdza źródła/klasy/remotes/streaming i rzeczywistą reakcję watchera na tymczasowy komentarz (przywracany). Nie uruchamia gry w silniku.
 
-Wykryte i poprawione przy zmianie: bootstrap/snapshot zakładały zawsze istniejący Scooter/World; nowy tryb ładuje wyłącznie fundament i projekcja obsługuje brak usług. Dawne żądania klienta mogły sięgać nieaktywnych usług; serwer odrzuca je przed dispatch. Stare profile nie miały nowych pól; sanitizacja uzupełnia je bez resetu. Asynchroniczny Humanoid wymaga weryfikacji generacji postaci, aby po resecie nie nadpisać nowego stanu. Analiza typów wymagała jawnej tablicy `{string}` dla kolejności modułów i pomocniczego predicate dla zakresu akcji. Testy regresji zaktualizowano do 0–5 upgrade zamiast osłabiać walidację.
+Wykryte i poprawione przy zmianie: bootstrap/snapshot zakładały zawsze istniejący Scooter/World; nowy tryb ładuje wyłącznie fundament i projekcja obsługuje brak usług. Dawne żądania klienta mogły sięgać nieaktywnych usług; serwer odrzuca je przed dispatch. Stare profile nie miały nowych pól; sanitizacja uzupełnia je bez resetu. Asynchroniczny Humanoid wymaga weryfikacji generacji postaci, aby po resecie nie nadpisać nowego stanu. Analiza typów wymagała jawnej tablicy `{string}` dla kolejności modułów i pomocniczego predicate dla zakresu akcji. Skalowanie HUD czeka na poprawny rozmiar kamery, aby początkowy viewport 1×1 nie dawał ujemnej skali. Testy regresji zaktualizowano do 0–5 upgrade zamiast osłabiać walidację.
 
 ## Checklista użytkownika — Play
 

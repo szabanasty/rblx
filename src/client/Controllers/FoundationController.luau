@@ -27,6 +27,8 @@ local function resize()
     local camera = Workspace.CurrentCamera
     if not camera then return end
     local viewport = camera.ViewportSize
+    -- The camera may report a placeholder viewport before its first render.
+    if viewport.X <= 28 or viewport.Y <= 90 then return end
     scale.Scale = math.min(uiPreference, (viewport.X - 28) / 380, (viewport.Y - 90) / 250)
     settings.Size = UDim2.fromOffset(math.min(380, viewport.X - 24), math.min(400, viewport.Y - 48))
 end
