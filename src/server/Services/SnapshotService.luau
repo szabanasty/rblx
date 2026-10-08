@@ -47,6 +47,9 @@ function SnapshotService:Send(player: Player)
             snapshot.Objective = context.Services.Objectives:GetSnapshot()
             snapshot.Leaderboard = context.Services.Leaderboard:GetSnapshot()
             snapshot.Cosmetics = context.Schema.deepCopy(profile.Cosmetics)
+            if context.Services.Monetization then snapshot.Commerce = context.Services.Monetization:GetSnapshot(player) end
+            if context.Services.Season then snapshot.Season = context.Services.Season:GetSnapshot(player) end
+            if context.Services.Garage then snapshot.Garage = context.Services.Garage:GetSnapshot(player) end
             snapshot.ScooterCustomization = context.Schema.deepCopy(profile.ScooterCustomization)
             snapshot.EquippedTag = profile.EquippedTag
             snapshot.Position = (function()

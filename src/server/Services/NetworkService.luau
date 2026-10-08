@@ -5,7 +5,7 @@ local context: any
 local actionLimiter: any
 local inputLimiter: any
 local history: {[Player]: {LastId: number, Cooldowns: {[string]: number}, Violations: number, LastLog: number}} = {}
-local cooldowns: {[string]: number} = {Sync = 0.5, MountScooter = 0.5, SelectScooter = 0.3, SetSetting = 0.2, DismountScooter = 0.5, BuyScooter = 0.5, UpgradeScooter = 0.5, StartQuest = 0.75, CancelQuest = 0.3, Shoot = 0.09, HoldRevive = 0.2, CancelRevive = 0.1, ToggleFishing = 1, StopFishing = 0.5, SellFish = 0.5, InviteSquad = 2, AcceptSquad = 0.5, BuyCosmetic = 0.5, BuyEquipment = 0.5, EquipEquipment = 0.3, SwitchEquipment = 0.2, Reload = 0.3, ChargeScooter = 1}
+local cooldowns: {[string]: number} = {PurchaseOffer = 3, RefreshPurchases = 10, ClaimSeasonReward = 0.5, SaveGaragePreset = 0.5, LoadGaragePreset = 0.5, RedeemUpgrade = 0.5, Sync = 0.5, MountScooter = 0.5, SelectScooter = 0.3, SetSetting = 0.2, DismountScooter = 0.5, BuyScooter = 0.5, UpgradeScooter = 0.5, StartQuest = 0.75, CancelQuest = 0.3, Shoot = 0.09, HoldRevive = 0.2, CancelRevive = 0.1, ToggleFishing = 1, StopFishing = 0.5, SellFish = 0.5, InviteSquad = 2, AcceptSquad = 0.5, BuyCosmetic = 0.5, BuyEquipment = 0.5, EquipEquipment = 0.3, SwitchEquipment = 0.2, Reload = 0.3, ChargeScooter = 1}
 local function record(player: Player)
     local state = history[player]
     if not state then
@@ -61,6 +61,18 @@ function NetworkService:Start()
         elseif context.Services.PlayerData:IsReady(player) then
             if context.Services.State and (request.Action == "SelectScooter" or request.Action == "SpawnScooter") and not context.Services.State:IsAllowed(player, "Drive") then
                 success, message = false, "StateBlocked"
+            elseif context.Config.Game.ZoneGame and request.Action == "PurchaseOffer" then
+                success, message = context.Services.Monetization:Prompt(player, request.Payload.OfferKey)
+            elseif context.Config.Game.ZoneGame and request.Action == "RefreshPurchases" then
+                context.Services.Monetization:Reconcile(player); success, message = true, "PurchaseCheckStarted"
+            elseif context.Config.Game.ZoneGame and request.Action == "ClaimSeasonReward" then
+                success, message = context.Services.Season:Claim(player, request.Payload.Tier, request.Payload.Track)
+            elseif context.Config.Game.ZoneGame and request.Action == "SaveGaragePreset" then
+                success, message = context.Services.Garage:SavePreset(player, request.Payload.Slot)
+            elseif context.Config.Game.ZoneGame and request.Action == "LoadGaragePreset" then
+                success, message = context.Services.Garage:LoadPreset(player, request.Payload.Slot)
+            elseif context.Config.Game.ZoneGame and request.Action == "RedeemUpgrade" then
+                success, message = context.Services.Shop:Upgrade(player, request.Payload.ScooterId, request.Payload.Category, true)
             elseif context.Config.Game.ZoneGame and request.Action == "Shoot" then
                 success, message = context.Services.Combat:Shoot(player, request.Payload)
             elseif context.Config.Game.ZoneGame and request.Action == "Reload" then

@@ -1,5 +1,7 @@
 --!strict
 local Gui = require(script.Parent.GuiFactory)
+local Workshop = require(script.Parent.WorkshopMenu)
+local Commerce = require(script.Parent.CommerceMenus)
 local Menus = {}
 local slot = "PRIMARY"
 function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: (string) -> ())
@@ -13,7 +15,7 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
     if page == "Main" then
         Gui.Button(parent, "POKAŻ / UKRYJ MINIMAPĘ", function() ctx.Controllers.UIController:ToggleMap() end)
         label("SAFE: garaż i sklepy. COMBAT: arcade PvP i CONTROL POINT. FISHING: łów automatycznie, sprzedawaj przy FISH BUYER.")
-        for _, name in {"Garage", "ScooterShop", "UpgradeShop", "EquipmentShop", "Squad", "FishBuyer", "CosmeticsShop", "Leaderboard", "Settings"} do
+        for _, name in {"Garage", "ScooterShop", "UpgradeShop", "EquipmentShop", "RobuxShop", "BattlePass", "Squad", "FishBuyer", "CosmeticsShop", "Leaderboard", "Settings"} do
             Gui.Button(parent, name, function() open(name) end)
         end
     elseif page == "Garage" then
@@ -26,6 +28,7 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
         button("ZEJDŹ", "DismountScooter")
         button("SCHOWAJ", "DespawnScooter")
         button("NAŁADUJ — przy garażu, po zejściu", "ChargeScooter")
+        Commerce.Garage(ctx, parent, data)
     elseif page == "ScooterShop" then
         local ids = {}
         for id in ctx.Config.Scooters.ById do table.insert(ids, id) end
@@ -33,19 +36,14 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
         for _, id in ids do
             local item = ctx.Config.Scooters.ById[id]
             label(string.format("%s • %s • %s\n%d km/h / accel %.1f / handling %d / brake %.1f / battery %d", item.DisplayName, item.Class, item.Rarity, item.TopSpeed, item.Acceleration, item.Handling, item.Braking, item.Battery))
-            button((if table.find(data.OwnedScooters, id) then "POSIADANA" else "KUP") .. " • " .. item.Price .. " Money • Level " .. item.UnlockLevel, "BuyScooter", {ScooterId = id})
+            if item.RobuxOnly then
+                Gui.Button(parent, if table.find(data.OwnedScooters, id) then "POSIADANA • GARAŻ" else "ROBUX SHOP → " .. item.DisplayName, function() open("RobuxShop") end)
+            else button((if table.find(data.OwnedScooters, id) then "POSIADANA" else "KUP") .. " • " .. item.Price .. " Money • Level " .. item.UnlockLevel, "BuyScooter", {ScooterId = id}) end
         end
     elseif page == "UpgradeShop" then
-        local selected = ctx.Config.Scooters.ById[data.SelectedScooter]
-        if not selected then label("Ten model jest niedostępny. Wybierz inną hulajnogę w Garage."); return end
-        label("Ulepszenia: " .. selected.DisplayName)
-        local levels = data.ScooterUpgrades[data.SelectedScooter] or {}
-        for _, category in ctx.Config.Upgrades.ShopOrder do
-            local config = ctx.Config.Upgrades.Categories[category]
-            local current = levels[category] or 0
-            local price, level = ctx.Stats.NextUpgrade(category, current, ctx.Config.Upgrades)
-            button(config.Name .. " " .. current .. "/5 • " .. (if price then tostring(price) .. " Money • Level " .. tostring(level) else "MAX"), "UpgradeScooter", {ScooterId = data.SelectedScooter, Category = category})
-        end
+        Workshop.Build(ctx, parent, data)
+    elseif page == "RobuxShop" then Commerce.Store(ctx, parent, data)
+    elseif page == "BattlePass" then Commerce.Season(ctx, parent, data)
     elseif page == "EquipmentShop" then
         label("LOADOUT — wyposażanie w SAFE ZONE")
         for _, name in {"PRIMARY", "SECONDARY", "UTILITY"} do
@@ -59,6 +57,7 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
             local item = ctx.Config.Equipment.ById[id]
             label(string.format("%s • %s • %s\nDamage %d / Range %d / Cooldown %.2f / Capacity %d", item.DisplayName, item.Category, item.Rarity, item.Damage, item.EffectiveRange, item.Cooldown, item.Capacity))
             if data.OwnedEquipment[id] then button("WYPOSAŻ " .. slot, "EquipEquipment", {Slot = slot, EquipmentId = id})
+            elseif item.RobuxOnly then Gui.Button(parent, "ROBUX SHOP → " .. item.DisplayName, function() open("RobuxShop") end)
             else button("KUP • " .. item.Price .. " Money", "BuyEquipment", {EquipmentId = id}) end
         end
     elseif page == "Squad" then
@@ -90,13 +89,17 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
     elseif page == "CosmeticsShop" then
         label("Kosmetyki nie zwiększają statystyk. Wybierz hulajnogę w garażu.")
         for _, category in {"Color", "Grips", "Deck", "Lights", "Wheels", "Decals", "Effects"} do
-            for _, option in {"Orange", "Mint", "Violet", "Blue", "Red"} do
+            for _, option in {"Orange", "Mint", "Violet", "Blue", "Red", "Gold"} do
                 local owned = data.Cosmetics[category .. ":" .. option]
-                button(category .. " • " .. option .. " • " .. (if owned then "ZAŁÓŻ" else ctx.Config.Cosmetics.Categories[category] .. " Money"), "BuyCosmetic", {Category = category, Option = option})
+                if not ctx.Config.Cosmetics.RobuxColors[option] or owned then button(category .. " • " .. option .. " • " .. (if owned then "ZAŁÓŻ" else ctx.Config.Cosmetics.Categories[category] .. " Money"), "BuyCosmetic", {Category = category, Option = option}) end
             end
         end
-        for id, style in ctx.Config.Cosmetics.Styles do button("UBRANIE " .. id .. " • placeholder • " .. style.Price .. " Money", "BuyCosmetic", {Category = "Clothing", Option = id}) end
-        for id, tag in ctx.Config.Cosmetics.Tags do button("TAG " .. tag.DisplayName .. " • " .. tag.Price .. " Money", "BuyCosmetic", {Category = "Tag", Option = id}) end
+        for id, style in ctx.Config.Cosmetics.Styles do
+            if not style.RobuxOnly or data.Cosmetics["Clothing:" .. id] then button("UBRANIE " .. id .. " • " .. (if style.RobuxOnly then "POSIADANE" else style.Price .. " Money"), "BuyCosmetic", {Category = "Clothing", Option = id}) end
+        end
+        for id, tag in ctx.Config.Cosmetics.Tags do
+            if not tag.RobuxOnly or data.Cosmetics["Tag:" .. id] then button("TAG " .. tag.DisplayName .. " • " .. (if tag.RobuxOnly then "POSIADANE" else tag.Price .. " Money"), "BuyCosmetic", {Category = "Tag", Option = id}) end
+        end
     elseif page == "Leaderboard" then
         label("TOP KILLS — ten serwer")
         for _, entry in data.Leaderboard do label(entry.Name .. " • K " .. entry.Kills .. " / D " .. entry.Deaths .. " / A " .. entry.Assists .. " / R " .. entry.Revives .. " / STREAK " .. entry.CurrentStreak .. " / BEST " .. entry.BestStreak) end

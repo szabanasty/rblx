@@ -28,9 +28,13 @@ function Service:Refresh(player: Player)
         local model = Instance.new("Model")
         model.Name, model.Parent = "ArcadeEquipment", character
         model:SetAttribute("EquipmentId", id)
-        local core = attached(model, hand, "EnergyCore", Vector3.new(0.4, 0.4, 0.4), CFrame.new(0, -0.3, -0.35), Color3.fromRGB(101, 218, 223))
+        local tint = if item.RobuxOnly then Color3.fromRGB(255, 205, 83) else Color3.fromRGB(101, 218, 223)
+        local core = attached(model, hand, "EnergyCore", Vector3.new(0.4, 0.4, 0.4), CFrame.new(0, -0.3, -0.35), tint)
         core.Shape, core.Material = Enum.PartType.Ball, Enum.Material.Neon
         attached(model, hand, "Grip", Vector3.new(0.2, 0.45, 0.2), CFrame.new(0, 0, -0.2), Color3.fromRGB(44, 51, 70))
+        attached(model, hand, "Body", Vector3.new(0.45, 0.45, 1.1), CFrame.new(0, -0.25, -0.55), Color3.fromRGB(45, 54, 68))
+        attached(model, hand, "Barrel", Vector3.new(0.24, 0.24, 0.6), CFrame.new(0, -0.25, -1.2), tint)
+        attached(model, hand, "Sight", Vector3.new(0.15, 0.18, 0.35), CFrame.new(0, 0.05, -0.55), tint)
     end
     local torso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
     local style = profile.EquippedClothing

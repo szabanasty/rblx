@@ -24,6 +24,8 @@ local context: any = {
         Fishing = require(configFolder:WaitForChild("FishingConfig")),
         Zones = require(configFolder:WaitForChild("ZoneConfig")),
         Cosmetics = require(configFolder:WaitForChild("CosmeticConfig")),
+        Monetization = require(configFolder:WaitForChild("MonetizationConfig")),
+        Season = require(configFolder:WaitForChild("SeasonConfig")),
     },
     Schema = require(modules:WaitForChild("ProfileSchema")),
     Progression = require(modules:WaitForChild("Progression")),
@@ -34,6 +36,7 @@ local context: any = {
     FishingRules = require(modules:WaitForChild("FishingRules")),
     Layout = require(modules:WaitForChild("WorldLayout")),
     Stats = require(modules:WaitForChild("ScooterStats")),
+    CommerceRules = require(modules:WaitForChild("CommerceRules")),
     Services = {}, Remotes = {}, IsClosing = false,
 }
 for _, name in {"Action", "Input", "Snapshot", "Feedback"} do
@@ -60,6 +63,8 @@ elseif context.Config.Game.ZoneGame then
         Revive = require(serviceFolder:WaitForChild("ReviveService")), Fishing = require(serviceFolder:WaitForChild("FishingService")),
         Cosmetics = require(serviceFolder:WaitForChild("CosmeticService")), Objectives = require(serviceFolder:WaitForChild("ObjectiveService")),
         Presentation = require(serviceFolder:WaitForChild("AvatarPresentationService")),
+        Monetization = require(serviceFolder:WaitForChild("MonetizationService")),
+        Season = require(serviceFolder:WaitForChild("SeasonService")), Garage = require(serviceFolder:WaitForChild("GarageService")),
         Leaderboard = require(serviceFolder:WaitForChild("LeaderboardService")), DayCycle = require(serviceFolder:WaitForChild("DayCycleService")),
     }
 else
@@ -78,6 +83,7 @@ else
     }
 end
 context.Notify = function(player: Player)
+    if context.Services.Monetization then context.Services.Monetization:OnDataReady(player) end
     if context.Services.Equipment then context.Services.Equipment:EnsureStarter(player) end
     if context.Services.Presentation then context.Services.Presentation:Refresh(player) end
     context.Services.Economy:OnDataChanged(player)
@@ -92,7 +98,7 @@ context.Feedback = function(player: Player, success: boolean, message: string, e
     context.Remotes.Feedback:FireClient(player, result)
 end
 local order: {string} = if context.Config.Game.FoundationOnly then {"Economy", "PlayerState", "Network", "Snapshot", "PlayerData"}
-    elseif context.Config.Game.ZoneGame then {"World", "Movement", "Zones", "State", "Equipment", "Squad", "Scooter", "Shop", "Cosmetics", "PvPRewards", "Combat", "Revive", "Fishing", "Objectives", "Leaderboard", "Presentation", "DayCycle", "Network", "Snapshot", "Economy", "PlayerData"}
+    elseif context.Config.Game.ZoneGame then {"World", "Movement", "Zones", "State", "Equipment", "Squad", "Scooter", "Shop", "Cosmetics", "PvPRewards", "Combat", "Revive", "Fishing", "Objectives", "Leaderboard", "Presentation", "DayCycle", "Monetization", "Season", "Garage", "Network", "Snapshot", "Economy", "PlayerData"}
     else {"World", "Roads", "Traffic", "DayCycle", "Network", "Snapshot", "Scooter", "Economy", "Shop", "Quests", "PlayerData"}
 for _, key in order do context.Services[key]:Init(context) end
 for _, key in order do context.Services[key]:Start() end

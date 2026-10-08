@@ -1,8 +1,10 @@
 # KUKIRIN ZONE — Roblox / Luau / Rojo
 
-**Wersja 0.6.1: grywalny prototyp squad PvP, Kukiriny i automatyczne łowienie.** Miasto Riverside, most nad rzeką i odległa arena Iron Island, fikcyjne wyposażenie arcade i oryginalne modele z części Roblox. Projekt nie wymaga zewnętrznych modeli, animacji ani audio. Inspiracja atmosferą FiveM nie oznacza kopiowania clowns.cool, GTA, map ani znaków firmowych.
+**Wersja 0.7.0: squad PvP, Kukiriny, łowienie, karnet i kod zakupów Robux.** Miasto Riverside, most nad rzeką i odległa arena Iron Island, fikcyjne wyposażenie arcade i oryginalne modele z części Roblox. Projekt nie wymaga zewnętrznych modeli, animacji ani audio. Inspiracja atmosferą FiveM nie oznacza kopiowania clowns.cool, GTA, map ani znaków firmowych.
 
-Działają: strefy SAFE/COMBAT/FISHING, garaż, pięć klas hulajnóg, bateria i ładowanie, ulepszenia 0–5, sklepy, kosmetyki, squad do czterech osób, pięć rodzajów wyposażenia, walka serwerowa, combat tag, DOWNED, revive, respawn, nagrody/streak/bounty, punkt kontrolny drużyny, łowienie bez minigry, sprzedaż ryb, XP/poziomy, ranking aktualnego serwera, HUD, minimapa, przyciski dotykowe i ustawienia. Zapis obejmuje profil, kolekcje, statystyki oraz limity ekonomii.
+Działają: strefy SAFE/COMBAT/FISHING, garaż z presetami, pięć klas hulajnóg i premium Volt Elite, bateria i ładowanie, ulepszenia 0–5, sklepy, kosmetyki, squad do czterech osób, pięć rodzajów wyposażenia i premium Flux Elite, walka serwerowa, combat tag, DOWNED, revive, respawn, nagrody/streak/bounty, punkt kontrolny drużyny, łowienie bez minigry, sprzedaż ryb, XP/poziomy, ranking aktualnego serwera, HUD, minimapa, przyciski dotykowe i ustawienia. Zapis obejmuje profil, kolekcje, statystyki, uprawnienia premium, rachunki produktów i limity ekonomii.
+
+**Nowe: Workshop z działającym stanowiskiem wewnątrz, karnet 12 poziomów, VIP/kosmetyki/sloty oraz kredyty ulepszeń. Robux jest wyłączony do wpisania własnych ID ofert. [Dokładna instrukcja aktywacji i używania](docs/MONETIZATION.md).**
 
 Kod został skompilowany, sprawdzony analizą typów i testami logiki. **Roblox Studio nie jest dostępne w środowisku Linux: rzeczywista fizyka, multiplayer, układ UI na urządzeniach i produkcyjny DataStore wymagają odbioru w Studio.** To prototyp do testowania, z placeholderami grafiki i pustą konfiguracją dźwięków/animacji; nie deklarujemy zakończonego wydania produkcyjnego.
 
@@ -20,7 +22,7 @@ Kod został skompilowany, sprawdzony analizą typów i testami logiki. **Roblox 
    Zostaw okno otwarte. Oczekuj `Rojo server listening`, port `34872`.
 5. Otwórz **nowy Baseplate** w Studio, aby stare skrypty miejsca nie działały równolegle. W ustawieniach doświadczenia ustaw Avatar na **R15**; model ma także podstawowy fallback dla R6.
 6. **Dodatki plug-in / Plugins → Rojo → Connect**: adres `localhost`, port `34872`. Zaakceptuj synchronizację. Nie wpisuj `local`.
-7. **Play / F5**. Mapa jest widoczna już po synchronizacji w edytorze. Play zastępuje podgląd interaktywnym światem i uruchamia HUD. W Output oczekuj `PHASE 10 ready (version 0.6.1)` na serwerze i kliencie. Nowy profil: Money 100, Level 1, Starter i wyposażony Spark.
+7. **Play / F5**. Mapa jest widoczna już po synchronizacji w edytorze. Play zastępuje podgląd interaktywnym światem i uruchamia HUD. W Output oczekuj `PHASE 10 ready (version 0.7.0)` na serwerze i kliencie. Nowy profil: Money 100, Level 1, Starter i wyposażony Spark.
 8. Podejdź do żółtego stanowiska **ODBIERZ SWOJĄ HULAJNOGĘ** przed garażem i naciśnij E. Alternatywnie **MENU → Garage → PRZYWOŁAJ**; menu zamknie się automatycznie. Wsiadanie ponownie: E przy swoim pojeździe albo **Garage → WSIĄDŹ**. Steruj W/A/D, hamuj S, skacz Spacją; zejdź E albo przyciskiem ZEJDŹ. Dokładne klawisze wynikają z InputController; patrz tabela niżej.
 
 Jeśli brakuje Rojo, [pobierz Rojo 7.7.1](https://github.com/rojo-rbx/rojo/releases/tag/v7.7.1), plik `rojo-7.7.1-windows-x86_64.zip`, wypakuj `rojo.exe` do `.tools`. Wtyczkę instalujesz raz: `.\.tools\rojo.exe plugin install`, potem restart Studio. [Roblox Studio](https://create.roblox.com/). Git i Python nie są potrzebne do grania z ZIP-a.
@@ -42,7 +44,7 @@ Zobacz [zmiany i podglądy grafiki 0.6.0](docs/WORLD_060.md). Podglądy są rend
 | Miejsce / działanie | Jak użyć |
 | --- | --- |
 | Garaż, SAFE (-180, -58) | Wybór, spawn/despawn i ładowanie hulajnogi po zejściu. Spawn jest dostępny z menu; zakupy/ładowanie wymagają pobliskiej stacji. |
-| Dealer (-80, -58) / Workshop (30, -58) | Zakupy według Money/Level, ulepszenia silnika, controller, baterii, hamulców, opon, zawieszenia. |
+| Dealer (-80, -58) / Workshop (30, -58) | Zakupy według Money/Level, wewnętrzny stół E, sześć kategorii ulepszeń, statystyki przed/po; pierwszy silnik 75 Money lub jeden kredyt. |
 | Equipment (145, -58) | Kup oryginalne wyposażenie, załóż do PRIMARY/SECONDARY/UTILITY w SAFE. |
 | Cosmetics (-180, 145) | Kolory części, placeholdery efektów/naklejek, kamizelki i tagi. Nie zwiększają statystyk. |
 | Pomost FISHING (-340, 355) | Zejdź z hulajnogi, użyj E/native prompt lub MENU → FishBuyer → ŁÓW. Po 18–28 s serwer losuje wynik. STOP ŁOWIENIA kończy sesję. |
@@ -88,8 +90,9 @@ bash scripts/install-tools.sh
 python3 scripts/check-project.py
 ```
 
-Rojo 7.7.1, Luau 0.741, luau-lsp 1.70.1 z API Roblox, instalacja TLS/SHA-256. Runner sprawdza **84 źródła**, typy, build/sourcemap, wszystkie mapowania klas, 4 remotes, StreamingEnabled i **21 zestawów testów** logiki z mockami API. CI korzysta z tego samego runnera. To nie jest test silnika.
+Rojo 7.7.1, Luau 0.741, luau-lsp 1.70.1 z API Roblox, instalacja TLS/SHA-256. Runner sprawdza **92 źródła**, typy, build/sourcemap, wszystkie mapowania klas, 4 remotes, StreamingEnabled i **25 zestawów testów** logiki z mockami API. CI korzysta z tego samego runnera. To nie jest test silnika.
 
+- [Robux, karnet i Workshop — aktywacja ofert](docs/MONETIZATION.md)
 - [Architektura i zależności](docs/ARCHITECTURE.md)
 - [Wszystkie pliki i położenie w Studio](docs/FILES.md), [Explorer](docs/EXPLORER.md)
 - [Stan implementacji, naprawy i ograniczenia](docs/IMPLEMENTATION.md)

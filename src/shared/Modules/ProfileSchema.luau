@@ -1,5 +1,18 @@
 --!strict
 local Schema = {}
+local function receiptCopy(raw: any): {[string]: boolean}
+    local result: {[string]: boolean} = {}
+    if type(raw) ~= "table" then return result end
+    local count = 0
+    for key, value in raw do
+        if type(key) == "string" and #key > 0 and #key <= 128 and value == true then
+            result[key] = true
+            count += 1
+            if count >= 10000 then break end
+        end
+    end
+    return result
+end
 local DEFAULT = {StarterScooterId = "kukirin_g2", StartingMoney = 100, MaxCurrency = 2000000000, MaxPlayerLevel = 100}
 local function finite(value: any): boolean
     return type(value) == "number" and value == value and math.abs(value) < math.huge
@@ -27,7 +40,14 @@ local function serialCopy(value: any, depth: number): any
     return result
 end
 function Schema.deepCopy(value: any): any
-    return serialCopy(value, 0)
+    local result = serialCopy(value, 0)
+    -- Purchase receipts are permanent. Never truncate them to the generic 256-entry window.
+    if type(value) == "table" and value.PurchaseReceipts ~= nil then result.PurchaseReceipts = receiptCopy(value.PurchaseReceipts) end
+    -- PlayerData also copies the DataStore envelope when releasing an uncertain acquisition.
+    if type(value) == "table" and type(value.Data) == "table" and type(result.Data) == "table" and value.Data.PurchaseReceipts ~= nil then
+        result.Data.PurchaseReceipts = receiptCopy(value.Data.PurchaseReceipts)
+    end
+    return result
 end
 function Schema.new(userId: number, config: any?): any
     local cfg = config or DEFAULT
@@ -41,6 +61,8 @@ function Schema.new(userId: number, config: any?): any
         Settings = {UIScale = 1, GraphicsQuality = 2, MusicVolume = 0.5, SFXVolume = 0.7, ReducedEffects = false},
         RewardBudget = {Day = math.floor(os.time() / 86400), Money = 0, XP = 0, Reputation = 0},
         IdempotencyLedger = {},
+        Entitlements = {}, UpgradeCredits = 0, GaragePresets = {}, PurchaseReceipts = {},
+        Season = {Id = "", XP = 0, Day = 0, DailyXP = 0, FreeClaims = {}, PremiumClaims = {}},
         ScooterCustomization = {}, ScooterBatteries = {}, ActivityBudget = {Day = 0, PvP = 0, Fishing = 0, Objective = 0, Revive = 0}, OwnedEquipment = {}, EquippedLoadout = {}, FishingInventory = {}, Cosmetics = {},
         PvPOpponents = {}, ReviveHistory = {}, CurrentStreak = 0, Kills = 0, Deaths = 0, Assists = 0, Revives = 0, BestStreak = 0, ZoneTime = 0,
     }
@@ -62,6 +84,34 @@ function Schema.sanitize(raw: any, config: any?): (any?, string?)
         profile[field] = integer(raw[field], 0, 0, cfg.MaxCurrency)
     end
     profile.DriverScore = integer(raw.DriverScore, 100, 0, 100)
+    profile.UpgradeCredits = integer(raw.UpgradeCredits, 0, 0, 1000000)
+    profile.PurchaseReceipts = receiptCopy(raw.PurchaseReceipts)
+    if type(raw.Entitlements) == "table" then
+        local count = 0
+        for key, owned in raw.Entitlements do
+            if type(key) == "string" and #key > 0 and #key <= 64 and owned == true then
+                profile.Entitlements[key] = true; count += 1; if count >= 64 then break end
+            end
+        end
+    end
+    if type(raw.GaragePresets) == "table" then
+        for slot = 1, 6 do
+            local preset = raw.GaragePresets[tostring(slot)]
+            if type(preset) == "table" and type(preset.ScooterId) == "string" and #preset.ScooterId <= 64 then
+                profile.GaragePresets[tostring(slot)] = {ScooterId = preset.ScooterId, Customization = if type(preset.Customization) == "table" then serialCopy(preset.Customization, 0) else {}}
+            end
+        end
+    end
+    if type(raw.Season) == "table" and type(raw.Season.Id) == "string" and #raw.Season.Id <= 64 then
+        local season = profile.Season
+        season.Id, season.XP = raw.Season.Id, integer(raw.Season.XP, 0, 0, 1000000)
+        season.Day, season.DailyXP = integer(raw.Season.Day, 0, 0, 10000000), integer(raw.Season.DailyXP, 0, 0, 1000000)
+        for _, track in {"FreeClaims", "PremiumClaims"} do
+            if type(raw.Season[track]) == "table" then
+                for tier = 1, 64 do if raw.Season[track][tostring(tier)] == true then season[track][tostring(tier)] = true end end
+            end
+        end
+    end
     profile.PoliceLevel = integer(raw.PoliceLevel, 1, 1, 100)
     for _, field in {"Kills", "Deaths", "Assists", "Revives", "BestStreak", "ZoneTime"} do
         profile[field] = integer(raw[field], 0, 0, cfg.MaxCurrency)
@@ -111,7 +161,7 @@ function Schema.sanitize(raw: any, config: any?): (any?, string?)
     if type(raw.EquippedClothing) == "string" and #raw.EquippedClothing <= 64 then profile.EquippedClothing = raw.EquippedClothing end
     if type(raw.EquippedTag) == "string" and #raw.EquippedTag <= 64 then profile.EquippedTag = raw.EquippedTag end
     if type(raw.ActivityBudget) == "table" then
-        for _, field in {"Day", "PvP", "Fishing", "Objective", "Revive"} do profile.ActivityBudget[field] = integer(raw.ActivityBudget[field], 0, 0, cfg.MaxCurrency) end
+        for _, field in {"Day", "PvP", "Fishing", "Objective", "Revive", "Season"} do profile.ActivityBudget[field] = integer(raw.ActivityBudget[field], 0, 0, cfg.MaxCurrency) end
     end
     local ranks = {Cadet = true, Officer = true, ["Senior Officer"] = true, Sergeant = true, Lieutenant = true, Captain = true}
     if type(raw.PoliceRank) == "string" and ranks[raw.PoliceRank] then profile.PoliceRank = raw.PoliceRank end

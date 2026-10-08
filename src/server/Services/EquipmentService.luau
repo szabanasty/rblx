@@ -36,6 +36,7 @@ function Service:Equip(player: Player, slot: string, id: string): (boolean, stri
     if slot ~= "PRIMARY" and slot ~= "SECONDARY" and slot ~= "UTILITY" then return false, "InvalidEquipment" end
     if not context.Services.State:IsAllowed(player, "Trade") then return false, "VisitSafeZone" end
     local profile = context.Services.PlayerData:GetProfile(player)
+    if not profile then return false, "DataNotReady" end
     if id ~= "" and (not context.Config.Equipment.ById[id] or not profile.OwnedEquipment[id]) then return false, "EquipmentNotOwned" end
     -- One item cannot occupy several slots, preserving ammo across switch/equip.
     for other, equipped in profile.EquippedLoadout do if equipped == id then profile.EquippedLoadout[other] = nil end end
@@ -58,7 +59,9 @@ function Service:Buy(player: Player, id: string): (boolean, string)
     if not context.Services.State:IsAllowed(player, "Trade") or not context.Services.World:IsNear(player, "EquipmentShop") then return false, "VisitShop" end
     local item = context.Config.Equipment.ById[id]
     local profile = context.Services.PlayerData:GetProfile(player)
+    if not profile then return false, "DataNotReady" end
     if not item then return false, "InvalidEquipment" end
+    if item.RobuxOnly then return false, "RobuxPurchaseRequired" end
     if profile.OwnedEquipment[id] then return false, "AlreadyOwned" end
     if item.Price > 0 then local ok, reason = context.Services.Economy:Spend(player, item.Price); if not ok then return false, reason end end
     profile.OwnedEquipment[id] = true

@@ -3,6 +3,9 @@
 return table.freeze({
     Enabled = true, StarterEquipmentId = "spark", Slots = {"PRIMARY", "SECONDARY", "UTILITY"},
     ById = {
+        flux_elite = {EquipmentId = "flux_elite", DisplayName = "Flux Elite", Category = "STANDARD", Damage = 22, Cooldown = 0.32,
+            EffectiveRange = 135, Accuracy = 0.92, MobilityModifier = 0.95, Capacity = 16, ReloadDuration = 1.8,
+            Price = 0, RobuxOnly = true, OfferKey = "EliteWeapon", Rarity = "PREMIUM"},
         spark = {EquipmentId = "spark", DisplayName = "Spark", Category = "LIGHT", Damage = 12, Cooldown = 0.25,
             EffectiveRange = 90, Accuracy = 0.85, MobilityModifier = 1, Capacity = 12, ReloadDuration = 1.8, Price = 0, Rarity = "COMMON"},
         pulse = {EquipmentId = "pulse", DisplayName = "Pulse", Category = "STANDARD", Damage = 20, Cooldown = 0.4,

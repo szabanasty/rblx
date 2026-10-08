@@ -33,8 +33,8 @@ return function(Layout, Stats, WorldConfig, RoadConfig, ScooterConfig, UpgradeCo
     for _, value in {-1, 6, 0.5, 0/0, math.huge, "99", {}} do
         check(Stats.Get(base, {Motor = value}, UpgradeConfig).TopSpeed == base.TopSpeed, "invalid saved upgrade ignored")
     end
-    check(Stats.NextUpgrade("Motor", 0, UpgradeConfig) == 125, "base upgrade price")
-    check(Stats.NextUpgrade("Motor", 1, UpgradeConfig) == 250, "scaled upgrade price")
+    check(Stats.NextUpgrade("Motor", 0, UpgradeConfig) == 75, "starter can afford first motor upgrade")
+    check(Stats.NextUpgrade("Motor", 1, UpgradeConfig) == 150, "scaled upgrade price")
     check(Stats.NextUpgrade("Motor", 5, UpgradeConfig) == nil and Stats.NextUpgrade("Fake", 0, UpgradeConfig) == nil, "max and unknown category rejected")
     print("World and scooter-stat checks passed: " .. checks)
 end

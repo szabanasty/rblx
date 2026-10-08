@@ -169,12 +169,15 @@ function EconomyService:Reward(
 	local rewards = context.Config.Rewards
 	local availableMoney = math.min(math.max(0, rewards.DailyMoneyCap - usedMoney), MAX_BALANCE - profile.Money)
 	local grantedMoney = math.min(money, availableMoney)
-	local grantedXP = math.min(xp, math.max(0, rewards.DailyXPCap - usedXP))
+    local commerce = context.Config.Monetization
+    if commerce and (profile :: any).Entitlements.VIP then xp = math.min(MAX_GRANT, math.floor(xp * (1 + commerce.VIPXPBonus))) end
+    local earnedXP = math.min(xp, math.max(0, rewards.DailyXPCap - usedXP))
+    local grantedXP = earnedXP
 	if profile.Level >= context.Config.Levels.MaxLevel then
 		grantedXP = 0
 	end
 	local grantedRep = math.min(rep, MAX_BALANCE - profile.Reputation, math.max(0, (rewards.DailyReputationCap or 200) - usedRep))
-	if grantedMoney == 0 and grantedXP == 0 and grantedRep == 0 then
+    if grantedMoney == 0 and grantedXP == 0 and grantedRep == 0 and (not context.Services.Season or earnedXP == 0) then
 		return false, "DailyLimit"
 	end
 	-- This mutation is nonyielding: another server callback cannot interleave
@@ -185,10 +188,11 @@ function EconomyService:Reward(
 	grantedMoney += levelMoney
 	profile.Money += grantedMoney
 	profile.Reputation += grantedRep
-	profile.RewardBudget = { Day = day, Money = usedMoney + grantedMoney, XP = usedXP + grantedXP, Reputation = usedRep + grantedRep }
+    profile.RewardBudget = { Day = day, Money = usedMoney + grantedMoney, XP = usedXP + (if context.Services.Season then earnedXP else grantedXP), Reputation = usedRep + grantedRep }
 	if idempotencyKey then
 		rememberGrant(profile, idempotencyKey, now)
 	end
+    if context.Services.Season and earnedXP > 0 then context.Services.Season:AddXP(player, earnedXP) end
 	changed(player, profile)
 	return true, "Granted"
 end

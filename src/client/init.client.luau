@@ -15,6 +15,8 @@ local context: any = {
         Zones = require(config:WaitForChild("ZoneConfig")),
         Combat = require(config:WaitForChild("CombatConfig")),
         Cosmetics = require(config:WaitForChild("CosmeticConfig")),
+        Monetization = require(config:WaitForChild("MonetizationConfig")),
+        Season = require(config:WaitForChild("SeasonConfig")),
         Messages = require(config:WaitForChild("MessageConfig")),
     },
     Player = game:GetService("Players").LocalPlayer,

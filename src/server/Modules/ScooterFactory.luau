@@ -71,7 +71,7 @@ function ScooterFactory.Create(id: string, displayName: string, ownerId: number,
 	model.PrimaryPart = deck
 
 	local dark = Color3.fromRGB(24, 28, 34)
-    local accents: {[string]: Color3} = {kukirin_g2 = Color3.fromRGB(239, 151, 57), volt_city = Color3.fromRGB(85, 201, 180), kukirin_g3 = Color3.fromRGB(99, 163, 235), volt_dual = Color3.fromRGB(206, 96, 74), kukirin_g4 = Color3.fromRGB(170, 123, 237)}
+    local accents: {[string]: Color3} = {volt_elite = Color3.fromRGB(255, 205, 83), kukirin_g2 = Color3.fromRGB(239, 151, 57), volt_city = Color3.fromRGB(85, 201, 180), kukirin_g3 = Color3.fromRGB(99, 163, 235), volt_dual = Color3.fromRGB(206, 96, 74), kukirin_g4 = Color3.fromRGB(170, 123, 237)}
     local accent = accents[id] or Color3.fromRGB(239, 151, 57)
     local metal = Color3.fromRGB(98, 108, 119)
     local function detail(name: string, size: Vector3, frame: CFrame, color: Color3, shape: Enum.PartType?): Part

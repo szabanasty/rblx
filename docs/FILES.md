@@ -1,6 +1,6 @@
-# Źródła 0.6.1 — 84 pliki
+# Źródła 0.7.0 — 92 pliki
 
-Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródła to ModuleScripts. Domyślny tryb ZoneGame. Rojo tworzy strukturę automatycznie.
+Bootstrap server to Script, client to LocalScript; pozostałe źródła to ModuleScripts. Rojo tworzy strukturę automatycznie. Domyślny tryb ZoneGame.
 
 | Plik | Roblox Studio |
 | --- | --- |
@@ -17,8 +17,10 @@ Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródł
 | [src/client/Controllers/UIController.luau](../src/client/Controllers/UIController.luau) | `StarterPlayer.StarterPlayerScripts.Client.Controllers.UIController` |
 | [src/client/Controllers/ZoneClientController.luau](../src/client/Controllers/ZoneClientController.luau) | `StarterPlayer.StarterPlayerScripts.Client.Controllers.ZoneClientController` |
 | [src/client/Controllers/ZoneUIController.luau](../src/client/Controllers/ZoneUIController.luau) | `StarterPlayer.StarterPlayerScripts.Client.Controllers.ZoneUIController` |
+| [src/client/Modules/CommerceMenus.luau](../src/client/Modules/CommerceMenus.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.CommerceMenus` |
 | [src/client/Modules/GuiFactory.luau](../src/client/Modules/GuiFactory.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.GuiFactory` |
 | [src/client/Modules/HudLayout.luau](../src/client/Modules/HudLayout.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.HudLayout` |
+| [src/client/Modules/WorkshopMenu.luau](../src/client/Modules/WorkshopMenu.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.WorkshopMenu` |
 | [src/client/Modules/ZoneHud.luau](../src/client/Modules/ZoneHud.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.ZoneHud` |
 | [src/client/Modules/ZoneMenus.luau](../src/client/Modules/ZoneMenus.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.ZoneMenus` |
 | [src/client/init.client.luau](../src/client/init.client.luau) | `StarterPlayer.StarterPlayerScripts.Client` |
@@ -36,7 +38,9 @@ Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródł
 | [src/server/Services/EconomyService.luau](../src/server/Services/EconomyService.luau) | `ServerScriptService.Server.Services.EconomyService` |
 | [src/server/Services/EquipmentService.luau](../src/server/Services/EquipmentService.luau) | `ServerScriptService.Server.Services.EquipmentService` |
 | [src/server/Services/FishingService.luau](../src/server/Services/FishingService.luau) | `ServerScriptService.Server.Services.FishingService` |
+| [src/server/Services/GarageService.luau](../src/server/Services/GarageService.luau) | `ServerScriptService.Server.Services.GarageService` |
 | [src/server/Services/LeaderboardService.luau](../src/server/Services/LeaderboardService.luau) | `ServerScriptService.Server.Services.LeaderboardService` |
+| [src/server/Services/MonetizationService.luau](../src/server/Services/MonetizationService.luau) | `ServerScriptService.Server.Services.MonetizationService` |
 | [src/server/Services/MovementService.luau](../src/server/Services/MovementService.luau) | `ServerScriptService.Server.Services.MovementService` |
 | [src/server/Services/NetworkService.luau](../src/server/Services/NetworkService.luau) | `ServerScriptService.Server.Services.NetworkService` |
 | [src/server/Services/ObjectiveService.luau](../src/server/Services/ObjectiveService.luau) | `ServerScriptService.Server.Services.ObjectiveService` |
@@ -47,6 +51,7 @@ Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródł
 | [src/server/Services/ReviveService.luau](../src/server/Services/ReviveService.luau) | `ServerScriptService.Server.Services.ReviveService` |
 | [src/server/Services/RoadService.luau](../src/server/Services/RoadService.luau) | `ServerScriptService.Server.Services.RoadService` |
 | [src/server/Services/ScooterService.luau](../src/server/Services/ScooterService.luau) | `ServerScriptService.Server.Services.ScooterService` |
+| [src/server/Services/SeasonService.luau](../src/server/Services/SeasonService.luau) | `ServerScriptService.Server.Services.SeasonService` |
 | [src/server/Services/ShopService.luau](../src/server/Services/ShopService.luau) | `ServerScriptService.Server.Services.ShopService` |
 | [src/server/Services/SnapshotService.luau](../src/server/Services/SnapshotService.luau) | `ServerScriptService.Server.Services.SnapshotService` |
 | [src/server/Services/SquadService.luau](../src/server/Services/SquadService.luau) | `ServerScriptService.Server.Services.SquadService` |
@@ -64,15 +69,18 @@ Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródł
 | [src/shared/Config/GameConfig.luau](../src/shared/Config/GameConfig.luau) | `ReplicatedStorage.Shared.Config.GameConfig` |
 | [src/shared/Config/LevelConfig.luau](../src/shared/Config/LevelConfig.luau) | `ReplicatedStorage.Shared.Config.LevelConfig` |
 | [src/shared/Config/MessageConfig.luau](../src/shared/Config/MessageConfig.luau) | `ReplicatedStorage.Shared.Config.MessageConfig` |
+| [src/shared/Config/MonetizationConfig.luau](../src/shared/Config/MonetizationConfig.luau) | `ReplicatedStorage.Shared.Config.MonetizationConfig` |
 | [src/shared/Config/PvPRewardConfig.luau](../src/shared/Config/PvPRewardConfig.luau) | `ReplicatedStorage.Shared.Config.PvPRewardConfig` |
 | [src/shared/Config/QuestConfig.luau](../src/shared/Config/QuestConfig.luau) | `ReplicatedStorage.Shared.Config.QuestConfig` |
 | [src/shared/Config/RewardConfig.luau](../src/shared/Config/RewardConfig.luau) | `ReplicatedStorage.Shared.Config.RewardConfig` |
 | [src/shared/Config/RoadConfig.luau](../src/shared/Config/RoadConfig.luau) | `ReplicatedStorage.Shared.Config.RoadConfig` |
 | [src/shared/Config/ScooterConfig.luau](../src/shared/Config/ScooterConfig.luau) | `ReplicatedStorage.Shared.Config.ScooterConfig` |
+| [src/shared/Config/SeasonConfig.luau](../src/shared/Config/SeasonConfig.luau) | `ReplicatedStorage.Shared.Config.SeasonConfig` |
 | [src/shared/Config/UpgradeConfig.luau](../src/shared/Config/UpgradeConfig.luau) | `ReplicatedStorage.Shared.Config.UpgradeConfig` |
 | [src/shared/Config/WorldConfig.luau](../src/shared/Config/WorldConfig.luau) | `ReplicatedStorage.Shared.Config.WorldConfig` |
 | [src/shared/Config/ZoneConfig.luau](../src/shared/Config/ZoneConfig.luau) | `ReplicatedStorage.Shared.Config.ZoneConfig` |
 | [src/shared/Config/ZoneWorldConfig.luau](../src/shared/Config/ZoneWorldConfig.luau) | `ReplicatedStorage.Shared.Config.ZoneWorldConfig` |
+| [src/shared/Modules/CommerceRules.luau](../src/shared/Modules/CommerceRules.luau) | `ReplicatedStorage.Shared.Modules.CommerceRules` |
 | [src/shared/Modules/FishingRules.luau](../src/shared/Modules/FishingRules.luau) | `ReplicatedStorage.Shared.Modules.FishingRules` |
 | [src/shared/Modules/ProfileSchema.luau](../src/shared/Modules/ProfileSchema.luau) | `ReplicatedStorage.Shared.Modules.ProfileSchema` |
 | [src/shared/Modules/Progression.luau](../src/shared/Modules/Progression.luau) | `ReplicatedStorage.Shared.Modules.Progression` |
@@ -89,4 +97,4 @@ Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródł
 | [src/shared/Types/PlayerData.luau](../src/shared/Types/PlayerData.luau) | `ReplicatedStorage.Shared.Types.PlayerData` |
 | [src/shared/Types/ZoneTypes.luau](../src/shared/Types/ZoneTypes.luau) | `ReplicatedStorage.Shared.Types.ZoneTypes` |
 
-`assets/map-preview.model.json` → `Workspace.Map.ScenePreview`: statyczny podgląd; runtime zastępuje go Map.ZoneGenerated. Skrypty/tests/docs nie trafiają do silnika. Pozostałe pliki i aktualizacja opisane w [WORLD_060.md](WORLD_060.md).
+Świat: `Workspace.Map.ZoneGenerated`; Workshop: `UpgradeShop.UpgradeWorkbench` i `WorkshopDemo`. HUD/menu tworzą się pod `PlayerGui.KukirinZone`. Rodzaje ofert i konfiguracja ID: [MONETIZATION.md](MONETIZATION.md).

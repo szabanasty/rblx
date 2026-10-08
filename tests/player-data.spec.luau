@@ -1,6 +1,6 @@
 --!nonstrict
 -- Real service code is provided by the test runner; Roblox services are modeled below.
-return function(loadService)
+return function(loadService, RealSchema, GameConfig)
 local checks = 0
 local function check(ok, message)
     assert(ok, message)
@@ -12,7 +12,7 @@ local function deepCopy(value)
     for key, item in value do output[key] = deepCopy(item) end
     return output
 end
-local function factory(studio, existing)
+local function factory(studio, existing, useRealSchema)
     local clock = 1000
     local os = {time = function() return math.floor(clock) end, clock = function() return clock end}
     local timers = {}
@@ -91,6 +91,10 @@ local function factory(studio, existing)
     schema.deepCopy=deepCopy
     local notifications=0
     local ctx={Config={Game={DataStoreName="Tests",UseStudioDataStore=false,StartingMoney=100}},Schema=schema,Notify=function() notifications+=1 end}
+    if useRealSchema then
+        ctx.Schema=RealSchema; ctx.Config.Game=table.clone(GameConfig)
+        ctx.Config.Game.DataStoreName="Tests"; ctx.Config.Game.UseStudioDataStore=false
+    end
     service:Init(ctx)
     service:Start()
     local function add(userId)
@@ -105,6 +109,7 @@ end
 local a=factory(false)
 local p=a.Add(42)
 check(a.Service:IsReady(p),"production default profile acquired")
+check(a.Service:IsPersistent(p),"production usable profile qualifies for durable receipt processing")
 check(a.Records.Player_42.Data.Money==100,"initial profile stored")
 check(a.Records.Player_42.Session ~= nil,"session lease stored")
 a.Service:GetProfile(p).Money=240
@@ -140,11 +145,13 @@ local t=e.Add(48)
 e.Records.Player_48.Session.Token="stolen"
 local success,reason=e.Service:Save(t,false)
 check(not success and reason=="SessionLost" and t.Kicked~=nil,"stolen token stops gameplay")
+check(not e.Service:IsPersistent(t),"lost lease cannot authorize consumable purchases")
 check(e.Records.Player_48.Session.Token=="stolen","stolen lease never overwritten")
 
 local f=factory(true)
 local u=f.Add(49)
 check(f.Service:GetStatus(u)=="StudioMemory" and f.Service:IsReady(u),"Studio memory test usable")
+check(not f.Service:IsPersistent(u),"memory-only session never qualifies for durable receipt processing")
 check(f.Store.Calls==0 and #f.Warnings>0,"Studio default never touches production DataStore")
 
 local g=factory(false)
@@ -176,6 +183,21 @@ j.Task.spawn(function() j.Service:Shutdown() end)
 j.Advance(1)
 check(j.Records.Player_53.Data.Money==456 and j.Records.Player_53.Session==nil,"shutdown saves and releases loaded profiles")
 check(j.Context.IsClosing==true,"shutdown signals closing to other services")
+
+local history=RealSchema.new(54,GameConfig)
+history.UpgradeCredits=300
+for index=1,300 do history.PurchaseReceipts["real-receipt-"..index]=true end
+local envelope={SchemaVersion=1,Data=history,Session={Token="old",ExpiresAt=900}}
+local envelopeCopy=RealSchema.deepCopy(envelope)
+local receipts=0;for _ in envelopeCopy.Data.PurchaseReceipts do receipts+=1 end
+check(receipts==300,"real schema preserves full purchase history inside DataStore envelope")
+local k=factory(false,{Player_54=envelope},true)
+k.Store.LostResponse=true
+local z=k.Add(54)
+z.Parent=nil;k.Players.PlayerRemoving:Fire(z);k.Advance(2)
+receipts=0;for _ in k.Records.Player_54.Data.PurchaseReceipts do receipts+=1 end
+check(receipts==300 and k.Records.Player_54.Data.UpgradeCredits==300 and k.Records.Player_54.Session==nil,
+    "uncertain acquisition release with actual schema keeps every permanent purchase receipt")
 
 print("PlayerDataService mock checks passed: "..checks)
 

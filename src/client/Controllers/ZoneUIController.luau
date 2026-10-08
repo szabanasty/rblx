@@ -202,7 +202,7 @@ function Service:Update(snapshot: any)
     if menuOpen then
         local memberIds: {number} = {}
         for _, member in data.Squad.Members do table.insert(memberIds, member.UserId) end
-        local key = page .. HttpService:JSONEncode({data.Money, data.Level, data.OwnedScooters, data.SelectedScooter, data.ScooterUpgrades, data.OwnedEquipment, data.EquippedLoadout, data.Cosmetics, data.Fishing.Revision, data.Settings, data.Players, data.Squad.SquadId, data.Squad.Leader, data.Squad.Invite ~= nil, memberIds, data.Leaderboard})
+        local key = page .. HttpService:JSONEncode({data.Money, data.Level, data.OwnedScooters, data.SelectedScooter, data.ScooterUpgrades, data.OwnedEquipment, data.EquippedLoadout, data.Cosmetics, data.Fishing.Revision, data.Settings, data.Players, data.Squad.SquadId, data.Squad.Leader, data.Squad.Invite ~= nil, memberIds, data.Leaderboard, data.Commerce, data.Season, data.Garage, data.Telemetry.Riding})
         if key ~= signature then signature = key; Menus.Build(context, refs.Content, page, data, function(name: string) Service:Open(name) end) end
     end
     resize()

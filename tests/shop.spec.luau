@@ -55,6 +55,21 @@ return function(loadService, Schema, GameConfig, ScooterConfig, UpgradeConfig, S
     check(shop:Upgrade(player, "kukirin_g3", "Motor"), "fifth upgrade succeeds")
     check(not shop:Upgrade(player, "kukirin_g3", "Motor"), "max level cannot be exceeded")
     check(profile.ScooterUpgrades.kukirin_g3.Motor == 5 and dirty == 7, "all successful purchases saved")
+    local balance = profile.Money
+    check(select(2, shop:BuyScooter(player, "volt_elite")) == "RobuxPurchaseRequired" and not profile.OwnedScooters.volt_elite and profile.Money == balance, "zero Money price cannot bypass paid scooter ownership")
+    profile.UpgradeCredits = 2
+    check(not shop:Upgrade(player, "volt_elite", "Motor", true) and profile.UpgradeCredits == 2, "credits cannot upgrade unowned models")
+    check(not shop:Upgrade(player, "kukirin_g3", "Motor", true) and profile.UpgradeCredits == 2, "credits cannot bypass maximum upgrade")
+    riding = true
+    check(not shop:Upgrade(player, "kukirin_g3", "Brakes", true) and profile.UpgradeCredits == 2, "credit redemption needs dismount")
+    riding = false; near = false
+    check(not shop:Upgrade(player, "kukirin_g3", "Brakes", true) and profile.UpgradeCredits == 2, "credit redemption needs Workshop proximity")
+    near = true
+    check(shop:Upgrade(player, "kukirin_g3", "Brakes", true) and profile.UpgradeCredits == 1 and profile.Money == balance, "credit replaces Money charge and applies real upgrade")
+    profile.Level = 1
+    check(select(2, shop:Upgrade(player, "kukirin_g3", "Brakes", true)) == "LevelTooLow" and profile.UpgradeCredits == 1, "credits cannot bypass required player level")
+    profile.Level = 14; profile.UpgradeCredits = 0
+    check(select(2, shop:Upgrade(player, "kukirin_g3", "Brakes", true)) == "NoUpgradeCredits", "empty wallet cannot redeem")
     ready = false
     check(select(2, shop:Upgrade(player, "kukirin_g3", "Brakes")) == "DataNotReady", "unready data cannot be charged")
     print("Shop checks passed: " .. checks)

@@ -102,6 +102,20 @@ function Service:Start()
             local p = cfg.Locations[id]
             scene:Part(shop, "ServiceLift", Vector3.new(15, 1, 20), CFrame.new(p.X - 15, 1, p.Z - 32), Color3.fromRGB(57, 72, 85), Enum.Material.Metal, true)
             for _, side in {-1, 1} do scene:Part(shop, "LiftPost", Vector3.new(1, 10, 2), CFrame.new(p.X - 15 + side * 9, 5, p.Z - 32), accent, Enum.Material.Metal, false) end
+            local bench = scene:Part(shop, "UpgradeWorkbench", Vector3.new(10, 3, 5), CFrame.new(p.X + 10, 1.7, p.Z - 34), Color3.fromRGB(46, 60, 75), Enum.Material.Metal, true)
+            scene:Part(shop, "WorkbenchTop", Vector3.new(11, 0.2, 6), CFrame.new(p.X + 10, 3.3, p.Z - 34), accent, Enum.Material.Neon, false)
+            scene:Part(shop, "ToolBoard", Vector3.new(9, 4, 0.4), CFrame.new(p.X + 10, 5.7, p.Z - 37), Color3.fromRGB(65, 76, 88), Enum.Material.Metal, false)
+            for _, x in {p.X + 8, p.X + 11} do
+                scene:Part(shop, "WorkshopToolHandle", Vector3.new(0.3, 1.8, 0.25), CFrame.new(x, 5.6, p.Z - 36.6), Color3.fromRGB(178, 188, 199), Enum.Material.Metal, false)
+                for _, side in {-1, 1} do scene:Part(shop, "WorkshopWrenchJaw", Vector3.new(0.35, 0.7, 0.25), CFrame.new(x + side * 0.3, 6.6, p.Z - 36.6), Color3.fromRGB(201, 209, 215), Enum.Material.Metal, false) end
+            end
+            scene:Part(shop, "WorkshopBattery", Vector3.new(2.4, 0.9, 1.7), CFrame.new(p.X + 12, 3.9, p.Z - 34), Color3.fromRGB(35, 43, 56), Enum.Material.Metal, false)
+            scene:Part(shop, "BatteryStatus", Vector3.new(1.7, 0.08, 0.4), CFrame.new(p.X + 12, 4.4, p.Z - 34), accent, Enum.Material.Neon, false)
+            local demo = Factory.Create("kukirin_g2", "Hulajnoga serwisowa • model wystawowy", -99, CFrame.new(p.X - 15, 2.8, p.Z - 32))
+            demo.Model.Name, demo.Model.Parent = "WorkshopDemo", shop
+            demo.Seat.Disabled, demo.Prompt.Enabled = true, false
+            scene:Sign(shop, "WORKSHOP • E\nSILNIK / BATERIA / HAMULCE\nULEPSZENIA ZA MONEY LUB KREDYTY", CFrame.new(p.X + 10, 9, p.Z - 37), Vector3.new(27, 5, 0.3), accent)
+            interaction(bench, id, "WORKSHOP • ULEPSZENIA", "Otwórz ulepszenia", function(player: Player) context.OpenMenu(player, "UpgradeShop") end)
         end
     end
     local fishing = scene:Model("WillowLake")

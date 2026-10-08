@@ -262,6 +262,11 @@ function PlayerDataService:IsReady(player: Player): boolean
 	return usable(states[player])
 end
 
+function PlayerDataService:IsPersistent(player: Player): boolean
+    local state = states[player]
+    return usable(state) and state ~= nil and not state.Memory
+end
+
 function PlayerDataService:GetStatus(player: Player): string
 	local state = states[player]
 	return if state then state.Status else "Loading"

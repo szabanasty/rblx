@@ -17,6 +17,7 @@ function ShopService:BuyScooter(player: Player, id: string): (boolean, string)
     if not profile then return false, message end
     local item = context.Config.Scooters.ById[id]
     if not item then return false, "InvalidScooter" end
+    if item.RobuxOnly then return false, "RobuxPurchaseRequired" end
     if profile.OwnedScooters[id] then return false, "AlreadyOwned" end
     if profile.Level < item.UnlockLevel then return false, "LevelTooLow" end
     if item.Price > 0 then
@@ -30,7 +31,7 @@ function ShopService:BuyScooter(player: Player, id: string): (boolean, string)
     context.Notify(player)
     return true, "ScooterPurchased"
 end
-function ShopService:Upgrade(player: Player, id: string, category: string): (boolean, string)
+function ShopService:Upgrade(player: Player, id: string, category: string, useCredit: boolean?): (boolean, string)
     if type(id) ~= "string" or type(category) ~= "string" then return false, "InvalidUpgrade" end
     local profile, message = eligible(player, "UpgradeShop")
     if not profile then return false, message end
@@ -44,8 +45,13 @@ function ShopService:Upgrade(player: Player, id: string, category: string): (boo
     local price, requiredLevel = context.Stats.NextUpgrade(category, current, context.Config.Upgrades)
     if not price or not requiredLevel then return false, "UpgradeMaxOrInvalid" end
     if profile.Level < requiredLevel then return false, "LevelTooLow" end
-    local paid, reason = context.Services.Economy:Spend(player, price)
-    if not paid then return false, reason end
+    if useCredit then
+        if profile.UpgradeCredits < 1 then return false, "NoUpgradeCredits" end
+        profile.UpgradeCredits -= 1
+    else
+        local paid, reason = context.Services.Economy:Spend(player, price)
+        if not paid then return false, reason end
+    end
     levels[category] = current + 1
     profile.ScooterUpgrades[id] = levels
     context.Services.PlayerData:MarkDirty(player)

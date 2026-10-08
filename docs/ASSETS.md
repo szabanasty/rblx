@@ -17,3 +17,8 @@ Ręcznie: ustaw Avatar R15 w ustawieniach doświadczenia (UI Studio może nazywa
 Do komercyjnych marek, muzyki/artystów i logo używaj wyłącznie uprawnionych assetów. Nazwy Volt i modele blokowe są roboczym oryginalnym zastępstwem wizualnym Kukirinów. Nie ma gwarancji praw do znaków Kukirin ani innych firm wynikającej z tego kodu.
 
 Asset map-preview nie pochodzi z Internetu: powstaje z własnego kodu CityScene/IslandScene/ScooterFactory. Po zmianie geometrii uruchom `python3 scripts/export-scene.py` i `python3 scripts/generate-preview.py`, potem pełne testy. Nie edytuj ScenePreview ręcznie, bo Rojo/regeneracja zastąpi zmiany; ręczne dekoracje trzymaj w Map.Buildings. Blender jest opcjonalny, niepotrzebny do uruchomienia gry ani CI.
+
+
+## Premium 0.7.0
+
+Volt Elite korzysta z własnego ScooterFactory i złotych akcentów. Flux Elite ma oryginalny model z części, bez wymaganego zewnętrznego assetu. VIP/Neon to kamizelki, tagi i kolory części, a nie markowe ubrania czy nieistniejące animowane efekty. Workshop otrzymał natywny stół, narzędzia, baterię i serwisową ekspozycję. Ikony własnych passów/produktów trzeba dodać w Creator Dashboard; istniejących ID nie zakładamy. Audio/animacje pozostają jak opisano powyżej.

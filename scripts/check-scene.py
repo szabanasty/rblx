@@ -35,5 +35,11 @@ for shop in ('Garage','ScooterShop','UpgradeShop','EquipmentShop','CosmeticsShop
    assert not overlap,(shop,offset,part['Name'])
 for model in ('Showroom_kukirin_g2','Showroom_volt_city','Showroom_kukirin_g3','Showroom_volt_dual','Showroom_kukirin_g4'):
  assert sum(p['Parent']==model for p in parts)>=40
+bench=find('UpgradeWorkbench','UpgradeShop')
+entrance=find('Interaction','UpgradeShop')
+assert bench['Solid'] and bench['Position'][2]<entrance['Position'][2]-20
+assert math.hypot(bench['Position'][0]-entrance['Position'][0],bench['Position'][2]-entrance['Position'][2])<60,'interior Workshop remains in server-validated purchase radius'
+assert sum(p['Parent']=='WorkshopDemo' for p in parts)>=40,'workshop has an actual detailed service-display scooter'
+assert find('WorkshopBattery','UpgradeShop') and find('WorkshopToolHandle','UpgradeShop')
 assert find('ScooterPickup')['Position'][0]<find('Interaction','Garage')['Position'][0]
 print(f'PASS: actual scene geometry — {len(parts)} parts, {sum(p["Solid"] for p in parts)} collidable; river/bridge separation, distant arena, six clear storefront entrances, five detailed scooters')

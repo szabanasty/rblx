@@ -108,8 +108,24 @@ def main():
         "Stats": "Modules/ScooterStats", "Layout": "Modules/WorldLayout",
         "CombatConfig": "Config/CombatConfig", "EquipmentConfig": "Config/EquipmentConfig",
         "FishingConfig": "Config/FishingConfig", "PvPRewardConfig": "Config/PvPRewardConfig", "ZoneConfig": "Config/ZoneConfig",
+        "CommerceRules": "Modules/CommerceRules", "MonetizationConfig": "Config/MonetizationConfig",
+        "SeasonConfig": "Config/SeasonConfig", "CosmeticConfig": "Config/CosmeticConfig",
     }.items())
     suites = {
+        "commerce": wrapped("src/server/Services/MonetizationService.luau", "game, task, Enum, os, warn")
+            + spec("tests/commerce.spec.luau", "loadService, CommerceRules, Schema, Validation, GameConfig, MonetizationConfig, ScooterConfig, EquipmentConfig"),
+        "season-garage": wrapped("src/server/Services/SeasonService.luau", "os", "loadSeason")
+            + wrapped("src/server/Services/GarageService.luau", "", "loadGarage")
+            + spec("tests/season-garage.spec.luau", "loadSeason, loadGarage, CommerceRules, Schema, Validation, GameConfig, SeasonConfig, MonetizationConfig, ScooterConfig, CosmeticConfig"),
+        "workshop-ui": wrapped("src/client/Modules/GuiFactory.luau", "Instance, UDim2, Color3, Enum, UDim", "loadGui")
+            + wrapped("src/client/Modules/WorkshopMenu.luau", "require, script", "loadWorkshop")
+            + wrapped("src/client/Modules/CommerceMenus.luau", "require, script", "loadCommerce")
+            + spec("tests/workshop-ui.spec.luau", "loadGui, loadWorkshop, loadCommerce, Schema, GameConfig, ScooterConfig, UpgradeConfig, Stats, SeasonConfig"),
+        "paid-catalog": wrapped("src/server/Services/EquipmentService.luau", "game, os", "loadEquipment")
+            + wrapped("src/server/Services/CosmeticService.luau", "", "loadCosmetics")
+            + wrapped("src/server/Services/EconomyService.luau", "game, Instance", "loadEconomy")
+            + wrapped("src/server/Services/SeasonService.luau", "os", "loadSeason")
+            + spec("tests/paid-catalog.spec.luau", "loadEquipment, loadCosmetics, loadEconomy, loadSeason, CommerceRules, Schema, Validation, GameConfig, MonetizationConfig, SeasonConfig, EquipmentConfig, ScooterConfig, CosmeticConfig, Progression, LevelConfig, RewardConfig, EconomyConfig"),
         "avatar-lifecycle": wrapped("src/server/Services/AvatarPresentationService.luau", "game, task") + spec("tests/avatar-lifecycle.spec.luau", "loadService"),
         "zone-hud": wrapped("src/client/Modules/GuiFactory.luau", "Instance, UDim2, Color3, Enum, UDim", "loadGui")
             + wrapped("src/client/Modules/ZoneHud.luau", "require, script, Color3, UDim2, UDim, Enum", "loadHud")
@@ -134,7 +150,7 @@ def main():
         "zone-rules": spec("tests/zone-rules.spec.luau", "StateRules, ZoneRules, SquadStore, FishingRules, CombatConfig, ZoneConfig, FishingConfig, Validation"),
         "zone-economy": wrapped("src/server/Services/EconomyService.luau", "game, Instance") + spec("tests/zone-economy.spec.luau", "loadService, Schema, GameConfig, RewardConfig, LevelConfig, EconomyConfig, Progression"),
         "shared": spec("tests/shared.spec.luau", "Progression, Schema, Validation, RateLimiter, LevelConfig, GameConfig"),
-        "player-data": wrapped("src/server/Services/PlayerDataService.luau", "game, task, warn, os") + spec("tests/player-data.spec.luau", "loadService"),
+        "player-data": wrapped("src/server/Services/PlayerDataService.luau", "game, task, warn, os") + spec("tests/player-data.spec.luau", "loadService, Schema, GameConfig"),
         "economy": wrapped("src/server/Services/EconomyService.luau", "game, Instance") + spec("tests/economy.spec.luau", "loadService, Progression, RewardConfig, LevelConfig"),
         "network": wrapped("src/server/Services/NetworkService.luau", "game, os, warn") + spec("tests/network.spec.luau", "loadService, Validation, RateLimiter, GameConfig"),
         "snapshot": wrapped("src/server/Services/SnapshotService.luau", "game") + spec("tests/snapshot.spec.luau", "loadService, Schema, Progression, GameConfig, ScooterConfig, LevelConfig"),

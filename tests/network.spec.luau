@@ -115,6 +115,23 @@ return function(loadService, Validation, RateLimiter, GameConfig)
     local before=zone.Calls.Feedback
     action("StartQuest",{QuestId="first_delivery"})
     check(zone.Calls.Feedback==before+1 and zone.Calls.Quest==0,"inactive legacy quest endpoint is rejected without runtime failure")
+    local purchase,claim,preset,credit=0,0,0,0
+    services.Monetization={Prompt=function(_,_,key) assert(key=="VIP");purchase+=1;return true,"PurchasePrompted" end,Reconcile=function() purchase+=1 end}
+    services.Season={Claim=function(_,_,tier,track) assert(tier==1 and track=="Free");claim+=1;return true,"SeasonRewardClaimed" end}
+    services.Garage={SavePreset=function(_,_,slot) assert(slot==1);preset+=1;return true,"GaragePresetSaved" end,
+        LoadPreset=function(_,_,slot) assert(slot==1);preset+=1;return true,"GaragePresetLoaded" end}
+    services.Shop.Upgrade=function(_,_,id,category,useCredit) assert(id=="kukirin_g2" and category=="Motor" and useCredit==true);credit+=1;return true,"UpgradePurchased" end
+    zone.Tick(4)
+    action("PurchaseOffer",{OfferKey="VIP",Id=1001});action("ClaimSeasonReward",{Tier=1,Track="Free",Money=999})
+    action("SaveGaragePreset",{Slot=1,Customization={Color="Gold"}});action("RedeemUpgrade",{ScooterId="kukirin_g2",Category="Motor",Credits=999})
+    check(purchase==0 and claim==0 and preset==0 and credit==0,"commerce rejects client IDs, reward amounts, preset contents and fake credits")
+    action("PurchaseOffer",{OfferKey="VIP"});action("RefreshPurchases")
+    action("ClaimSeasonReward",{Tier=1,Track="Free"});action("SaveGaragePreset",{Slot=1});action("LoadGaragePreset",{Slot=1})
+    action("RedeemUpgrade",{ScooterId="kukirin_g2",Category="Motor"})
+    check(purchase==2 and claim==1 and preset==2 and credit==1,"commerce intents route to actual authority boundaries")
+    zone.Tick(4)
+    action("ClaimSeasonReward",{Tier=0/0,Track="Free"});action("LoadGaragePreset",{Slot=7})
+    check(claim==1 and preset==2,"nonfinite tier and locked slot rejected before services")
     services.PlayerData.IsReady=function() return false end
     zone.Tick(1);action("Shoot",{X=1,Y=0,Z=0,Aim=false})
     check(routed.Shoot==2,"unloaded profile cannot shoot")

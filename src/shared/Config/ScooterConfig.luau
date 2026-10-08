@@ -2,6 +2,11 @@
 -- Speeds: km/h; acceleration/braking: m/s²; handling: degrees/s; jump: m/s.
 -- These are original block placeholders, without brand logos or imported assets.
 local byId = {
+    volt_elite = table.freeze({
+        Id = "volt_elite", DisplayName = "Volt Elite", Class = "ELITE", Weight = 33, UpgradeSlots = 6,
+        Price = 0, RobuxOnly = true, OfferKey = "EliteScooter", TopSpeed = 65, Acceleration = 6,
+        Handling = 112, Braking = 10, Jump = 5, Battery = 160, Stability = 1.25, Rarity = "PREMIUM", UnlockLevel = 1,
+    }),
     kukirin_g2 = table.freeze({
         Id = "kukirin_g2", DisplayName = "Volt Starter — placeholder", Class = "STARTER", Weight = 22, UpgradeSlots = 6,
         Price = 0, TopSpeed = 35, Acceleration = 4, Handling = 110,

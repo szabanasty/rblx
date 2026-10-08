@@ -1,3 +1,17 @@
+# Robux, karnet i Workshop 0.7.0
+
+Wdrożono osiem ofert (6 Game Passes / 2 Developer Products), realne katalogowe statystyki Volt Elite/Flux Elite, VIP +5% XP i kosmetyki, dodatkowe presety garażu, kredyty zamiast ceny Money, karnet 12 poziomów z darmową/premium ścieżką. Zakupy są wyłączone do konfiguracji własnych ID. Instrukcja: [MONETIZATION.md](MONETIZATION.md).
+
+Workshop ma stanowisko wewnątrz, narzędzia, baterię i model serwisowy; nowe menu pokazuje sześć kategorii, wymagania/ceny i efekty przed/po, opcję zejścia oraz używania kredytów. Pierwszy silnik kosztuje 75 Money. Nie ma pustego placeholder menu.
+
+Naprawiono: brak interakcji wewnątrz warsztatu, nieosiągalny pierwszy upgrade za początkowe Money, brak komunikatów wymagań, możliwość darmowego zakupu premium przy cenie 0, brak ochrony nowych pól przy niepoprawnym zapisie, możliwość ucięcia historii zakupów przez ogólny limit kopiowania profilu. Receipt i reward zapisują się wspólnie; błąd save pozostawia rachunek pending, a retry nie dopisuje kredytów. Permanentnej historii nie usuwamy. API Marketplace callback jest przypisywany bez niedozwolonego odczytu.
+
+Dodano 8 źródeł: Config/MonetizationConfig, Config/SeasonConfig, Modules/CommerceRules, Services/MonetizationService, Services/SeasonService, Services/GarageService, Modules/WorkshopMenu i Modules/CommerceMenus. Zmieniono istniejące configi/katalogi, profil/typy, usługi/shop/snapshot/remotes, bootstrapy, wygląd premium, preview, test runner i dokumentację. [Pełna lista 92 źródeł i położenia w Studio](FILES.md). Cztery nowe zestawy testów, rozszerzone testy shop/network/data/snapshot i geometrii.
+
+Weryfikacja 0.7.0: 92 źródła, compile/Roblox types, Rojo build/sourcemap, 25 suite'ów i geometria 1149 części / 171 collidable. Prawdziwe transakcje Robux, backend Marketplace/DataStore oraz gameplay/render/fizyka nie były uruchamiane w chmurze. Pozostała konfiguracja ID/prices w Dashboard i odbiór w Roblox.
+
+## Historia HUD-u i multiplayera 0.6.1
+
 # HUD i przygotowanie multiplayera 0.6.1
 
 Dodano ZoneHud/HudLayout: oddzielne panele strefy, squad, Money/Level/XP, health/statystyk, wyposażenia/ammo, prędkości/baterii i aktywności. Minimap jest niezależna. Układ rozdziela kontrolki PC/telefonu, rezerwuje miejsce dla native ruchu i ocucania, skaluje panele, a MENU/MAPA zachowują duże cele dotykowe. Na małym telefonie mapa jest dostępna również przez menu. Nadal pokazujemy problemy zapisu, bez stałego dużego debug boxa.

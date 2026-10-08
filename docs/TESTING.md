@@ -1,20 +1,22 @@
-# Testy wersji 0.6.1
+# Testy wersji 0.7.0
 
 ## Faktycznie wykonane w chmurze
 
-`python3 scripts/check-project.py`: kompilacja 84 prawdziwych źródeł Luau, analiza typów z API Roblox, Rojo build i sourcemap, porównanie Source/klasy/ścieżki każdego pliku, 4 RemoteEvents, StreamingEnabled oraz 10 pustych kontenerów statycznych. Statyczny build ma także ScenePreview, porównany z 1092 częściami eksportu źródłowej geometrii. Przy Play podgląd zastępowany jest modułowym światem z interakcjami.
+`python3 scripts/check-project.py`: kompilacja 92 prawdziwych źródeł Luau, analiza typów z API Roblox, Rojo build i sourcemap, porównanie Source/klasy/ścieżki każdego pliku, 4 RemoteEvents, StreamingEnabled oraz 10 pustych kontenerów statycznych. Statyczny build ma także ScenePreview, porównany z 1149 częściami eksportu źródłowej geometrii. Przy Play podgląd zastępowany jest modułowym światem z interakcjami.
 
-21 uruchomionych zestawów: hud-layout, zone-hud, avatar-lifecycle, shared, player-data, economy, network, snapshot, input, shop, quest, world-stats, foundation, player-state, scooter-mount, scooter-pose, zone-rules, zone-economy, zone-gameplay, zone-fishing, zone-world. Testy usług wykonują rzeczywisty kod usług z mockami granic API, a nie kopie implementacji. Nie emulują fizyki ani pełnej semantyki Roblox.
+25 uruchomionych zestawów: commerce, season-garage, workshop-ui, paid-catalog, hud-layout, zone-hud, avatar-lifecycle, shared, player-data, economy, network, snapshot, input, shop, quest, world-stats, foundation, player-state, scooter-mount, scooter-pose, zone-rules, zone-economy, zone-gameplay, zone-fishing, zone-world. Testy usług wykonują rzeczywisty kod usług z mockami granic API, a nie kopie implementacji. Nie emulują fizyki ani pełnej semantyki Roblox.
 
 Nowe scenariusze obejmują: tag po przekroczeniu SAFE, Health/DOWNED/protection, friendly fire, cover raycast, cooldown/ammo/reload, release/keepalive revive, once settlement, assist/streak/bounty, malejące nagrody, anti-farm po ponownym załadowaniu profilu, exact-credit daily caps, sprzedaż bez utraty ryb przy odmowie, stale revision, AFK/full inventory, teleport/rolling speed/flight, zwykłe mount/dismount, objective contested/2-player/cooldown, ścisłe requesty Shoot/Revive/Sell, replay, spam i UserId ponad 2 miliardy. Stare suite'y obejmują sesję/zapis/retry/lost lock, upgrade, input i kompatybilność schematu.
 
-`PYTHONPATH=/workspace/.tools/python python3 scripts/check-rojo-server.py --check-reload`: odczyt żywego API Rojo, porównanie wszystkich 84 źródeł, remotes i streamingu, chwilowa zmiana ProjectInfo dociera do API, potem oryginał przywrócony i sprawdzony. Test przeprowadza synchronizację do Rojo, nie połączenie z Roblox Studio.
+`PYTHONPATH=/workspace/.tools/python python3 scripts/check-rojo-server.py --check-reload`: odczyt żywego API Rojo, porównanie wszystkich 92 źródeł, remotes i streamingu, chwilowa zmiana ProjectInfo dociera do API, potem oryginał przywrócony i sprawdzony. Test przeprowadza synchronizację do Rojo, nie połączenie z Roblox Studio.
 
 Dodatkowo: 9657 kontroli prostokątów HUD-u (12 viewportów × 3 skale × touch/PC × 4 tryby), 42 kontrole rzeczywistego kodu GUI/controllers przez mock API oraz 7 kontroli lifecycle avatara. Sprawdzono brak kolizji aktywnych paneli, miejsce dla native ruchu, dużą wysokość MENU/MAPA, map toggle, release pedału, FOV po menu, reload w SAFE, revive cancel, respawn i ostrzeżenie zapisu. To geometria deklarowana i granice API, nie silnik layout/render Roblox.
 
+Nowe testy: natywny callback rozliczania produktu przez mock, retry/duplicate/rejoin, równoległe rachunki, permanentny ledger ponad 256 wpisów, pełny portfel/ledger, brak zakupu premium za Money, VIP XP z prawdziwym EconomyService/SeasonService, sezonowe claims, presety i rzeczywisty Workshop/commerce GUI. Sprawdzono również serwerowe blokady klientowych ID/kwot/kosmetyków oraz prywatność rachunków w Snapshot.
+
 ## Odbiór w Roblox Studio — do wykonania
 
-1. Nowy Baseplate, aktualny ZIP, serve/Connect/Play według README. Sprawdź Output: 0.6.1, brak czerwonych błędów. Po 1 s Movement daje zgodę na aktywności.
+1. Nowy Baseplate, aktualny ZIP, serve/Connect/Play według README. Sprawdź Output: 0.7.0, brak czerwonych błędów. Po 1 s Movement daje zgodę na aktywności.
 2. SAFE ma rzeczywiste otwarte sklepy/garage/workshop/equipment/cosmetics; wejdź przez środkowe drzwi. COMBAT znajduje się na X800–1300 za mostem X410–630 i ma magazyny, kontenery, cover, rampy i control point. FISHING ma pomost i buyer. Mapa jest widoczna w edytorze, a interakcje powstają przy Play; stare puste foldery są kontenerami ręcznych dekoracji.
 3. Garaż: Pickup E przed garażem oraz menu spawn/sit, ponowne E/WSIĄDŹ, W/A/D, S hamulec, Space skok, E zejdź, schowaj/ponownie przywołaj. Bateria nie uzupełnia się przez respawn modelu. Podejdź po zejściu do garażu i naładuj. Sprawdź zderzenia, rampę, skok i prowadzenie przy słabszym FPS/pingu.
 4. Fish dock: rozpocznij, odczekaj 18–28 s, następne próby losowane przez serwer; inventory rośnie przy sukcesach, brak minigry. STOP i przejdź do buyer. Sprzedaj 1/all, Money rośnie według wartości fish. Ponowne użycie tej samej starej revision nie sprzedaje nic drugi raz.
@@ -29,10 +31,13 @@ Dodatkowo: 9657 kontroli prostokątów HUD-u (12 viewportów × 3 skale × touch
 13. Osobne DEV doświadczenie: R15, Publish, API Services, UseStudioDataStoretrue/osobna nazwa; autosave/exit/rejoin, battery/ownedfish/cosmetic/upgrades/settings zachowane. StudioMemory reset po Stop to prawidłowe zachowanie. Rejoin po błędzie sesji nie powinien kasować profilu.
 14. Profilery Studio: 10–30 pojazdów, kilku strzelających i łowiących, streaming odległych modeli, ping100–200ms. Odbiór wydajności telefonu wymaga rzeczywistego urządzenia.
 
+15. Workshop: wejdź do budynku, E przy stole po prawej, sześć kategorii i efekty statystyk; świeży profil może kupić Motor za 75 Money. Mounted/poza sklepem/niewystarczający Level → odmowa.
+16. [Skonfiguruj własne oferty](MONETIZATION.md), sprawdź natywny prompt/anulowanie, ownership po rejoin, produkt i pakiet, kredyt Workshop, sezon premium/free oraz sloty garażu. StudioMemory blokuje produkty; prawdziwe transakcje i backend pozostają testem Roblox.
+
 ## Granice testów
 
 Nie uruchomiono Roblox Studio/Play, GUI/renderingu, fizyki Vehicles/seat/weld/raycast w silniku, prawdziwych klientów z opóźnieniem, telefonu ani Roblox DataStore/Marketplace. Mock raycast kontroluje decyzję przy zadanym wyniku; nie dowodzi, że geometria/stawy zachowają się identycznie w silniku. W szczególności MovementGuard tolerancje i vehicle stability wymagają pomiarów z prawdziwym ruchem. Nie włączono Robux zakupów ani cudzych assetów.
 
 Możliwe błędy odbioru: nakładanie dotykowego UI na native controls, zasięg proceduralnego IK R15 i fallback seated R6, jitter serwerowej fizyki, zbyt surowy motion guard przy lag/skoku/rampie, collision cover/dock, synchronizacja wyposażenia przy opóźnionym appearance loading oraz błędy/quota backendu. Zgłoszenie powinno zawierać czynność, Output, liczbę klientów i użyty tryb pamięci.
 
-Dodatkowo wykonano eksport rzeczywistego kodu geometrii przez mock API: 1092 części, 168 collidable, ciągłość mostu przez rzeczywistą przerwę lądu, odległa granica areny, wejścia sześciu sklepów i szczegóły pięciu modeli. Regenerowany asset ScenePreview jest porównywany z eksportem. Trzy rendery Blender sprawdzono wizualnie; nie dowodzą zachowania raycast/fizyki/IK/renderingu Roblox.
+Dodatkowo wykonano eksport rzeczywistego kodu geometrii przez mock API: 1149 części, 168 collidable, ciągłość mostu przez rzeczywistą przerwę lądu, odległa granica areny, wejścia sześciu sklepów i szczegóły pięciu modeli. Regenerowany asset ScenePreview jest porównywany z eksportem. Trzy rendery Blender sprawdzono wizualnie; nie dowodzą zachowania raycast/fizyki/IK/renderingu Roblox.

@@ -5,6 +5,8 @@ return function(loadService, Schema, Progression, GameConfig, ScooterConfig, Lev
     local profile=Schema.new(123,GameConfig)
     profile.Secret="internal"
     profile.IdempotencyLedger.secret_receipt=100
+    profile.PurchaseReceipts.private_purchase=true
+    profile.Entitlements.VIP=true
     profile.ScooterUpgrades.kukirin_g2={Motor=1}
     local sent=nil
     local service=loadService({GetService=function(_,name)
@@ -26,6 +28,14 @@ return function(loadService, Schema, Progression, GameConfig, ScooterConfig, Lev
     assert(profile.Settings.UIScale==1,"projection cannot mutate source settings")
     sent.ScooterUpgrades.kukirin_g2.Motor=99
     assert(profile.ScooterUpgrades.kukirin_g2.Motor==1,"projection cannot mutate source upgrades")
+    for _, name in {"State","Equipment","Squad","Fishing","Revive","Objectives","Leaderboard","Monetization","Season","Garage"} do
+        ctx.Services[name]={GetPublic=function() return {} end,GetSnapshot=function() return {} end}
+    end
+    ctx.Services.Monetization.GetSnapshot=function() return {UpgradeCredits=1,Offers={}} end
+    ctx.Services.Movement={GetPosition=function() return nil end}
+    service:Send(player)
+    assert(sent.Commerce.UpgradeCredits==1 and sent.Season and sent.Garage,"new commerce projections reach client through existing Snapshot")
+    assert(sent.PurchaseReceipts==nil and sent.Entitlements==nil and sent.IdempotencyLedger==nil,"private ownership and receipt ledger never leave server")
     profile=nil
     service:Send(player)
     assert(sent.Ready==false and sent.Money==nil,"loading snapshot does not invent profile")

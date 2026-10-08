@@ -36,7 +36,7 @@ function Validation.ParseAction(value: any): (ActionRequest?, string?)
     local action = value.Action
     local payload = value.Payload
     local empty = {ChargeScooter = true, CreateSquad = true, AcceptSquad = true, DeclineSquad = true, LeaveSquad = true,
-        Reload = true, CancelRevive = true, ToggleFishing = true, StopFishing = true}
+        Reload = true, CancelRevive = true, ToggleFishing = true, StopFishing = true, RefreshPurchases = true}
     if empty[action] then
         if not fields(payload, {}, 0) then return nil, "InvalidPayload" end
     elseif action == "InviteSquad" or action == "KickSquad" or action == "HoldRevive" then
@@ -65,7 +65,14 @@ function Validation.ParseAction(value: any): (ActionRequest?, string?)
             or type(payload.ScooterId) ~= "string" or #payload.ScooterId < 1 or #payload.ScooterId > 64 then
             return nil, "InvalidScooter"
         end
-    elseif action == "UpgradeScooter" then
+    elseif action == "PurchaseOffer" then
+        if not fields(payload, {OfferKey = true}, 1) or type(payload.OfferKey) ~= "string" or #payload.OfferKey < 1 or #payload.OfferKey > 64 then return nil, "InvalidOffer" end
+    elseif action == "ClaimSeasonReward" then
+        if not fields(payload, {Tier = true, Track = true}, 2) or not Validation.IsInteger(payload.Tier, 1, 64)
+            or (payload.Track ~= "Free" and payload.Track ~= "Premium") then return nil, "InvalidSeasonReward" end
+    elseif action == "SaveGaragePreset" or action == "LoadGaragePreset" then
+        if not fields(payload, {Slot = true}, 1) or not Validation.IsInteger(payload.Slot, 1, 6) then return nil, "InvalidGarageSlot" end
+    elseif action == "UpgradeScooter" or action == "RedeemUpgrade" then
         if not fields(payload, {ScooterId = true, Category = true}, 2)
             or type(payload.ScooterId) ~= "string" or #payload.ScooterId < 1 or #payload.ScooterId > 64
             or type(payload.Category) ~= "string" or #payload.Category < 1 or #payload.Category > 32 then return nil, "InvalidUpgrade" end

@@ -7,6 +7,7 @@ function Service:Buy(player: Player, category: string, option: string): (boolean
     if not context.Services.State:IsAllowed(player, "Trade") or not context.Services.World:IsNear(player, "CosmeticsShop") then return false, "VisitShop" end
     local config = context.Config.Cosmetics
     local profile = context.Services.PlayerData:GetProfile(player)
+    if not profile then return false, "DataNotReady" end
     if category ~= "Tag" and category ~= "Clothing" and (not profile.OwnedScooters[profile.SelectedScooter] or not context.Config.Scooters.ById[profile.SelectedScooter]) then return false, "ScooterNotOwned" end
     local price: number? = nil
     if category == "Clothing" then local style = config.Styles[option]; price = if style then style.Price else nil
@@ -14,6 +15,10 @@ function Service:Buy(player: Player, category: string, option: string): (boolean
     elseif config.Categories[category] and config.Colors[option] then price = config.Categories[category] end
     if price == nil then return false, "InvalidCosmetic" end
     local id = category .. ":" .. option
+    local premium = (category == "Clothing" and config.Styles[option].RobuxOnly)
+        or (category == "Tag" and config.Tags[option].RobuxOnly)
+        or (config.Categories[category] and config.RobuxColors[option])
+    if premium and not profile.Cosmetics[id] then return false, "RobuxPurchaseRequired" end
     if not profile.Cosmetics[id] then
         if price > 0 then local ok, message = context.Services.Economy:Spend(player, price); if not ok then return false, message end end
         profile.Cosmetics[id] = true

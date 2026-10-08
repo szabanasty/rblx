@@ -1,4 +1,4 @@
-# Architektura 0.6.1
+# Architektura 0.7.0
 
 Bootstrap wybiera Foundation, ZoneGame lub LegacyCity. Domyślnie ZoneGame. Każda usługa dostaje `context` przez Init, wszystkie Init kończą się przed Start, a PlayerData startuje na końcu. Brak wzajemnego require usług: dependency injection pozwala uruchamiać te same moduły w deterministycznych testach.
 
@@ -29,6 +29,9 @@ flowchart TD
 | ZoneStateService | Health 100 niezależne od natywnej śmierci, SAFE/ALIVE/COMBAT/DOWNED/REVIVING/RESPAWNING/FISHING, tag, protection, respawn. |
 | ScooterService | Maksymalnie jedna hulajnoga na właściciela, serwerowa fizyka 20 Hz, collision, statystyki, bateria, ładowanie, kolekcja. |
 | ShopService | Cena/Level/ownership/max-upgrade/radius stanowią warunki zakupu. ScooterStats liczy wynik. |
+| MonetizationService + CommerceRules | Native Marketplace prompts, ownership passes, session-locked durable receipts, credits, VIP i presety. Klient podaje tylko klucz katalogu. |
+| SeasonService | Przyjęty przez EconomyService XP, dzienny limit, nowy sezon i trwałe claims free/premium. Premium jest oddzielną ofertą na sezon. |
+| GarageService | Zapis/przywracanie własnego modelu i posiadanych kosmetyków; kontrola slotów, bliskości i dismount. |
 | EquipmentService | Własność/loadout/ammo/reload/fire cooldown/mobility. Zmiana slotu nie uzupełnia ammo. |
 | SquadService + SquadStore | Leader, 4 sloty, zaproszenia 30 s, accept/decline/kick/leave/transfer/cleanup. |
 | CombatService | Pozycja początkowa z głowy na serwerze, raycast z celowaniem klienta jako intencją, walls/range/FF/protection/tag, contribution ledger i unikalny encounter. |
@@ -56,6 +59,10 @@ PlayerData używa UpdateAsync do zajęcia/odnowienia lease i zapisu całego prof
 Daily source caps: PvP10000, Fishing2000, Objective3000, Revive400. Balans jest konfigurowalny. Stara nagroda jazdy i ogólne XP mają własny budżet RewardConfig. Awaria serwera przed autosave może utracić niezapisane zmiany; lease i retry nie stanowią gwarancji infrastruktury.
 
 ## Rozbudowa
+
+Robux: `PurchaseOffer` przyjmuje tylko OfferKey; ID i grant są z configu serwera. Ownership passa wymaga Marketplace API; sygnał zamknięcia promptu nie wystarcza. Produkty mają osobny permanentny PurchaseReceipts ledger (10 000), zapisany w jednym profilu z kredytami przed PurchaseGranted. Ogólny krótki IdempotencyLedger nie służy do zakupów Robux. Snapshot nie wysyła prywatnego ledger ani session lease. StudioMemory nie rozlicza produktów.
+
+`ClaimSeasonReward` przyjmuje tylko Tier/Track, presety tylko Slot, a `RedeemUpgrade` tylko ScooterId/Category. XP sezonowe przepływa wyłącznie z EconomyService po przyjęciu server reward i sprawdzeniu idempotencji/budżetu; maksymalny poziom postaci nie blokuje karnetu. Profil rozszerzono o Entitlements, UpgradeCredits, GaragePresets, PurchaseReceipts i Season, zachowując schema1 i magazyn. Instrukcja aktywacji: [MONETIZATION.md](MONETIZATION.md).
 
 Nowa hulajnoga: ScooterConfig + placeholder Factory lub integracja legalnego modelu. Nowe wyposażenie: EquipmentConfig i opcjonalny legalny asset, bez nowego remote. Nowa ryba: FishingConfig; cenę wylicza FishingRules. Nowa strefa: ZoneConfig i ZoneWorldService. Nowa aktywność korzysta z Movement/State, server timer, Economy:Credit/Reward i receipt, nie z wyniku klienta.
 

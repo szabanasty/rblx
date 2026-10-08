@@ -1,6 +1,6 @@
 --!strict
 local categories = {
-    Motor = {Name = "Silnik", BasePrice = 125, Effects = {TopSpeed = 2, Acceleration = 0.25}},
+    Motor = {Name = "Silnik", BasePrice = 75, Effects = {TopSpeed = 2, Acceleration = 0.25}},
     Controller = {Name = "Kontroler", BasePrice = 125, Effects = {Acceleration = 0.2, Handling = 8}},
     Battery = {Name = "Bateria", BasePrice = 100, Enabled = true, Effects = {Battery = 25}},
     Brakes = {Name = "Hamulce", BasePrice = 100, Effects = {Braking = 1.5}},
