@@ -11,6 +11,7 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
     local ready = data and data.Ready
     if not ready then label("Wczytywanie danych..."); return end
     if page == "Main" then
+        Gui.Button(parent, "POKAŻ / UKRYJ MINIMAPĘ", function() ctx.Controllers.UIController:ToggleMap() end)
         label("SAFE: garaż i sklepy. COMBAT: arcade PvP i CONTROL POINT. FISHING: łów automatycznie, sprzedawaj przy FISH BUYER.")
         for _, name in {"Garage", "ScooterShop", "UpgradeShop", "EquipmentShop", "Squad", "FishBuyer", "CosmeticsShop", "Leaderboard", "Settings"} do
             Gui.Button(parent, name, function() open(name) end)
@@ -104,6 +105,7 @@ function Menus.Build(ctx: any, parent: Instance, page: string, data: any, open: 
         table.sort(ordered, function(a: any, b: any) return a.BestStreak > b.BestStreak end)
         for index = 1, math.min(10, #ordered) do label(ordered[index].Name .. " • " .. ordered[index].BestStreak) end
     elseif page == "Settings" then
+        label("ZAPIS: " .. tostring(data.SaveMode) .. " • " .. tostring(data.Status))
         for _, value in {0.75, 1, 1.25, 1.5} do button("HUD SCALE " .. value * 100 .. "%", "SetSetting", {Name = "UIScale", Value = value}) end
         for _, value in {1, 2, 3} do button("GRAPHICS " .. value, "SetSetting", {Name = "GraphicsQuality", Value = value}) end
         for _, category in {"MusicVolume", "SFXVolume"} do

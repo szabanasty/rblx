@@ -5,6 +5,7 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local GuiService = game:GetService("GuiService")
 local Gui = require(script.Parent.Parent.Modules.GuiFactory)
+local Layout = require(script.Parent.Parent.Modules.HudLayout)
 local Service = {}
 local context: any
 local snapshot: any
@@ -20,7 +21,7 @@ local crosshair: TextLabel
 function Service:Init(ctx: any) context = ctx end
 local function available(): boolean
     local state = if snapshot then snapshot.PlayerState else nil
-    return snapshot ~= nil and snapshot.Ready and state ~= nil and (state.State == "ALIVE" or state.State == "COMBAT")
+    return snapshot ~= nil and snapshot.Ready and state ~= nil and (state.State == "SAFE" or state.State == "ALIVE" or state.State == "COMBAT")
         and not snapshot.Telemetry.Riding and not context.Controllers.UIController:IsMenuOpen()
 end
 function Service:SetAim(value: boolean)
@@ -36,6 +37,7 @@ function Service:SetAim(value: boolean)
 end
 function Service:Fire()
     if not available() then return end
+    if snapshot.PlayerState.AreaId ~= "CombatZone" and snapshot.PlayerState.CombatSeconds <= 0 then return end
     local gear = snapshot.Equipment
     local item = context.Config.Equipment.ById[gear.EquipmentId or ""]
     if not item or gear.Ammo <= 0 or gear.ReloadSeconds > 0 or os.clock() - lastFire < item.Cooldown then return end
@@ -103,14 +105,24 @@ function Service:Start()
     end)
     UserInputService.WindowFocusReleased:Connect(function() held = false; self:SetAim(false) end)
     local elapsed = 0
+    local layoutWidth, layoutHeight, layoutPreference = 0, 0, 0
     RunService.RenderStepped:Connect(function(dt: number)
+        if not available() then held = false; self:SetAim(false); panel.Visible = false; crosshair.Visible = false end
         if held then self:Fire() end
         elapsed += dt
         if elapsed < 1/30 then return end
         elapsed = 0
         local camera = Workspace.CurrentCamera
         if not camera then return end
-        scale.Scale = math.min(1, math.max(0.5, (camera.ViewportSize.X - 24) / 370))
+        local view = if screen.AbsoluteSize.X > 0 then screen.AbsoluteSize else camera.ViewportSize
+        local preference = if snapshot and snapshot.Settings then snapshot.Settings.UIScale else 1
+        if layoutWidth ~= view.X or layoutHeight ~= view.Y or layoutPreference ~= preference then
+            layoutWidth, layoutHeight, layoutPreference = view.X, view.Y, preference
+            local rect = Layout.Calculate(view.X, view.Y, preference, UserInputService.TouchEnabled).Panels.CombatControls
+            scale.Scale = rect.W / 174
+            panel.Position, panel.AnchorPoint = UDim2.fromOffset(rect.X, rect.Y), Vector2.zero
+        end
+        if aimCamera and aimCamera ~= camera then self:SetAim(false) end
         local point = if UserInputService.TouchEnabled then camera.ViewportSize / 2 else UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
         crosshair.Position = UDim2.fromOffset(point.X, point.Y)
         local root = if Players.LocalPlayer.Character then Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") else nil

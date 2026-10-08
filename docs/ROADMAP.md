@@ -1,6 +1,6 @@
 # Stan faz i następny rozwój
 
-Najnowsze polecenie użytkownika znosi wcześniejsze zatrzymywanie po każdej fazie. 0.6.0 implementuje połączony prototyp według PHASE0–9 oraz podstawowe elementy PHASE10. Kompilacja/testy logiki nie zastępują odbioru silnika.
+Najnowsze polecenie użytkownika znosi wcześniejsze zatrzymywanie po każdej fazie. 0.6.1 implementuje połączony prototyp według PHASE0–9 oraz podstawowe elementy PHASE10. Kompilacja/testy logiki nie zastępują odbioru silnika.
 
 | Faza | Stan |
 | --- | --- |
@@ -14,7 +14,7 @@ Najnowsze polecenie użytkownika znosi wcześniejsze zatrzymywanie po każdej fa
 | 7 PvP Economy | Kill/assist/revive/streak/bounty, idempotencja, persisted anti-farm i limity, ranking serwera. |
 | 8 Fishing | Automat bez minigry, rarity/weight/price, inventory60, sell1/all i timeout. |
 | 9 Shops/Cosmetics | Oddzielne strony menu, walidacja zakupów, placeholdery ubrań/tagów/części. |
-| 10 Polish | Responsive HUD/mobile controls/minimap/daynight/hitmarker/trace/settings. Oryginalna grafika proceduralna i R15 IK są wdrożone; docelowe audio/pozostałe animacje, odbiór wydajności/balansu i engine QA pozostają. |
+| 10 Polish | Rozdzielony HUD z testami układu/mobile controls/minimap/daynight/hitmarker/trace/settings. Oryginalna grafika proceduralna i R15 IK są wdrożone; docelowe audio/pozostałe animacje, odbiór wydajności/balansu i engine QA pozostają. |
 
 Następny etap: odbiór w Studio według TESTING, korekty rzeczywistej fizyki, input/UI i zapisów. Potem autorska dekoracja mapy/LOD, prawdziwe animacje R15 i legalne audio. Następnie tuning gospodarki/prędkości/TTK pod mobilne multiplayer i opcjonalny globalny ranking (OrderedDataStore z budżetem zapisu). Delivery/time trial oraz kolejne objective są rozszerzeniami, nie aktywnymi endpointami nagród.
 

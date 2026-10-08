@@ -1,4 +1,14 @@
-# Aktualizacja świata i hulajnóg 0.6.0
+# HUD i przygotowanie multiplayera 0.6.1
+
+Dodano ZoneHud/HudLayout: oddzielne panele strefy, squad, Money/Level/XP, health/statystyk, wyposażenia/ammo, prędkości/baterii i aktywności. Minimap jest niezależna. Układ rozdziela kontrolki PC/telefonu, rezerwuje miejsce dla native ruchu i ocucania, skaluje panele, a MENU/MAPA zachowują duże cele dotykowe. Na małym telefonie mapa jest dostępna również przez menu. Nadal pokazujemy problemy zapisu, bez stałego dużego debug boxa.
+
+Poprawiono: kolizje paneli na wąskich/krótkich ekranach, przełączanie minimapy PC, natychmiastowe puszczanie pedału po menu, przywrócenie FOV bez czekania na snapshot, przeładowanie w SAFE, odrzucenie revive input przy respawnie, trafienia przez zagnieżdżone modele avatara i odświeżanie wyglądu po opóźnionym CharacterAppearanceLoaded. Połączenia appearance/character są czyszczone przy wyjściu.
+
+Nowe pliki: src/client/Modules/{HudLayout,ZoneHud}; tests/{GuiMocks,hud-layout.spec,zone-hud.spec,avatar-lifecycle.spec}; docs/MULTIPLAYER.md. Zmieniono ZoneUI/Combat/Revive controllers, ZoneMenus, CombatService, AvatarPresentationService, ProjectInfo i runner oraz dokumentację. Mapa i profile pozostają kompatybilne.
+
+Wykonano: 84 źródła, Luau compile + Roblox types, Rojo build/sourcemap, 21 zestawów testów; layout 9657 kontroli, GUI/controller boundary 42, avatar lifecycle 7, nested Model raycast regression. Geometria nadal 1092 części / 168 collidable. Multiplayer, realny HUD/bezpieczne obszary urządzenia, latency/fizyka i produkcyjny backend nie zostały wykonane w silniku; trzeba uruchomić Studio lub aplikację Roblox zgodnie z MULTIPLAYER/TESTING. Audio i docelowe animacje wymagają legalnych własnych assetów; ich istnienia nie zakładamy.
+
+## Historia świata i hulajnóg 0.6.0
 
 Najnowsza zmiana: Riverside, rzeka z rzeczywistą przerwą lądu, most, Iron Island ponad 1000 studów od spawnu, sklepy z wnętrzami, ekspozycja 5 modeli, warsztat, plac/fountain/trees/lights, jezioro. Podgląd mapy działa w edytorze. Hulajnogi mają szczegółową oryginalną grafikę; własny pojazd odbierasz przed garażem. Mount ma osobny moduł, zaufaną relokację i retry; R15 dostaje proceduralne IK, R6 native fallback. Granice, minimapa, objective i zabezpieczenia zostały przeniesione razem z mapą.
 

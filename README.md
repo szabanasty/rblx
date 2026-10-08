@@ -1,6 +1,6 @@
 # KUKIRIN ZONE — Roblox / Luau / Rojo
 
-**Wersja 0.6.0: grywalny prototyp squad PvP, Kukiriny i automatyczne łowienie.** Miasto Riverside, most nad rzeką i odległa arena Iron Island, fikcyjne wyposażenie arcade i oryginalne modele z części Roblox. Projekt nie wymaga zewnętrznych modeli, animacji ani audio. Inspiracja atmosferą FiveM nie oznacza kopiowania clowns.cool, GTA, map ani znaków firmowych.
+**Wersja 0.6.1: grywalny prototyp squad PvP, Kukiriny i automatyczne łowienie.** Miasto Riverside, most nad rzeką i odległa arena Iron Island, fikcyjne wyposażenie arcade i oryginalne modele z części Roblox. Projekt nie wymaga zewnętrznych modeli, animacji ani audio. Inspiracja atmosferą FiveM nie oznacza kopiowania clowns.cool, GTA, map ani znaków firmowych.
 
 Działają: strefy SAFE/COMBAT/FISHING, garaż, pięć klas hulajnóg, bateria i ładowanie, ulepszenia 0–5, sklepy, kosmetyki, squad do czterech osób, pięć rodzajów wyposażenia, walka serwerowa, combat tag, DOWNED, revive, respawn, nagrody/streak/bounty, punkt kontrolny drużyny, łowienie bez minigry, sprzedaż ryb, XP/poziomy, ranking aktualnego serwera, HUD, minimapa, przyciski dotykowe i ustawienia. Zapis obejmuje profil, kolekcje, statystyki oraz limity ekonomii.
 
@@ -20,7 +20,7 @@ Kod został skompilowany, sprawdzony analizą typów i testami logiki. **Roblox 
    Zostaw okno otwarte. Oczekuj `Rojo server listening`, port `34872`.
 5. Otwórz **nowy Baseplate** w Studio, aby stare skrypty miejsca nie działały równolegle. W ustawieniach doświadczenia ustaw Avatar na **R15**; model ma także podstawowy fallback dla R6.
 6. **Dodatki plug-in / Plugins → Rojo → Connect**: adres `localhost`, port `34872`. Zaakceptuj synchronizację. Nie wpisuj `local`.
-7. **Play / F5**. Mapa jest widoczna już po synchronizacji w edytorze. Play zastępuje podgląd interaktywnym światem i uruchamia HUD. W Output oczekuj `PHASE 10 ready (version 0.6.0)` na serwerze i kliencie. Nowy profil: Money 100, Level 1, Starter i wyposażony Spark.
+7. **Play / F5**. Mapa jest widoczna już po synchronizacji w edytorze. Play zastępuje podgląd interaktywnym światem i uruchamia HUD. W Output oczekuj `PHASE 10 ready (version 0.6.1)` na serwerze i kliencie. Nowy profil: Money 100, Level 1, Starter i wyposażony Spark.
 8. Podejdź do żółtego stanowiska **ODBIERZ SWOJĄ HULAJNOGĘ** przed garażem i naciśnij E. Alternatywnie **MENU → Garage → PRZYWOŁAJ**; menu zamknie się automatycznie. Wsiadanie ponownie: E przy swoim pojeździe albo **Garage → WSIĄDŹ**. Steruj W/A/D, hamuj S, skacz Spacją; zejdź E albo przyciskiem ZEJDŹ. Dokładne klawisze wynikają z InputController; patrz tabela niżej.
 
 Jeśli brakuje Rojo, [pobierz Rojo 7.7.1](https://github.com/rojo-rbx/rojo/releases/tag/v7.7.1), plik `rojo-7.7.1-windows-x86_64.zip`, wypakuj `rojo.exe` do `.tools`. Wtyczkę instalujesz raz: `.\.tools\rojo.exe plugin install`, potem restart Studio. [Roblox Studio](https://create.roblox.com/). Git i Python nie są potrzebne do grania z ZIP-a.
@@ -32,6 +32,8 @@ Alternatywa bez aktywnej synchronizacji:
 ```
 
 Otwórz wynik w Studio, Play. Przed zmianą bootstrapów zatrzymuj Play; edycja wyłącznie w Studio nie zapisuje się do plików repozytorium.
+
+Nowy HUD rozdziela informacje na osobne panele po ekranie. [Instrukcja multiplayera i układu HUD-u](docs/MULTIPLAYER.md).
 
 Zobacz [zmiany i podglądy grafiki 0.6.0](docs/WORLD_060.md). Podglądy są renderami rzeczywistej wygenerowanej geometrii w Blenderze, nie zrzutami Roblox Studio.
 
@@ -86,7 +88,7 @@ bash scripts/install-tools.sh
 python3 scripts/check-project.py
 ```
 
-Rojo 7.7.1, Luau 0.741, luau-lsp 1.70.1 z API Roblox, instalacja TLS/SHA-256. Runner sprawdza **82 źródeł**, typy, build/sourcemap, wszystkie mapowania klas, 4 remotes, StreamingEnabled i **18 zestawów testów** logiki z mockami API. CI korzysta z tego samego runnera. To nie jest test silnika.
+Rojo 7.7.1, Luau 0.741, luau-lsp 1.70.1 z API Roblox, instalacja TLS/SHA-256. Runner sprawdza **84 źródła**, typy, build/sourcemap, wszystkie mapowania klas, 4 remotes, StreamingEnabled i **21 zestawów testów** logiki z mockami API. CI korzysta z tego samego runnera. To nie jest test silnika.
 
 - [Architektura i zależności](docs/ARCHITECTURE.md)
 - [Wszystkie pliki i położenie w Studio](docs/FILES.md), [Explorer](docs/EXPLORER.md)

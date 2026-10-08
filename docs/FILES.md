@@ -1,4 +1,4 @@
-# Źródła 0.6.0 — 82 pliki
+# Źródła 0.6.1 — 84 pliki
 
 Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródła to ModuleScripts. Domyślny tryb ZoneGame. Rojo tworzy strukturę automatycznie.
 
@@ -18,6 +18,8 @@ Bootstrap server to Script, client to LocalScript; wszystkie pozostałe źródł
 | [src/client/Controllers/ZoneClientController.luau](../src/client/Controllers/ZoneClientController.luau) | `StarterPlayer.StarterPlayerScripts.Client.Controllers.ZoneClientController` |
 | [src/client/Controllers/ZoneUIController.luau](../src/client/Controllers/ZoneUIController.luau) | `StarterPlayer.StarterPlayerScripts.Client.Controllers.ZoneUIController` |
 | [src/client/Modules/GuiFactory.luau](../src/client/Modules/GuiFactory.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.GuiFactory` |
+| [src/client/Modules/HudLayout.luau](../src/client/Modules/HudLayout.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.HudLayout` |
+| [src/client/Modules/ZoneHud.luau](../src/client/Modules/ZoneHud.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.ZoneHud` |
 | [src/client/Modules/ZoneMenus.luau](../src/client/Modules/ZoneMenus.luau) | `StarterPlayer.StarterPlayerScripts.Client.Modules.ZoneMenus` |
 | [src/client/init.client.luau](../src/client/init.client.luau) | `StarterPlayer.StarterPlayerScripts.Client` |
 | [src/server/Modules/CityScene.luau](../src/server/Modules/CityScene.luau) | `ServerScriptService.Server.Modules.CityScene` |

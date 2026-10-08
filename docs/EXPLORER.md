@@ -1,4 +1,4 @@
-# Explorer 0.6.0
+# Explorer 0.6.1
 
 ```text
 ReplicatedStorage [ReplicatedStorage]
@@ -102,6 +102,8 @@ StarterPlayer [StarterPlayer]
         ZoneUIController [ModuleScript]
       Modules [Folder]
         GuiFactory [ModuleScript]
+        HudLayout [ModuleScript]
+        ZoneHud [ModuleScript]
         ZoneMenus [ModuleScript]
 Workspace [Workspace]
   Baseplate [Part]

@@ -3,7 +3,7 @@
 local Players = game:GetService("Players")
 local Service = {}
 local context: any
-local connections: {[Player]: RBXScriptConnection} = {}
+local connections: {[Player]: {RBXScriptConnection}} = {}
 local function attached(parent: Model, root: BasePart, name: string, size: Vector3, offset: CFrame, color: Color3): Part
     local part = Instance.new("Part")
     part.Name, part.Size, part.CFrame, part.Color = name, size, root.CFrame * offset, color
@@ -62,15 +62,24 @@ function Service:Refresh(player: Player)
 end
 function Service:Start()
     local function add(player: Player)
-        connections[player] = player.CharacterAdded:Connect(function(character: Model)
-            task.spawn(function()
-                character:WaitForChild("HumanoidRootPart", 10)
+        if connections[player] then return end
+        connections[player] = {
+            player.CharacterAdded:Connect(function(character: Model)
+                task.spawn(function()
+                    character:WaitForChild("HumanoidRootPart", 10)
+                    if player.Character == character and player.Parent == Players and not context.IsClosing then self:Refresh(player) end
+                end)
+            end),
+            player.CharacterAppearanceLoaded:Connect(function(character: Model)
                 if player.Character == character and player.Parent == Players and not context.IsClosing then self:Refresh(player) end
-            end)
-        end)
+            end),
+        }
     end
     Players.PlayerAdded:Connect(add)
-    Players.PlayerRemoving:Connect(function(player: Player) if connections[player] then connections[player]:Disconnect(); connections[player] = nil end end)
+    Players.PlayerRemoving:Connect(function(player: Player)
+        if connections[player] then for _, connection in connections[player] do connection:Disconnect() end end
+        connections[player] = nil
+    end)
     for _, player in Players:GetPlayers() do add(player); self:Refresh(player) end
 end
 return Service

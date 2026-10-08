@@ -1,4 +1,4 @@
-# Architektura 0.6.0
+# Architektura 0.6.1
 
 Bootstrap wybiera Foundation, ZoneGame lub LegacyCity. Domyślnie ZoneGame. Każda usługa dostaje `context` przez Init, wszystkie Init kończą się przed Start, a PlayerData startuje na końcu. Brak wzajemnego require usług: dependency injection pozwala uruchamiać te same moduły w deterministycznych testach.
 
@@ -60,3 +60,7 @@ Daily source caps: PvP10000, Fishing2000, Objective3000, Revive400. Balans jest 
 Nowa hulajnoga: ScooterConfig + placeholder Factory lub integracja legalnego modelu. Nowe wyposażenie: EquipmentConfig i opcjonalny legalny asset, bez nowego remote. Nowa ryba: FishingConfig; cenę wylicza FishingRules. Nowa strefa: ZoneConfig i ZoneWorldService. Nowa aktywność korzysta z Movement/State, server timer, Economy:Credit/Reward i receipt, nie z wyniku klienta.
 
 Legacy World/Roads/Traffic/Quests i ich UI są zachowane, lecz nieaktywne w ZoneGame. Nie reintrodukuj przez ich ręczne uruchamianie; dodaj świadomą usługę do odpowiedniego bootstrapu. Grafika, audio, animacje i globalny cross-server ranking pozostają osobnymi etapami odbioru/rozbudowy.
+
+## Prezentacja HUD-u
+
+ZoneUIController zarządza menu, minimapą i wejściem dotykowym. ZoneHud tworzy oddzielne panele i maluje wyłącznie wartości snapshotu. HudLayout jest czystym modułem prostokątów w bezpiecznym obszarze ScreenGui, wspólnym dla HUD/Combat/Revive. Układ jest sprawdzany w kilku rozdzielczościach i skalach; menu i minimapa rezerwują miejsce, a panel wyposażenia znika podczas jazdy/ocucania. Kontrolery nigdy nie wyliczają waluty, health, amunicji ani nagród jako autorytetu.

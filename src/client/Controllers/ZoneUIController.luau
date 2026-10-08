@@ -5,6 +5,8 @@ local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local Gui = require(script.Parent.Parent.Modules.GuiFactory)
 local Menus = require(script.Parent.Parent.Modules.ZoneMenus)
+local Hud = require(script.Parent.Parent.Modules.ZoneHud)
+local Layout = require(script.Parent.Parent.Modules.HudLayout)
 local Service = {}
 local context: any
 local screen: ScreenGui
@@ -14,23 +16,68 @@ local handlers: any
 local page = "Main"
 local menuOpen = false
 local showMap = false
+local mapChosen = false
+local mapDefault = false
 local signature = ""
 local toastVersion = 0
 local scales: {UIScale} = {}
 local touchInputs: {[InputObject]: string} = {}
+local hud: any
+local reviveAvailable = false
+local releaseTouch: () -> ()
 function Service:Init(ctx: any) context = ctx end
 function Service:SetInputHandlers(value: any) handlers = value end
 function Service:IsMenuOpen(): boolean return menuOpen end
 local function resize()
     local camera = Workspace.CurrentCamera
     if not camera or camera.ViewportSize.X <= 28 or camera.ViewportSize.Y <= 90 then return end
-    local view = camera.ViewportSize
+    local view = if screen.AbsoluteSize.X > 0 then screen.AbsoluteSize else camera.ViewportSize
     local preference = if data and data.Settings then data.Settings.UIScale else 1
-    refs.HudScale.Scale = math.min(preference, (view.X - 28) / 370, (view.Y - 150) / 270)
+    local layout = Layout.Calculate(view.X, view.Y, preference, UserInputService.TouchEnabled)
+    mapDefault = layout.MapDefault
+    local ready = data ~= nil and data.Ready
+    local riding = ready and data.Telemetry.Riding
+    local activity = ready and (data.Fishing.Active or (data.PlayerState and data.PlayerState.AreaId == "CombatZone"))
+    Hud.Resize(hud, layout, ready, riding, activity, menuOpen)
+    local function place(object: GuiObject, name: string, baseScale: boolean?)
+        local rect = layout.Panels[name]
+        object.Position, object.AnchorPoint = UDim2.fromOffset(rect.X, rect.Y), Vector2.zero
+        object.Size = UDim2.fromOffset(rect.W, rect.H)
+        if baseScale then
+            object.Size = UDim2.fromOffset(rect.W / layout.Scale, rect.H / layout.Scale)
+            local objectScale = object:FindFirstChildOfClass("UIScale") :: UIScale
+            objectScale.Scale = layout.Scale
+        end
+    end
+    place(refs.OpenMenu, "Menu"); place(refs.MapToggle, "MapToggle"); place(refs.Map, "Map")
+    place(refs.StopFishing, "StopFishing")
+    local controlScale = layout.Panels.RideControls.W / 174
+    for _, entry in {{refs.Pedals, "RideControls"}, {refs.RideActions, "RideActions"}} do
+        local rect = layout.Panels[entry[2]]
+        entry[1].Position, entry[1].Size = UDim2.fromOffset(rect.X, rect.Y), UDim2.fromOffset(rect.W / controlScale, rect.H / controlScale)
+        entry[1]:FindFirstChildOfClass("UIScale").Scale = controlScale
+    end
     refs.Menu.Size = UDim2.fromOffset(math.min(460, view.X - 24), math.min(600, view.Y - 24))
     for _, scale in scales do scale.Scale = math.min(1, (view.X - 24) / 370) end
-    refs.Map.Visible = (view.X >= 700 or showMap) and data ~= nil and data.Ready
-    refs.MapToggle.Visible = view.X < 700
+    refs.Map.Visible = (if mapChosen then showMap else layout.MapDefault) and ready and not menuOpen
+    refs.MapToggle.Visible = not layout.MapDefault and not menuOpen and (not layout.Small or showMap)
+    if (showMap and layout.Compact) or reviveAvailable then
+        for _, name in {"Equipment", "Scooter", "Activity"} do hud.Cards[name].Visible = false end
+        if showMap then hud.Cards.Health.Visible = false; hud.Cards.Squad.Visible = false end
+    end
+    refs.StopFishing.Visible = ready and data.Fishing.Active and not menuOpen and not (showMap and layout.Compact)
+    refs.Touch.Visible = ready and UserInputService.TouchEnabled and riding and not menuOpen and data.PlayerState ~= nil
+        and data.PlayerState.State ~= "DOWNED" and data.PlayerState.State ~= "RESPAWNING"
+    if not refs.Touch.Visible then releaseTouch() end
+end
+function Service:SetReviveAvailable(value: boolean)
+    if reviveAvailable == value then return end
+    reviveAvailable = value
+    resize()
+end
+function Service:ToggleMap()
+    showMap, mapChosen = not (if mapChosen then showMap else mapDefault), true
+    Service:Close()
 end
 function Service:Open(pageName: string?)
     page = pageName or "Main"
@@ -39,13 +86,15 @@ function Service:Open(pageName: string?)
     context.Controllers.InputController:SetMenuOpen(true)
     signature = ""
     if data then Service:Update(data) end
+    resize()
 end
 function Service:Close()
     menuOpen = false
     refs.Menu.Visible = false
     context.Controllers.InputController:SetMenuOpen(false)
+    resize()
 end
-local function releaseTouch()
+releaseTouch = function()
     if handlers then for _, key in touchInputs do handlers.Set(key, false) end end
     table.clear(touchInputs)
 end
@@ -63,19 +112,10 @@ local function touchButton(parent: Instance, key: string, text: string, x: numbe
 end
 function Service:Start()
     screen = Gui.Create("ScreenGui", Players.LocalPlayer:WaitForChild("PlayerGui"), {Name = "KukirinZone", ResetOnSpawn = false, DisplayOrder = 10})
-    refs.Hud = Gui.Create("Frame", screen, {Size = UDim2.fromOffset(370, 270), Position = UDim2.fromOffset(12, 12), BackgroundColor3 = Color3.fromRGB(21, 29, 43), BorderSizePixel = 0})
-    Gui.Create("UICorner", refs.Hud, {CornerRadius = UDim.new(0, 12)})
-    refs.HudScale = Gui.Create("UIScale", refs.Hud, {})
-    for index, name in {"Title", "Money", "Health", "Area", "Squad", "Stats", "Scooter", "Equipment", "Activity", "Save"} do
-        local label = Gui.Label(refs.Hud, "", 25)
-        label.Position, label.Size = UDim2.fromOffset(12, (index - 1) * 25), UDim2.new(1, -24, 0, 25)
-        label.TextWrapped, label.TextTruncate = false, Enum.TextTruncate.AtEnd
-        refs[name] = label
-    end
-    refs.Title.Text = "KUKIRIN ZONE"
+    hud = Hud.Create(screen)
     local open = Gui.Button(screen, "MENU", function() Service:Open() end)
-    open.Size, open.Position, open.AnchorPoint = UDim2.fromOffset(92, 60), UDim2.new(1, -12, 0, 12), Vector2.new(1, 0)
-    refs.MapToggle = Gui.Button(screen, "MAPA", function() showMap = not showMap; resize() end)
+    refs.OpenMenu = open
+    refs.MapToggle = Gui.Button(screen, "MAPA", function() Service:ToggleMap() end)
     refs.MapToggle.Size, refs.MapToggle.Position, refs.MapToggle.AnchorPoint = UDim2.fromOffset(92, 60), UDim2.new(1, -12, 0, 150), Vector2.new(1, 0)
     refs.StopFishing = Gui.Button(screen, "STOP ŁOWIENIA", function() context.Send("StopFishing", {}) end)
     refs.StopFishing.Size, refs.StopFishing.Position, refs.StopFishing.AnchorPoint = UDim2.fromOffset(170, 65), UDim2.new(1, -12, 0, 230), Vector2.new(1, 0)
@@ -99,14 +139,21 @@ function Service:Start()
     table.insert(scales, Gui.Create("UIScale", refs.Toast, {}))
     refs.Touch = Gui.Create("Frame", screen, {BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false})
     local pedals = Gui.Create("Frame", refs.Touch, {BackgroundTransparency = 1, Size = UDim2.fromOffset(174, 155), Position = UDim2.new(1, -12, 1, -12), AnchorPoint = Vector2.new(1, 1)})
-    table.insert(scales, Gui.Create("UIScale", pedals, {}))
+    refs.Pedals = pedals
+    pedals.AnchorPoint = Vector2.zero
+    Gui.Create("UIScale", pedals, {})
     touchButton(pedals, "Throttle", "GAZ", 88, 80); touchButton(pedals, "Brake", "HAMULEC", 0, 80)
     touchButton(pedals, "Left", "◀", 0, 0); touchButton(pedals, "Right", "▶", 88, 0)
-    local jump = Gui.Button(refs.Touch, "SKOK", function() if handlers then handlers.Set("Jump", true); task.delay(0.15, function() if handlers then handlers.Set("Jump", false) end end) end end)
-    jump.Position, jump.Size, jump.AnchorPoint = UDim2.new(1, -12, 1, -180), UDim2.fromOffset(80, 60), Vector2.new(1, 1)
-    local dismount = Gui.Button(refs.Touch, "ZEJDŹ", function() context.Send("DismountScooter", {}) end)
-    dismount.Position, dismount.Size, dismount.AnchorPoint = UDim2.new(1, -100, 1, -180), UDim2.fromOffset(80, 60), Vector2.new(1, 1)
+    refs.RideActions = Gui.Create("Frame", refs.Touch, {BackgroundTransparency = 1})
+    Gui.Create("UIScale", refs.RideActions, {})
+    local jump = Gui.Button(refs.RideActions, "SKOK", function() if handlers then handlers.Set("Jump", true); task.delay(0.15, function() if handlers then handlers.Set("Jump", false) end end) end end)
+    jump.Position, jump.Size = UDim2.fromOffset(88, 0), UDim2.fromOffset(80, 60)
+    local dismount = Gui.Button(refs.RideActions, "ZEJDŹ", function() context.Send("DismountScooter", {}) end)
+    dismount.Position, dismount.Size = UDim2.fromOffset(0, 0), UDim2.fromOffset(80, 60)
     refs.Map = Gui.Create("Frame", screen, {Size = UDim2.fromOffset(130, 130), Position = UDim2.new(1, -12, 0, 84), AnchorPoint = Vector2.new(1, 0), BackgroundColor3 = Color3.fromRGB(22, 29, 39)})
+    refs.Map.Name, refs.Map.ClipsDescendants, refs.Map.BorderSizePixel = "Minimap", true, 0
+    Gui.Create("UICorner", refs.Map, {CornerRadius = UDim.new(0, 10)})
+    Gui.Create("UIStroke", refs.Map, {Color = Color3.fromRGB(80, 109, 125), Transparency = 0.5})
     local width = context.Config.Zones.WorldWidth
     local worldConfig = context.Config.World
     Gui.Create("Frame", refs.Map, {Position = UDim2.fromScale(0.5 + (worldConfig.River.X - worldConfig.River.Width / 2) / width, 0), Size = UDim2.fromScale(worldConfig.River.Width / width, 1), BackgroundColor3 = Color3.fromRGB(67, 146, 179), BorderSizePixel = 0})
@@ -135,40 +182,22 @@ function Service:Start()
         resize()
     end
     Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(cameraChanged)
+    screen:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
     cameraChanged()
-end
-local function ctxScooterName(id: string): string
-    local item = context.Config.Scooters.ById[id]
-    return if item then item.DisplayName else id
 end
 function Service:Update(snapshot: any)
     data = snapshot
-    refs.Save.Text = tostring(data.SaveMode) .. " • " .. tostring(data.Status)
+    Hud.Update(hud, data, context.Config)
     if not data.Ready then
-        refs.Money.Text = "Wczytywanie profilu..."
-        for _, name in {"Health", "Area", "Squad", "Stats", "Scooter", "Equipment", "Activity", "Downed"} do refs[name].Text = "" end
+        refs.Downed.Text = ""
         refs.Touch.Visible, refs.StopFishing.Visible = false, false
         releaseTouch()
         Service:Close()
         resize()
         return
     end
-    local state, gear = data.PlayerState, data.Equipment
-    refs.Money.Text = string.format("Money %d • Level %d • XP %d/%d", data.Money, data.Level, data.XP, data.XPToNextLevel)
-    refs.Health.Text = if state then string.format("HEALTH %d/%d • %s", state.CurrentHealth, state.MaxHealth, state.State) else "Postać się ładuje..."
-    refs.Area.Text = if state then state.AreaName .. (if state.CombatSeconds > 0 then " • TAG " .. state.CombatSeconds .. "s" else "") else ""
-    refs.Squad.Text = "SQUAD " .. (if data.Squad.SquadId then #data.Squad.Members .. "/4" else "— utwórz w MENU")
-    refs.Stats.Text = string.format("K %d / D %d / A %d / R %d • STREAK %d", data.Kills, data.Deaths, data.Assists, data.Revives, if state then state.CurrentStreak else 0)
-    local telemetry = data.Telemetry
-    refs.Scooter.Text = string.format("%d km/h • BATTERY %s%% • %s", telemetry.Speed, tostring(telemetry.Battery or "—"), if telemetry.ScooterId then ctxScooterName(telemetry.ScooterId) else "GARAŻ → PRZYWOŁAJ")
-    refs.Equipment.Text = gear.Slot .. " • " .. tostring(gear.EquipmentId or "EMPTY") .. " • " .. gear.Ammo .. "/" .. gear.Capacity .. (if gear.ReloadSeconds > 0 then " RELOAD" else "")
-    local objective = data.Objective
-    refs.StopFishing.Visible = data.Fishing.Active and not menuOpen
-    refs.Activity.Text = if data.Fishing.Active then "ŁOWIENIE: " .. data.Fishing.WaitSeconds .. "s • " .. #data.Fishing.Inventory .. "/" .. data.Fishing.Limit .. (if data.Fishing.LastCatch then " • " .. data.Fishing.LastCatch.FishId else "") else "CONTROL POINT " .. math.floor(objective.Progress * 100) .. "%" .. (if objective.Contested then " • CONTESTED" else "") .. (if objective.Cooldown > 0 then " • " .. objective.Cooldown .. "s" else "")
-    refs.Downed.Text = if state and state.State == "DOWNED" then "ZGINIĘTY\nOCZEKUJ NA POMOC DRUŻYNY\nODRODZENIE ZA " .. state.DownedSeconds .. "s" elseif data.Revive then "OCUCANIE... " .. math.floor(data.Revive.Progress * 100) .. "%" else ""
-    local canRide = state and state.State ~= "DOWNED" and state.State ~= "RESPAWNING"
-    refs.Touch.Visible = UserInputService.TouchEnabled and telemetry.Riding and not menuOpen and canRide
-    if not refs.Touch.Visible then releaseTouch() end
+    local state = data.PlayerState
+    refs.Downed.Text = if state and state.State == "DOWNED" then "POWALONY\nOCZEKUJ NA POMOC DRUŻYNY\nODRODZENIE ZA " .. state.DownedSeconds .. "s" elseif data.Revive then "OCUCANIE... " .. math.floor(data.Revive.Progress * 100) .. "%" else ""
     if data.Position then refs.MapPlayer.Position = UDim2.fromScale(0.5 + data.Position.X / context.Config.Zones.WorldWidth, 0.5 + data.Position.Z / context.Config.Zones.WorldWidth) end
     if menuOpen then
         local memberIds: {number} = {}

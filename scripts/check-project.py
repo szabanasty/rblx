@@ -110,6 +110,15 @@ def main():
         "FishingConfig": "Config/FishingConfig", "PvPRewardConfig": "Config/PvPRewardConfig", "ZoneConfig": "Config/ZoneConfig",
     }.items())
     suites = {
+        "avatar-lifecycle": wrapped("src/server/Services/AvatarPresentationService.luau", "game, task") + spec("tests/avatar-lifecycle.spec.luau", "loadService"),
+        "zone-hud": wrapped("src/client/Modules/GuiFactory.luau", "Instance, UDim2, Color3, Enum, UDim", "loadGui")
+            + wrapped("src/client/Modules/ZoneHud.luau", "require, script, Color3, UDim2, UDim, Enum", "loadHud")
+            + wrapped("src/client/Controllers/ZoneUIController.luau", "game, require, script, UDim2, UDim, Color3, Vector2, Enum, task", "loadUI")
+            + wrapped("src/client/Controllers/CombatController.luau", "game, require, script, Enum, UDim2, Color3, Vector2, Vector3, RaycastParams, os", "loadCombat")
+            + wrapped("src/client/Controllers/ReviveController.luau", "game, require, script, Enum, UDim2, Vector2, Vector3, task, os", "loadRevive")
+            + 'local HudLayout = require("../../src/client/Modules/HudLayout")\n'
+            + spec("tests/zone-hud.spec.luau", "loadGui, loadHud, loadUI, loadCombat, loadRevive, HudLayout, ScooterConfig, EquipmentConfig, ZoneConfig, ZoneWorldConfig, CombatConfig"),
+        "hud-layout": 'local HudLayout = require("../../src/client/Modules/HudLayout")\n' + spec("tests/hud-layout.spec.luau", "HudLayout"),
         "scooter-pose": wrapped("src/server/Modules/ScooterPose.luau", "Instance, Enum") + spec("tests/scooter-pose.spec.luau", "loadService"),
         "scooter-mount": wrapped("src/server/Modules/ScooterMount.luau", "game, CFrame, RaycastParams, Enum") + spec("tests/scooter-mount.spec.luau", "loadService"),
         "zone-world": wrapped("src/server/Services/MovementService.luau", "game, Vector3, CFrame, RaycastParams, Enum, os, warn", "loadMovement")

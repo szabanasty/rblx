@@ -34,7 +34,12 @@ function Service:Shoot(player: Player, payload: any): (boolean, string)
     local target: Player? = nil
     if hit then
         local model = hit.Instance:FindFirstAncestorOfClass("Model")
-        if model then target = Players:GetPlayerFromCharacter(model) end
+        -- A valid character can contain accessory/armor Models. Stop only at its player model.
+        while model do
+            target = Players:GetPlayerFromCharacter(model)
+            if target then break end
+            model = model:FindFirstAncestorOfClass("Model")
+        end
     end
     if not target or target == player or context.Services.Squad:Same(player, target) or not context.Services.State:IsAllowed(target, "Target") then return true, "Fired" end
     local record = context.Services.State:GetRecord(target)

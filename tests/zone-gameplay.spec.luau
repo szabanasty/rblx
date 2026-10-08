@@ -47,7 +47,14 @@ return function(loadEquipment,loadCombat,loadRewards,loadRevive,StateRules,Schem
     records[b].Area="SafeZone"
     check(combat:Shoot(a,payload) and records[b].Health==100,"untagged safe player protected")
     records[b].Area="CombatZone";world.Tick(0.3)
-    check(combat:Shoot(a,payload) and records[b].Health==88,"server-confirmed hit deals catalog damage")
+    local baseRaycast=world.Workspace.Raycast
+    world.Workspace.Raycast=function(self,...)
+        local hit=baseRaycast(self,...)
+        if hit then hit.Instance.FindFirstAncestorOfClass=function() return {FindFirstAncestorOfClass=function() return b.Character end} end end
+        return hit
+    end
+    check(combat:Shoot(a,payload) and records[b].Health==88,"server-confirmed hit through nested character Model deals catalog damage")
+    world.Workspace.Raycast=baseRaycast
     local ammo=equipment:GetSnapshot(a).Ammo
     check(not combat:Shoot(a,payload) and equipment:GetSnapshot(a).Ammo==ammo,"cooldown cannot consume or fire twice")
     world.Workspace.Blocked=true;world.Tick(0.3)
