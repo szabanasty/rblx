@@ -21,7 +21,7 @@ function Mock.World(width,height,touch)
     local objects = {}
     local instance = {new = function(class)
         local value = setmetatable({ClassName = class, Children = {}, Signals = {}, Properties = {
-            Name=class, Visible=true, Scale=1, AbsoluteSize=M.V(width,height,0), Activated=M.Signal(), InputBegan=M.Signal(), InputEnded=M.Signal()}}, mt)
+            Name=class, Visible=true, Scale=1, ZIndex=1, ZIndexBehavior="ZIndexBehavior:Global", AbsoluteSize=M.V(width,height,0), Activated=M.Signal(), InputBegan=M.Signal(), InputEnded=M.Signal()}}, mt)
         table.insert(objects,value); return value
     end}
     local gui = instance.new("PlayerGui")

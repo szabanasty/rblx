@@ -85,7 +85,8 @@ function Service:Open(pageName: string?)
     refs.Menu.Visible = true
     context.Controllers.InputController:SetMenuOpen(true)
     signature = ""
-    if data then Service:Update(data) end
+    if data and data.Ready then Service:Update(data)
+    else Menus.Build(context, refs.Content, page, data, function(name: string) Service:Open(name) end) end
     resize()
 end
 function Service:Close()
@@ -111,7 +112,9 @@ local function touchButton(parent: Instance, key: string, text: string, x: numbe
     end)
 end
 function Service:Start()
-    screen = Gui.Create("ScreenGui", Players.LocalPlayer:WaitForChild("PlayerGui"), {Name = "KukirinZone", ResetOnSpawn = false, DisplayOrder = 10})
+    screen = Gui.Create("ScreenGui", Players.LocalPlayer:WaitForChild("PlayerGui"), {
+        Name = "KukirinZone", ResetOnSpawn = false, DisplayOrder = 10, ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    }) -- Descendants must render above their own menu background, even with its ZIndex=20.
     hud = Hud.Create(screen)
     local open = Gui.Button(screen, "MENU", function() Service:Open() end)
     refs.OpenMenu = open
@@ -120,13 +123,15 @@ function Service:Start()
     refs.StopFishing = Gui.Button(screen, "STOP ŁOWIENIA", function() context.Send("StopFishing", {}) end)
     refs.StopFishing.Size, refs.StopFishing.Position, refs.StopFishing.AnchorPoint = UDim2.fromOffset(170, 65), UDim2.new(1, -12, 0, 230), Vector2.new(1, 0)
     refs.StopFishing.Visible = false
-    refs.Menu = Gui.Create("Frame", screen, {Size = UDim2.fromOffset(460, 600), Position = UDim2.fromScale(0.5, 0.5), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundColor3 = Color3.fromRGB(23, 31, 47), Visible = false, ZIndex = 20})
+    refs.Menu = Gui.Create("Frame", screen, {Name = "MainMenu", Size = UDim2.fromOffset(460, 600), Position = UDim2.fromScale(0.5, 0.5), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundColor3 = Color3.fromRGB(23, 31, 47), Visible = false, ZIndex = 20})
     Gui.Create("UICorner", refs.Menu, {CornerRadius = UDim.new(0, 14)})
     local back = Gui.Button(refs.Menu, "MENU GŁÓWNE", function() Service:Open("Main") end)
+    back.Name = "MenuHome"
     back.Position, back.Size = UDim2.fromOffset(12, 8), UDim2.new(0.65, -18, 0, 55)
     local close = Gui.Button(refs.Menu, "ZAMKNIJ", function() Service:Close() end)
+    close.Name = "MenuClose"
     close.Position, close.Size = UDim2.new(0.65, 0, 0, 8), UDim2.new(0.35, -12, 0, 55)
-    refs.Content = Gui.Create("ScrollingFrame", refs.Menu, {Size = UDim2.new(1, -24, 1, -85), Position = UDim2.fromOffset(12, 73), BackgroundTransparency = 1,
+    refs.Content = Gui.Create("ScrollingFrame", refs.Menu, {Name = "MenuContent", Size = UDim2.new(1, -24, 1, -85), Position = UDim2.fromOffset(12, 73), BackgroundTransparency = 1,
         BorderSizePixel = 0, CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarThickness = 6})
     Gui.Create("UIListLayout", refs.Content, {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder})
     refs.Downed = Gui.Label(screen, "", 100)
@@ -192,7 +197,10 @@ function Service:Update(snapshot: any)
         refs.Downed.Text = ""
         refs.Touch.Visible, refs.StopFishing.Visible = false, false
         releaseTouch()
-        Service:Close()
+        if menuOpen then
+            signature = ""
+            Menus.Build(context, refs.Content, page, data, function(name: string) Service:Open(name) end)
+        end
         resize()
         return
     end

@@ -112,6 +112,14 @@ def main():
         "SeasonConfig": "Config/SeasonConfig", "CosmeticConfig": "Config/CosmeticConfig",
     }.items())
     suites = {
+        "menu-regression": wrapped("src/client/Modules/GuiFactory.luau", "Instance, UDim2, Color3, Enum, UDim", "loadGui")
+            + wrapped("src/client/Modules/ZoneHud.luau", "require, script, Color3, UDim2, UDim, Enum", "loadHud")
+            + wrapped("src/client/Modules/WorkshopMenu.luau", "require, script", "loadWorkshop")
+            + wrapped("src/client/Modules/CommerceMenus.luau", "require, script", "loadCommerce")
+            + wrapped("src/client/Modules/ZoneMenus.luau", "require, script", "loadMenus")
+            + wrapped("src/client/Controllers/ZoneUIController.luau", "game, require, script, UDim2, UDim, Color3, Vector2, Enum, task", "loadUI")
+            + 'local HudLayout = require("../../src/client/Modules/HudLayout")\n'
+            + spec("tests/menu-regression.spec.luau", "loadGui, loadHud, loadUI, loadMenus, loadWorkshop, loadCommerce, HudLayout, Schema, GameConfig, ScooterConfig, EquipmentConfig, ZoneConfig, ZoneWorldConfig, CombatConfig, UpgradeConfig, CosmeticConfig, SeasonConfig, Stats"),
         "commerce": wrapped("src/server/Services/MonetizationService.luau", "game, task, Enum, os, warn")
             + spec("tests/commerce.spec.luau", "loadService, CommerceRules, Schema, Validation, GameConfig, MonetizationConfig, ScooterConfig, EquipmentConfig"),
         "season-garage": wrapped("src/server/Services/SeasonService.luau", "os", "loadSeason")

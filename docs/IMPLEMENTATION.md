@@ -1,3 +1,9 @@
+# Poprawka pustego menu 0.7.1
+
+Poprawiono globalne warstwy GUI: KukirinZone jawnie używa ZIndexBehavior.Sibling, więc tło menu ZIndex20 nie zasłania własnych przycisków i tekstu. Nagłówek i ScrollingFrame mają stałe nazwy ułatwiające sprawdzenie w Explorer. Menu przed pierwszym Snapshot pokazuje ładowanie; brak gotowości usuwa stare oferty, a następny poprawny Snapshot przywraca wybraną stronę. Zamknięcie jest dostępne także podczas ładowania.
+
+Test menu-regression uruchamia rzeczywisty ZoneUIController, ZoneMenus, WorkshopMenu, CommerceMenus i GuiFactory dla PC 1736×611 oraz telefonu 390×844. Sprawdza politykę warstw, nagłówek, otwarcie/zamknięcie przed danymi, wszystkie 11 stron, Workshop, utratę i odzyskanie gotowości. Mock nie renderuje Roblox. 92 źródła / 26 zestawów testów; build, Roblox types i synchronizacja Rojo. Odbiór warstw w Studio nadal wymagany.
+
 # Robux, karnet i Workshop 0.7.0
 
 Wdrożono osiem ofert (6 Game Passes / 2 Developer Products), realne katalogowe statystyki Volt Elite/Flux Elite, VIP +5% XP i kosmetyki, dodatkowe presety garażu, kredyty zamiast ceny Money, karnet 12 poziomów z darmową/premium ścieżką. Zakupy są wyłączone do konfiguracji własnych ID. Instrukcja: [MONETIZATION.md](MONETIZATION.md).

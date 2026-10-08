@@ -1,4 +1,4 @@
-# Architektura 0.7.0
+# Architektura 0.7.1
 
 Bootstrap wybiera Foundation, ZoneGame lub LegacyCity. Domyślnie ZoneGame. Każda usługa dostaje `context` przez Init, wszystkie Init kończą się przed Start, a PlayerData startuje na końcu. Brak wzajemnego require usług: dependency injection pozwala uruchamiać te same moduły w deterministycznych testach.
 

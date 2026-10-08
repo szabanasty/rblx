@@ -1,10 +1,10 @@
-# Testy wersji 0.7.0
+# Testy wersji 0.7.1
 
 ## Faktycznie wykonane w chmurze
 
 `python3 scripts/check-project.py`: kompilacja 92 prawdziwych źródeł Luau, analiza typów z API Roblox, Rojo build i sourcemap, porównanie Source/klasy/ścieżki każdego pliku, 4 RemoteEvents, StreamingEnabled oraz 10 pustych kontenerów statycznych. Statyczny build ma także ScenePreview, porównany z 1149 częściami eksportu źródłowej geometrii. Przy Play podgląd zastępowany jest modułowym światem z interakcjami.
 
-25 uruchomionych zestawów: commerce, season-garage, workshop-ui, paid-catalog, hud-layout, zone-hud, avatar-lifecycle, shared, player-data, economy, network, snapshot, input, shop, quest, world-stats, foundation, player-state, scooter-mount, scooter-pose, zone-rules, zone-economy, zone-gameplay, zone-fishing, zone-world. Testy usług wykonują rzeczywisty kod usług z mockami granic API, a nie kopie implementacji. Nie emulują fizyki ani pełnej semantyki Roblox.
+26 uruchomionych zestawów: menu-regression, commerce, season-garage, workshop-ui, paid-catalog, hud-layout, zone-hud, avatar-lifecycle, shared, player-data, economy, network, snapshot, input, shop, quest, world-stats, foundation, player-state, scooter-mount, scooter-pose, zone-rules, zone-economy, zone-gameplay, zone-fishing, zone-world. Testy usług wykonują rzeczywisty kod usług z mockami granic API, a nie kopie implementacji. Nie emulują fizyki ani pełnej semantyki Roblox.
 
 Nowe scenariusze obejmują: tag po przekroczeniu SAFE, Health/DOWNED/protection, friendly fire, cover raycast, cooldown/ammo/reload, release/keepalive revive, once settlement, assist/streak/bounty, malejące nagrody, anti-farm po ponownym załadowaniu profilu, exact-credit daily caps, sprzedaż bez utraty ryb przy odmowie, stale revision, AFK/full inventory, teleport/rolling speed/flight, zwykłe mount/dismount, objective contested/2-player/cooldown, ścisłe requesty Shoot/Revive/Sell, replay, spam i UserId ponad 2 miliardy. Stare suite'y obejmują sesję/zapis/retry/lost lock, upgrade, input i kompatybilność schematu.
 
@@ -14,9 +14,11 @@ Dodatkowo: 9657 kontroli prostokątów HUD-u (12 viewportów × 3 skale × touch
 
 Nowe testy: natywny callback rozliczania produktu przez mock, retry/duplicate/rejoin, równoległe rachunki, permanentny ledger ponad 256 wpisów, pełny portfel/ledger, brak zakupu premium za Money, VIP XP z prawdziwym EconomyService/SeasonService, sezonowe claims, presety i rzeczywisty Workshop/commerce GUI. Sprawdzono również serwerowe blokady klientowych ID/kwot/kosmetyków oraz prywatność rachunków w Snapshot.
 
+Test menu-regression uruchamia cały rzeczywisty zestaw UI/menu, a nie zastępczy pusty Menus.Build. Obejmuje wszystkie 11 stron, header/close, jawne warstwy Sibling i ładowanie/odzyskanie danych, na PC i telefonie. Nie emuluje renderowania; po aktualizacji sprawdź, czy w menu widać MENU GŁÓWNE, ZAMKNIJ i treść.
+
 ## Odbiór w Roblox Studio — do wykonania
 
-1. Nowy Baseplate, aktualny ZIP, serve/Connect/Play według README. Sprawdź Output: 0.7.0, brak czerwonych błędów. Po 1 s Movement daje zgodę na aktywności.
+1. Nowy Baseplate, aktualny ZIP, serve/Connect/Play według README. Sprawdź Output: 0.7.1, brak czerwonych błędów. Po 1 s Movement daje zgodę na aktywności.
 2. SAFE ma rzeczywiste otwarte sklepy/garage/workshop/equipment/cosmetics; wejdź przez środkowe drzwi. COMBAT znajduje się na X800–1300 za mostem X410–630 i ma magazyny, kontenery, cover, rampy i control point. FISHING ma pomost i buyer. Mapa jest widoczna w edytorze, a interakcje powstają przy Play; stare puste foldery są kontenerami ręcznych dekoracji.
 3. Garaż: Pickup E przed garażem oraz menu spawn/sit, ponowne E/WSIĄDŹ, W/A/D, S hamulec, Space skok, E zejdź, schowaj/ponownie przywołaj. Bateria nie uzupełnia się przez respawn modelu. Podejdź po zejściu do garażu i naładuj. Sprawdź zderzenia, rampę, skok i prowadzenie przy słabszym FPS/pingu.
 4. Fish dock: rozpocznij, odczekaj 18–28 s, następne próby losowane przez serwer; inventory rośnie przy sukcesach, brak minigry. STOP i przejdź do buyer. Sprzedaj 1/all, Money rośnie według wartości fish. Ponowne użycie tej samej starej revision nie sprzedaje nic drugi raz.

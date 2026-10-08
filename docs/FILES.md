@@ -1,4 +1,4 @@
-# Źródła 0.7.0 — 92 pliki
+# Źródła 0.7.1 — 92 pliki
 
 Bootstrap server to Script, client to LocalScript; pozostałe źródła to ModuleScripts. Rojo tworzy strukturę automatycznie. Domyślny tryb ZoneGame.
 

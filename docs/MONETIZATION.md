@@ -1,4 +1,4 @@
-# Robux i Workshop — 0.7.0
+# Robux i Workshop — 0.7.1
 
 Zakupy i wyposażenie są zaimplementowane. **Robux domyślnie jest wyłączony**: `Enabled = false`, wszystkie ID = `0`. Potrzebne są prawdziwe ID ofert Twojej gry. Workshop za Money i darmowy karnet działają bez nich.
 
@@ -17,7 +17,7 @@ Płatne wyposażenie ma wyższe statystyki zgodnie z nowym poleceniem. Serwer na
 
 ## Jak włączyć sprzedaż
 
-1. Nowy ZIP i Rojo według README. Output: `version 0.7.0`. W Studio **Plik / File → Publish to Roblox** opublikuj projekt w swoim doświadczeniu.
+1. Nowy ZIP i Rojo według README. Output: `version 0.7.1`. W Studio **Plik / File → Publish to Roblox** opublikuj projekt w swoim doświadczeniu.
 2. [Creator Dashboard](https://create.roblox.com/dashboard/creations) → **Creations → Experiences → Twoja gra → Monetization → Passes**. Utwórz sześć Game Passes z tabeli, dodaj własne ikony/opisy, włącz sprzedaż i ustaw ceny. Skopiuj **Asset ID / ID passa**, nie Place ID lub ID ikony. Oferty muszą należeć do tego doświadczenia/grupy.
 3. **Monetization → Developer Products**: utwórz `1 kredyt Workshop` i `5 kredytów Workshop`, ustaw ceny, skopiuj ich **Product ID**.
 4. Otwórz `src/shared/Config/MonetizationConfig.luau`. We właściwym wierszu zastąp `Id = 0` prawdziwym numerem. Zachowaj `Kind`, `ScooterId`, `EquipmentId`, `Credits`, `SeasonId` i pozostałe pola. Nie używaj ID z cudzej gry.
